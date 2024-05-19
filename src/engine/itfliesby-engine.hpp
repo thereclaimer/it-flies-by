@@ -165,6 +165,7 @@ struct ItfliesbyEngine {
     ItfliesbyUserInput*         user_input;
     ItfliesbyEngineDevtools     dev_tools;
     ItfliesbyEngineFrame        frame;
+    ItfliesbyEngineMapManager   map_manager;
 };
 
 api ItfliesbyEngine*
