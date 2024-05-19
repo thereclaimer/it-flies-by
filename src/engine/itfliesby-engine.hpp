@@ -61,15 +61,85 @@ itfliesby_engine_devtools_update(
 // MAPS
 //----------------------------------------------------------------
 
+enum ItfliesbyEngineMapKeyType : s8 {
+    ITFLIESBY_ENGINE_MAP_KEY_TYPE_INVALID     = -1,
+    ITFLIESBY_ENGINE_MAP_KEY_TYPE_MAP         =  0,
+    ITFLIESBY_ENGINE_MAP_KEY_TYPE_ROOM        =  1,
+    ITFLIESBY_ENGINE_MAP_KEY_TYPE_SUBDIVISION =  2,
+    ITFLIESBY_ENGINE_MAP_KEY_TYPE_COUNT       =  3,
+};
 
-struct ItfliesbyEngineMapNode {
-    
+#define ITFLIESBY_ENGINE_MAP_KEYS_MAX 1024
+
+struct ItfliesbyEngineMapKey {
+    union {
+        struct {
+            
+            //this is the key type
+            s8 type;
+            
+            //this is the index of the key in the key store
+            s8 key_index;
+
+            //this is the index of the map in the map table
+            //EVERY key will be mapped to a valid map index 
+            s8 map_index;
+        };
+
+        s32 value;
+    };
+};
+
+typedef s8 ItfliesbyEngineMapPrimaryIndex;
+typedef s8 ItfliesbyEngineMapForeignIndex;
+
+struct ItfliesbyEngineMapTableKeys { 
+    ItfliesbyEngineMapKey keys[ITFLIESBY_ENGINE_MAP_KEYS_MAX];
+    b8                    available[ITFLIESBY_ENGINE_MAP_KEYS_MAX];
+};
+
+struct ItfliesbyEngineMapDimensions {
+    s8  index_table;
     f32 width;
     f32 height;
 };
 
-struct ItfliesbyEngineMap {
+struct ItfliesbyEngineMapTableDimensions {
+    f32* width;
+    f32* height;
+    s8   count_rows;
+};
 
+struct ItfliesbyEngineMap {
+    ItfliesbyEngineMapPrimaryIndex index;
+    ItfliesbyEngineMapForeignIndex index_root_room;
+    s8                             count_rooms;
+    s8                             count_adjacent_maps;
+};
+
+struct ItfliesbyEngineMapRoom {
+    ItfliesbyEngineMapPrimaryIndex index;
+    ItfliesbyEngineMapForeignIndex index_map;
+    ItfliesbyEngineMapForeignIndex index_dimensions;
+};
+
+struct ItfliesbyEngineMapTableMaps {
+    s8* count_rooms;
+    s8* count_adjacent_maps;
+    s8  count_rows;
+};
+
+struct ItfliesbyEngineMapTableRooms {
+    ItfliesbyEngineMapForeignIndex* index_map; 
+    ItfliesbyEngineMapForeignIndex* index_dimensions;
+    u8                              count_rows;
+};
+
+struct ItfliesbyEngineMapManager {
+    ItfliesbyEngineMapTableKeys   table_keys;
+    ItfliesbyEngineMapTableMaps   table_maps;
+    ItfliesbyEngineMapTableRooms  table_rooms;
+    ItfliesbyEngineMapDimensions  table_dimensions;
 };
 
 //----------------------------------------------------------------
