@@ -8,6 +8,7 @@
 #include "itfliesby-engine-sprites.cpp"
 #include "itfliesby-engine-scene.cpp"
 #include "itfliesby-engine-devtools.cpp"
+#include "itfliesby-engine-maps.cpp"
 
 external ItfliesbyEngine*
 itfliesby_engine_create(
@@ -42,9 +43,11 @@ itfliesby_engine_create(
     engine->renderer = itfliesby_engine_rendering_init(
         &engine->assets);
 
-    engine->physics   = itfliesby_engine_physics_create_and_init();
-    engine->sprites   = itfliesby_engine_sprites_create_and_init();
-    engine->dev_tools = itfliesby_engine_devtools_create_and_init();
+    engine->physics     = itfliesby_engine_physics_create_and_init();
+    engine->sprites     = itfliesby_engine_sprites_create_and_init();
+    engine->map_manager = itfliesby_engine_maps_manager_create_and_init();
+    engine->dev_tools   = itfliesby_engine_devtools_create_and_init();
+
 
     return(engine);
 }

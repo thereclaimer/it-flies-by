@@ -19,9 +19,11 @@ itfliesby_engine_memory_create(
     //initialize partitions
     engine_memory.partitions.physics  = itfliesby_memory_partition_create(engine_memory.arena,"ENGINE PHYSICS PRTN", ITFLIESBY_ENGINE_PARTITION_SIZE_PHYSICS);
     engine_memory.partitions.core     = itfliesby_memory_partition_create(engine_memory.arena,"ENGINE CORE PRTN",    ITFLIESBY_ENGINE_PARTITION_SIZE_CORE);
+    engine_memory.partitions.maps     = itfliesby_memory_partition_create(engine_memory.arena,"ENGINE MAPS PRTN",    ITFLIESBY_ENGINE_PARTITION_SIZE_CORE);
 
     ITFLIESBY_ASSERT(engine_memory.partitions.physics);
     ITFLIESBY_ASSERT(engine_memory.partitions.core);
+    ITFLIESBY_ASSERT(engine_memory.partitions.maps);
 
     //initialize allocators
     engine_memory.allocators.core_system_allocator = itfliesby_memory_allocator_linear_create(engine_memory.partitions.core,"ENGINE SYST ALCTR",ITFLIESBY_ENGINE_ALLOCATOR_SIZE_CORE_SYSTEMS);
@@ -161,4 +163,17 @@ itfliesby_engine_memory_assets_image_reset() {
     itfliesby_memory_allocator_linear_reset(
         asset_memory.asset_allocator_image        
     );
+}
+
+internal memory
+itfliesby_engine_memory_maps() {
+
+    memory map_memory = 
+        itfliesby_memory_partition_raw_memory(
+            engine_memory.partitions.maps
+        );
+
+    ITFLIESBY_ASSERT(map_memory);
+
+    return(map_memory);
 }

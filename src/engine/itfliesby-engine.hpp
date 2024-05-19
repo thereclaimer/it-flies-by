@@ -135,11 +135,19 @@ struct ItfliesbyEngineMapTableRooms {
     u8                              count_rows;
 };
 
+struct ItfliesbyEngineMapMemory {
+    memory memory_table_maps;
+    memory memory_table_rooms;
+    memory memory_table_dimensions;
+    size_t table_memory_size_bytes;
+};
+
 struct ItfliesbyEngineMapManager {
     ItfliesbyEngineMapTableKeys   table_keys;
     ItfliesbyEngineMapTableMaps   table_maps;
     ItfliesbyEngineMapTableRooms  table_rooms;
     ItfliesbyEngineMapDimensions  table_dimensions;
+    ItfliesbyEngineMapMemory      map_memory;
 };
 
 //----------------------------------------------------------------
