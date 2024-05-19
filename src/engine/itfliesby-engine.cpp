@@ -48,6 +48,12 @@ itfliesby_engine_create(
     engine->map_manager = itfliesby_engine_maps_manager_create_and_init();
     engine->dev_tools   = itfliesby_engine_devtools_create_and_init();
 
+    //test create map
+    ItfliesbyEngineMapKey map_key = 
+        itfliesby_engine_maps_manager_map_create(
+            engine,
+            1000,
+            1000);
 
     return(engine);
 }

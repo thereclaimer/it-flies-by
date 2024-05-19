@@ -74,12 +74,13 @@ enum ItfliesbyEngineMapKeyType : s8 {
 struct ItfliesbyEngineMapKey {
     union {
         struct {
+
+            //this is the index of the key in the key store
+            s16 key_index;
             
             //this is the key type
             s8 type;
             
-            //this is the index of the key in the key store
-            s8 key_index;
 
             //this is the index of the map in the map table
             //EVERY key will be mapped to a valid map index 
@@ -95,19 +96,15 @@ typedef s8 ItfliesbyEngineMapForeignIndex;
 
 struct ItfliesbyEngineMapTableKeys { 
     ItfliesbyEngineMapKey keys[ITFLIESBY_ENGINE_MAP_KEYS_MAX];
-    b8                    available[ITFLIESBY_ENGINE_MAP_KEYS_MAX];
+    b8                    active[ITFLIESBY_ENGINE_MAP_KEYS_MAX];
 };
 
 struct ItfliesbyEngineMapDimensions {
     s8  index_table;
     f32 width;
     f32 height;
-};
-
-struct ItfliesbyEngineMapTableDimensions {
-    f32* width;
-    f32* height;
-    s8   count_rows;
+    f32 bottom_left_x;
+    f32 bottom_left_y;
 };
 
 struct ItfliesbyEngineMap {
@@ -123,32 +120,76 @@ struct ItfliesbyEngineMapRoom {
     ItfliesbyEngineMapForeignIndex index_dimensions;
 };
 
+
 struct ItfliesbyEngineMapTableMaps {
-    s8* count_rooms;
-    s8* count_adjacent_maps;
+    s8* col_count_rooms;
+    s8* col_count_adjacent_maps;
     s8  count_rows;
 };
 
+
 struct ItfliesbyEngineMapTableRooms {
-    ItfliesbyEngineMapForeignIndex* index_map; 
-    ItfliesbyEngineMapForeignIndex* index_dimensions;
+    ItfliesbyEngineMapForeignIndex* col_index_map; 
+    ItfliesbyEngineMapForeignIndex* col_index_dimensions;
     u8                              count_rows;
 };
 
+struct ItfliesbyEngineMapTableDimensions {
+    f32* col_bottom_left_x;
+    f32* col_bottom_left_y;
+    f32* col_width;
+    f32* col_height;
+    s8   count_rows;
+};
 struct ItfliesbyEngineMapMemory {
-    memory memory_table_maps;
-    memory memory_table_rooms;
-    memory memory_table_dimensions;
-    size_t table_memory_size_bytes;
+    memory base_memory;
 };
 
+
+
 struct ItfliesbyEngineMapManager {
-    ItfliesbyEngineMapTableKeys   table_keys;
-    ItfliesbyEngineMapTableMaps   table_maps;
-    ItfliesbyEngineMapTableRooms  table_rooms;
-    ItfliesbyEngineMapDimensions  table_dimensions;
-    ItfliesbyEngineMapMemory      map_memory;
+    struct {
+        ItfliesbyEngineMapTableKeys       keys;
+        ItfliesbyEngineMapTableMaps       maps;
+        ItfliesbyEngineMapTableRooms      rooms;
+        ItfliesbyEngineMapTableDimensions dimensions;
+    } tables;
+    ItfliesbyEngineMapMemory          map_memory;
 };
+
+#define ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_MAPS       (sizeof(s8)  * 2)
+#define ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_ROOMS      (sizeof(s8)  * 2)
+#define ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_DIMENSIONS (sizeof(f32) * 4)
+
+inline size_t
+itfliesby_engine_maps_table_maps_size_bytes(
+    ItfliesbyEngineMapTableMaps* maps_table) {
+    
+    size_t maps_size_bytes = 
+        maps_table->count_rows * ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_MAPS;
+
+    return(maps_size_bytes);
+}
+
+inline size_t
+itfliesby_engine_maps_table_rooms_size_bytes(
+    ItfliesbyEngineMapTableRooms* rooms_table) {
+    
+    size_t rooms_size_bytes = 
+        rooms_table->count_rows * ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_ROOMS;
+
+    return(rooms_size_bytes);
+}
+
+inline size_t
+itfliesby_engine_maps_table_dimensions_size_bytes(
+    ItfliesbyEngineMapTableDimensions* dimensions_table) {
+    
+    size_t dimensions_size_bytes = 
+        dimensions_table->count_rows * ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_DIMENSIONS;
+
+    return(dimensions_size_bytes);
+}
 
 //----------------------------------------------------------------
 // ENGINE CORE
