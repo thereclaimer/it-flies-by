@@ -79,16 +79,16 @@ itfliesby_engine_maps_shift_memory_up(
           memory* affected_pointers[]) {
 
     //calculate the ending addresses of the current and new memory layout
-    memory memory_end_current = memory_start + memory_size_bytes;
+    memory memory_end_current = memory_start       + memory_size_bytes;
     memory memory_end_new     = memory_end_current + memory_shift_size_bytes;
 
     //shift memory up
     for (
-        size_t byte_index = memory_size_bytes;
+        size_t byte_index = memory_size_bytes - 1;
         byte_index > -1;
         --byte_index) {
 
-        memory_end_current[byte_index] = memory_end_new[byte_index]; 
+        memory_end_new[byte_index] = memory_end_current[byte_index]; 
     }
 
     //now, update the affected pointers
@@ -99,6 +99,41 @@ itfliesby_engine_maps_shift_memory_up(
 
         *affected_pointers[pointer_index] += memory_shift_size_bytes;
     }
+}
+
+internal void
+itfliesby_engine_maps_shift_table_columns_up(
+    const size_t  rows_count_current,
+    const size_t  rows_count_new,
+    const size_t  columns_count,
+    const size_t  column_sizes[],
+          memory* column_pointers[]) {
+
+    size_t  i_column_size               = 0;
+    size_t  i_column_shift_size         = 0;
+    memory* i_column_memory_pointer     = NULL;
+    memory  i_column_memory_end_current = NULL;
+    memory  i_column_memory_end_new     = NULL;
+
+    for (
+        size_t column_index = columns_count - 1;
+        column_index > -1;
+        --column_index) {
+
+        i_column_size               = column_sizes[column_index];
+        i_column_memory_pointer     = column_pointers[column_index];
+        i_column_memory_end_current = i_column_memory_pointer + i_column_size; 
+        i_column_memory_end_new     = 
+
+        for (
+            size_t byte_index = i_column_size - 1;
+            byte_index > -1;
+            --byte_index) {
+
+            memory_end_new[byte_index] = memory_end_current[byte_index]; 
+        }
+    }
+
 }
 
 external ItfliesbyEngineMapKey
@@ -116,16 +151,9 @@ itfliesby_engine_maps_manager_map_create(
     ItfliesbyEngineMapTableRooms*      map_manager_table_rows       = &map_manager->tables.rooms;
     ItfliesbyEngineMapTableDimensions* map_manager_table_dimensions = &map_manager->tables.dimensions;
     
-    //first, grab the next map index
-    s8 map_index = map_manager_table_maps->count_rows;
-    ++map_manager_table_maps->count_rows;
-
-    //activate the next key
-    ItfliesbyEngineMapKey map_key = 
-        itfliesby_engine_maps_manager_find_and_activate_key(
-            map_manager_table_keys,
-            ITFLIESBY_ENGINE_MAP_KEY_TYPE_MAP,
-            map_index);
+    //---------------------------------
+    // SHIFT OTHER TABLES
+    //---------------------------------
 
     //put together our list of affected pointers
     const size_t affected_pointers_count = 6;
@@ -157,6 +185,43 @@ itfliesby_engine_maps_manager_map_create(
         affected_pointers_count,
         affected_memory_start,
         affected_pointers);
+
+    //---------------------------------
+    // SHIFT MAP COLUMNS
+    //---------------------------------
+
+    // //put together our list of affected pointers
+    // const size_t map_column_pointers_count = 1;
+    // memory* affected_pointers[affected_pointers_count] = {
+    //     &(memory)map_manager_table_rows->col_index_map,
+    // };
+
+    // //calculate how much memory is being shifted
+    // const size_t affected_memory_size_bytes = 
+    //     ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_MAPS * sizeof(8);
+
+    // //calculate how much the affected memory is shifting by
+    // const size_t shift_size_bytes = sizeof(8);
+
+    // //calculate the start of the affected memory
+    // memory map_column_memory_start = 
+    //     (memory)map_manager_table_rows->col_index_map;
+
+
+    //---------------------------------
+    // ACTIVATE NEXT MAP INDEX
+    //---------------------------------
+
+    //first, grab the next map index
+    s8 map_index = map_manager_table_maps->count_rows;
+    ++map_manager_table_maps->count_rows;
+
+    //activate the next key
+    ItfliesbyEngineMapKey map_key = 
+        itfliesby_engine_maps_manager_find_and_activate_key(
+            map_manager_table_keys,
+            ITFLIESBY_ENGINE_MAP_KEY_TYPE_MAP,
+            map_index);
 
     return(map_key);
 }
