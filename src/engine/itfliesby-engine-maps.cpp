@@ -70,6 +70,37 @@ itfliesby_engine_maps_manager_find_and_activate_key(
     return(new_key);
 }
 
+internal void
+itfliesby_engine_maps_shift_memory_up(
+    const size_t  memory_size_bytes,
+    const size_t  memory_shift_size_bytes,
+    const size_t  affected_pointers_count,
+          memory  memory_start,
+          memory* affected_pointers) {
+
+    //calculate the ending addresses of the current and new memory layout
+    memory memory_end_current = memory_start + memory_size_bytes;
+    memory memory_end_new     = memory_end_current + memory_shift_size_bytes;
+
+    //shift memory up
+    for (
+        size_t byte_index = memory_size_bytes;
+        byte_index > -1;
+        --byte_index) {
+
+        memory_end_current[byte_index] = memory_end_new[byte_index]; 
+    }
+
+    //now, update the affected pointers
+    for (
+        size_t pointer_index = 0;
+        pointer_index < affected_pointers_count;
+        ++pointer_index) {
+
+        affected_pointers[pointer_index] += memory_shift_size_bytes;
+    }
+}
+
 external ItfliesbyEngineMapKey
 itfliesby_engine_maps_manager_map_create(
     ItfliesbyEngine*           engine,
@@ -131,5 +162,8 @@ itfliesby_engine_maps_manager_map_create(
     map_manager_table_dimensions->col_width         = (f32*)new_map_manager_table_dimensions_col_width; 
     map_manager_table_dimensions->col_height        = (f32*)new_map_manager_table_dimensions_col_height; 
     
+    //now, we need to do the same with the data in the map table
+
+
     return(map_key);
 }
