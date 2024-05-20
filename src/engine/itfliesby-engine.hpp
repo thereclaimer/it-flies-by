@@ -171,6 +171,45 @@ itfliesby_engine_maps_table_maps_size_bytes(
     return(maps_size_bytes);
 }
 
+inline memory
+itfliesby_engine_maps_table_maps_memory_start(
+    ItfliesbyEngineMapTableMaps* maps_table) {
+
+    memory memory_start =
+        (memory)maps_table->col_count_rooms;
+
+    return(memory_start);
+}
+
+inline memory
+itfliesby_engine_maps_table_maps_memory_end(
+    ItfliesbyEngineMapTableMaps* maps_table) {
+
+    size_t maps_size_bytes = 
+        maps_table->count_rows * ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_MAPS;
+
+    memory memory_end =
+        (memory)maps_table->col_count_rooms + 
+        maps_size_bytes;
+
+    return(memory_end);
+}
+
+inline memory
+itfliesby_engine_maps_table_maps_memory_next_table(
+    ItfliesbyEngineMapTableMaps* maps_table) {
+
+    size_t maps_size_bytes = 
+        maps_table->count_rows * ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_MAPS;
+
+    memory memory_next_table =
+        (memory)maps_table->col_count_rooms + 
+        maps_size_bytes                     +
+        1;
+
+    return(memory_next_table);
+}
+
 inline size_t
 itfliesby_engine_maps_table_rooms_size_bytes(
     ItfliesbyEngineMapTableRooms* rooms_table) {
@@ -181,6 +220,45 @@ itfliesby_engine_maps_table_rooms_size_bytes(
     return(rooms_size_bytes);
 }
 
+inline memory
+itfliesby_engine_maps_table_rooms_memory_start(
+    ItfliesbyEngineMapTableRooms* rooms_table) {
+
+    memory memory_start =
+        (memory)rooms_table->col_index_map;
+
+    return(memory_start);
+}
+
+inline memory
+itfliesby_engine_maps_table_rooms_memory_end(
+    ItfliesbyEngineMapTableRooms* rooms_table) {
+
+    size_t rooms_size_bytes = 
+        rooms_table->count_rows * ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_ROOMS;
+
+    memory memory_end =
+        (memory)rooms_table->col_index_map +
+        rooms_size_bytes;
+
+    return(memory_end);
+}
+
+inline memory
+itfliesby_engine_maps_table_rooms_memory_next_table(
+    ItfliesbyEngineMapTableRooms* rooms_table) {
+
+    size_t rooms_size_bytes = 
+        rooms_table->count_rows * ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_ROOMS;
+
+    memory memory_next_table =
+        (memory)rooms_table->col_index_map +
+        rooms_size_bytes                   + 
+        1;
+
+    return(memory_next_table);
+}
+
 inline size_t
 itfliesby_engine_maps_table_dimensions_size_bytes(
     ItfliesbyEngineMapTableDimensions* dimensions_table) {
@@ -189,6 +267,30 @@ itfliesby_engine_maps_table_dimensions_size_bytes(
         dimensions_table->count_rows * ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_DIMENSIONS;
 
     return(dimensions_size_bytes);
+}
+
+inline memory
+itfliesby_engine_maps_table_dimensions_memory_start(
+    ItfliesbyEngineMapTableDimensions* dimensions_table) {
+
+    memory memory_start =
+        (memory)dimensions_table->col_bottom_left_x;
+
+    return(memory_start);
+}
+
+inline memory
+itfliesby_engine_maps_table_dimensions_memory_end(
+    ItfliesbyEngineMapTableDimensions* dimensions_table) {
+
+    size_t dimensions_size_bytes = 
+        dimensions_table->count_rows * ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_DIMENSIONS;
+
+    memory memory_end =
+        (memory)dimensions_table->col_bottom_left_x + 
+        dimensions_size_bytes;
+
+    return(memory_end);
 }
 
 //----------------------------------------------------------------

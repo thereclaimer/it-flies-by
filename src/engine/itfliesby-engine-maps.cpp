@@ -76,7 +76,7 @@ itfliesby_engine_maps_shift_memory_up(
     const size_t  memory_shift_size_bytes,
     const size_t  affected_pointers_count,
           memory  memory_start,
-          memory* affected_pointers) {
+          memory* affected_pointers[]) {
 
     //calculate the ending addresses of the current and new memory layout
     memory memory_end_current = memory_start + memory_size_bytes;
@@ -97,22 +97,20 @@ itfliesby_engine_maps_shift_memory_up(
         pointer_index < affected_pointers_count;
         ++pointer_index) {
 
-        affected_pointers[pointer_index] += memory_shift_size_bytes;
+        *affected_pointers[pointer_index] += memory_shift_size_bytes;
     }
 }
 
 external ItfliesbyEngineMapKey
 itfliesby_engine_maps_manager_map_create(
-    ItfliesbyEngine*           engine,
-    f32                        root_room_bottom_height,
-    f32                        root_room_bottom_width) {
+    ItfliesbyEngine* engine,
+    f32              root_room_bottom_height,
+    f32              root_room_bottom_width) {
 
     //TODO: there's a lot of stuff that can go wrong here, we should have
     //the ability to check memory, if keys are available, and to undo any
     //changes if something does happen
-    ItfliesbyEngineMapManager* map_manager = &engine->map_manager;
-
-
+    ItfliesbyEngineMapManager*         map_manager                  = &engine->map_manager;
     ItfliesbyEngineMapTableKeys*       map_manager_table_keys       = &map_manager->tables.keys;
     ItfliesbyEngineMapTableMaps*       map_manager_table_maps       = &map_manager->tables.maps;
     ItfliesbyEngineMapTableRooms*      map_manager_table_rows       = &map_manager->tables.rooms;
@@ -129,41 +127,36 @@ itfliesby_engine_maps_manager_map_create(
             ITFLIESBY_ENGINE_MAP_KEY_TYPE_MAP,
             map_index);
 
-    //now, we need to shift the tables
-    //first, we'll shift the room and dimension tables down
-    size_t memory_shift_count_bytes = ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_MAPS * 1;
-    memory ending_address_current   = (memory)&map_manager_table_dimensions->col_height[map_manager_table_dimensions->count_rows - 1];
-    memory ending_address_new       = ending_address_current + memory_shift_count_bytes;
-    size_t addresses_to_shift_count =  
+    //put together our list of affected pointers
+    const size_t affected_pointers_count = 6;
+    memory* affected_pointers[affected_pointers_count] = {
+        &(memory)map_manager_table_rows->col_index_map,
+        &(memory)map_manager_table_rows->col_index_dimensions,
+        &(memory)map_manager_table_dimensions->col_bottom_left_x,
+        &(memory)map_manager_table_dimensions->col_bottom_left_y,
+        &(memory)map_manager_table_dimensions->col_width,
+        &(memory)map_manager_table_dimensions->col_height
+    };
+
+    //calculate how much memory is being shifted
+    const size_t affected_memory_size_bytes = 
         itfliesby_engine_maps_table_rooms_size_bytes(map_manager_table_rows) + 
         itfliesby_engine_maps_table_dimensions_size_bytes(map_manager_table_dimensions);
 
-    //shift memory
-    for (
-        size_t address_index = addresses_to_shift_count;
-        address_index > -1;
-        --address_index) {
+    //calculate how much the affected memory is shifting by
+    const size_t shift_size_bytes = ITFLIESBY_ENGINE_MAP_TABLE_ROW_SIZE_MAPS;
 
-        ending_address_new[address_index] = ending_address_current[address_index];
-    }
-    
-    //update pointers
-    memory new_map_manager_table_rows_col_index_map           = (memory)map_manager_table_rows->col_index_map           + memory_shift_count_bytes;
-    memory new_map_manager_table_rows_col_index_dimensions    = (memory)map_manager_table_rows->col_index_dimensions    + memory_shift_count_bytes;
-    memory new_map_manager_table_dimensions_col_bottom_left_x = (memory)map_manager_table_dimensions->col_bottom_left_x + memory_shift_count_bytes;
-    memory new_map_manager_table_dimensions_col_bottom_left_y = (memory)map_manager_table_dimensions->col_bottom_left_y + memory_shift_count_bytes;
-    memory new_map_manager_table_dimensions_col_width         = (memory)map_manager_table_dimensions->col_width         + memory_shift_count_bytes;
-    memory new_map_manager_table_dimensions_col_height        = (memory)map_manager_table_dimensions->col_height        + memory_shift_count_bytes;
+    //calculate the start of the affected memory
+    memory affected_memory_start = 
+        itfliesby_engine_maps_table_maps_memory_next_table(map_manager_table_maps);
 
-    map_manager_table_rows->col_index_map           = (ItfliesbyEngineMapForeignIndex*)new_map_manager_table_rows_col_index_map; 
-    map_manager_table_rows->col_index_dimensions    = (ItfliesbyEngineMapForeignIndex*)new_map_manager_table_rows_col_index_dimensions; 
-    map_manager_table_dimensions->col_bottom_left_x = (f32*)new_map_manager_table_dimensions_col_bottom_left_x; 
-    map_manager_table_dimensions->col_bottom_left_y = (f32*)new_map_manager_table_dimensions_col_bottom_left_y; 
-    map_manager_table_dimensions->col_width         = (f32*)new_map_manager_table_dimensions_col_width; 
-    map_manager_table_dimensions->col_height        = (f32*)new_map_manager_table_dimensions_col_height; 
-    
-    //now, we need to do the same with the data in the map table
-
+    //shift the memory up
+    itfliesby_engine_maps_shift_memory_up(
+        affected_memory_size_bytes,
+        shift_size_bytes,
+        affected_pointers_count,
+        affected_memory_start,
+        affected_pointers);
 
     return(map_key);
 }
