@@ -15,6 +15,7 @@
 #include "itfliesby-engine-sprites.hpp"
 #include "itfliesby-engine-scene.hpp"
 #include "itfliesby-engine-devtools.hpp"
+#include "itfliesby-engine-memory-manager.hpp"
 
 //----------------------------------------------------------------
 // FORWARD DECLARATIONS

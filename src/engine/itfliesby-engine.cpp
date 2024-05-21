@@ -8,6 +8,7 @@
 #include "itfliesby-engine-sprites.cpp"
 #include "itfliesby-engine-scene.cpp"
 #include "itfliesby-engine-devtools.cpp"
+#include "itfliesby-engine-memory-manager.cpp"
 
 external ItfliesbyEngine*
 itfliesby_engine_create(
