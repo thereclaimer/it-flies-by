@@ -4,7 +4,6 @@
 #include <common/itfliesby-types.hpp>
 #include <immintrin.h> 
 
-
 struct ItfliesbyMathMat2 {
     //[collumn][row]
     f32 m[2][2];

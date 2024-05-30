@@ -2,91 +2,87 @@
 #define ITFLIESBY_ENGINE_MEMORY_MANAGER_HPP
 
 #include <itfliesby.hpp>
+#include "itfliesby-engine-globals.hpp"
+
+#define ITFLIESBY_ENGINE_MEMORY_MANAGER_MEMORY_SIZE_BYTES ITFLIESBY_MATH_GIGABYTES(2)
+
+struct ItfliesbyEngineMemoryArenaReservationTable {
+    u64  count_reservations;
+    u64* reservation_size_bytes;
+    u64* reservation_arena_offset_bytes;
+};
 
 struct ItfliesbyEngineMemoryArena {
-    u64    size_bytes;
-    char   tag[32];
+    char                                        tag[32];
+    u64                                         memory_size_bytes;
+    memory                                      memory;
+    ItfliesbyEngineMemoryArenaReservationTable* reservations;
+    ItfliesbyEngineMemoryArena*                 next;
 };
 
-struct ItfliesbyEngineMemoryArenaNode {
-    ItfliesbyEngineMemoryArena*     arena;
-    ItfliesbyEngineMemoryArenaNode* next;
-};
 
 struct ItfliesbyEngineMemoryManager {
-    u64                             total_memory_size_bytes;
-    ItfliesbyEngineMemoryArenaNode* arena_list;
+    u64                         arena_memory_size_bytes;
+    memory                      arena_memory;
+    ItfliesbyEngineMemoryArena* arenas;
 };
 
-internal ItfliesbyEngineMemoryArena*
+
+ItfliesbyEngineMemoryManager*
+itfliesby_engine_memory_manager_create();
+
+//---------------------------------------------
+// MEMORY MANAGER API
+//---------------------------------------------
+
+typedef void* ItfliesbyEngineMemoryArenaHandle;
+
+api ItfliesbyEngineMemoryArenaHandle
 itfliesby_engine_memory_arena_push(
-    ItfliesbyEngineMemoryManager memory_manager,
-    u64                          memory_size_bytes);
+    u64  memory_size_bytes,
+    char tag[32]);
 
-inline ItfliesbyEngineMemoryArenaNode*
-itfliesby_engine_memory_arena_node_last(
-    ItfliesbyEngineMemoryArenaNode* arena_list) {
+api u64 
+itfliesby_engine_memory_arena_count(
+    ItfliesbyEngineMemoryArenaHandle arena_handle);
 
-    if (arena_list == NULL) {
-        return(NULL);
-    }
+api u64 
+itfliesby_engine_memory_arena_size_bytes_total(
+    ItfliesbyEngineMemoryArenaHandle arena_handle);
 
-    ItfliesbyEngineMemoryArenaNode* last_node = NULL;
+api u64 
+itfliesby_engine_memory_arena_size_bytes_available(
+    ItfliesbyEngineMemoryArenaHandle arena_handle);
 
-    for (
-        ItfliesbyEngineMemoryArenaNode* node = arena_list;
-        node->next != NULL;
-        node = node->next) {
+api u64 
+itfliesby_engine_memory_arena_size_bytes_used(
+    ItfliesbyEngineMemoryArenaHandle arena_handle);
 
-        last_node = node;
-    }
+api b8
+itfliesby_engine_memory_arena_chunk_can_reserve(
+    ItfliesbyEngineMemoryArenaHandle arena_handle,
+    u64                              reservation_size_bytes,
+    u64                              reservation_offset_bytes);
 
-    return(last_node);
-}
+api memory
+itfliesby_engine_memory_arena_chunk_reserve(
+    ItfliesbyEngineMemoryArenaHandle arena_handle,
+    u64                              reservation_size_bytes,
+    u64                              reservation_offset_bytes);
 
-inline u64
-itfliesby_engine_memory_arena_allocation_requirement(
-    u64 allocation_size_bytes) {
+api memory
+itfliesby_engine_memory_arena_chunk_reserve_next(
+    ItfliesbyEngineMemoryArenaHandle arena_handle,
+    u64                              reservation_size_bytes);
 
-    u64 requirement = 
-        sizeof(ItfliesbyEngineMemoryArenaNode) + 
-        sizeof(ItfliesbyEngineMemoryArena)     + 
-        allocation_size_bytes;
+api memory
+itfliesby_engine_memory_arena_chunk_size(
+    ItfliesbyEngineMemoryArenaHandle arena_handle,
+    memory                           arena_memory_chunk);
 
-    return(requirement);
-}
-
-inline u64
-itfliesby_engine_memory_arena_node_size(
-    ItfliesbyEngineMemoryArenaNode* node) {
-
-    u64 node_size = 
-        sizeof(ItfliesbyEngineMemoryArenaNode) + 
-        sizeof(ItfliesbyEngineMemoryArena)     + 
-        node->arena->size_bytes;
-
-    return(node_size);
-}
-
-//------------------------------------------------------
-// This allows us to make custom allocators
-//------------------------------------------------------
-
-typedef memory
-*funcptr_itfliesby_engine_memory_allocator_allocate(
-    void
-);
-
-typedef void
-*funcptr_itfliesby_engine_memory_allocator_free(
-    memory
-);
-
-struct ItfliesbyEngineMemoryAllocator {
-    ItfliesbyEngineMemoryArena                         arena;
-    funcptr_itfliesby_engine_memory_allocator_allocate allocate;
-    funcptr_itfliesby_engine_memory_allocator_free     free;
-};
-
+api void
+itfliesby_engine_memory_arena_chunk_release(
+    ItfliesbyEngineMemoryArenaHandle arena_handle,
+    memory                           arena_memory_chunk);
 
 #endif //ITFLIESBY_ENGINE_MEMORY_MANAGER_HPP
