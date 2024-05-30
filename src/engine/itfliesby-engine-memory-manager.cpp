@@ -63,12 +63,10 @@ itfliesby_engine_memory_arena_push(
 
     //the reservations table is at the very end of the arena and grows downward towards the beginning
     memory reservations_memory = new_arena_reserved_memory + sizeof(ItfliesbyEngineMemoryArena) + (memory_size_bytes - 1); 
-    ItfliesbyEngineMemoryArenaReservationTable* reservations_table = 
-        (ItfliesbyEngineMemoryArenaReservationTable*)reservations_memory;
-    reservations_table->count_reservations             = 0;
-    reservations_table->reservation_arena_offset_bytes = NULL;
-    reservations_table->reservation_size_bytes         = NULL;
-
+    ItfliesbyEngineMemoryChunkReservationTable* reservations_table = 
+        (ItfliesbyEngineMemoryChunkReservationTable*)reservations_memory;
+    reservations_table->reservations_count             = 0;
+    reservations_table->reservations                   = NULL;
     //set our arena info
     new_arena->memory             = new_arena_reserved_memory + sizeof(ItfliesbyEngineMemoryArena);
     new_arena->memory_size_bytes  = memory_size_bytes;

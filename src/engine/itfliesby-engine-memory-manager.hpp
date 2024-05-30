@@ -6,17 +6,21 @@
 
 #define ITFLIESBY_ENGINE_MEMORY_MANAGER_MEMORY_SIZE_BYTES ITFLIESBY_MATH_GIGABYTES(2)
 
-struct ItfliesbyEngineMemoryArenaReservationTable {
-    u64  count_reservations;
-    u64* reservation_size_bytes;
-    u64* reservation_arena_offset_bytes;
+struct ItfliesbyEngineMemoryChunkReservation {
+    u64    memory_size_bytes;
+    u64    memory_arena_offset;
+};  
+
+struct ItfliesbyEngineMemoryChunkReservationTable {
+    u64                                    reservations_count;
+    ItfliesbyEngineMemoryChunkReservation* reservations;
 };
 
 struct ItfliesbyEngineMemoryArena {
     char                                        tag[32];
     u64                                         memory_size_bytes;
     memory                                      memory;
-    ItfliesbyEngineMemoryArenaReservationTable* reservations;
+    ItfliesbyEngineMemoryChunkReservationTable* reservations;
     ItfliesbyEngineMemoryArena*                 next;
 };
 
