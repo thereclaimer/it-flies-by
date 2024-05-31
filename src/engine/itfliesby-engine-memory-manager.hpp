@@ -11,16 +11,12 @@ struct ItfliesbyEngineMemoryChunkReservation {
     u64    memory_arena_offset;
 };  
 
-struct ItfliesbyEngineMemoryChunkReservationTable {
-    u64                                    reservations_count;
-    ItfliesbyEngineMemoryChunkReservation* reservations;
-};
-
 struct ItfliesbyEngineMemoryArena {
     char                                        tag[32];
     u64                                         memory_size_bytes;
+    u64                                         reservations_count;
     memory                                      memory;
-    ItfliesbyEngineMemoryChunkReservationTable* reservations;
+    ItfliesbyEngineMemoryChunkReservation*      reservations;
     ItfliesbyEngineMemoryArena*                 next;
 };
 
@@ -47,8 +43,7 @@ itfliesby_engine_memory_arena_push(
     char tag[32]);
 
 api u64 
-itfliesby_engine_memory_arena_count(
-    ItfliesbyEngineMemoryArenaHandle arena_handle);
+itfliesby_engine_memory_arena_count();
 
 api u64 
 itfliesby_engine_memory_arena_size_bytes_total(
@@ -66,13 +61,13 @@ api b8
 itfliesby_engine_memory_arena_chunk_can_reserve(
     ItfliesbyEngineMemoryArenaHandle arena_handle,
     u64                              reservation_size_bytes,
-    u64                              reservation_offset_bytes);
+    u64                              reservation_start);
 
 api memory
 itfliesby_engine_memory_arena_chunk_reserve(
     ItfliesbyEngineMemoryArenaHandle arena_handle,
     u64                              reservation_size_bytes,
-    u64                              reservation_offset_bytes);
+    u64                              reservation_start);
 
 api memory
 itfliesby_engine_memory_arena_chunk_reserve_next(
