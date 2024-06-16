@@ -1,0 +1,8 @@
+{
+  "dependencies": [
+    {
+      "name": "imgui",
+      "features": [ "win32-binding", "opengl3-binding", "docking-experimental" ]
+    }
+  ]
+}

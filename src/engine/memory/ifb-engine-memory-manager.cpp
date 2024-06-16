@@ -8,7 +8,7 @@ ifb_engine_memory_manager_create_and_initialize(
     const u64    managed_memory_arena_size,
     const memory managed_memory) {
 
-    ITFLIESBY_ASSERT(
+    ifb_assert(
         managed_memory                                         &&
         managed_memory_size_bytes >= managed_memory_arena_size &&
         managed_memory_size_bytes % managed_memory_arena_size == 0);
@@ -49,7 +49,7 @@ internal u64
 ifb_engine_memory_manager_space_available(
     IFBEngineMemoryManager_Ptr memory_manager_ptr) {
 
-    ITFLIESBY_ASSERT(memory_manager_ptr);
+    ifb_assert(memory_manager_ptr);
 
     IFBEngineMemoryArena_Ptr arenas_reserved_ptr = memory_manager_ptr->arenas_reserved;
 

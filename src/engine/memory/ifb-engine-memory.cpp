@@ -10,7 +10,7 @@ ifb_engine_memory_create_and_initialize() {
 
     //aquire platform memory
     ifb_engine_memory.platform_memory = ifb_engine_platform_memory_allocate(IFB_ENGINE_MEMORY_REQUIREMENT);    
-    ITFLIESBY_ASSERT(ifb_engine_memory.platform_memory);
+    ifb_assert(ifb_engine_memory.platform_memory);
 
     ifb_engine_memory.platform_memory_size_bytes = IFB_ENGINE_MEMORY_REQUIREMENT;
 

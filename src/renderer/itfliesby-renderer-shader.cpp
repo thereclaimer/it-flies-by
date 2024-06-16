@@ -8,7 +8,7 @@ internal b8
 itfliesby_renderer_shader_is_valid(
     const ItfliesbyRendererShader* shader) {
 
-    ITFLIESBY_ASSERT(shader);
+    ifb_assert(shader);
 
     b8 shader_valid = (
         shader->gl_program_id        > 0 && 
@@ -23,8 +23,8 @@ itfliesby_renderer_shader_destroy(
     ItfliesbyRenderer*           renderer,
     ItfliesbyRendererShaderType  shader_type) {
 
-    ITFLIESBY_ASSERT(renderer);
-    ITFLIESBY_ASSERT(shader_type >= 0 && shader_type < ITFLIESBY_RENDERER_SHADER_TYPE_COUNT);
+    ifb_assert(renderer);
+    ifb_assert(shader_type >= 0 && shader_type < ITFLIESBY_RENDERER_SHADER_TYPE_COUNT);
 
     ItfliesbyRendererShaderStore* shader_store      = &renderer->shader_store;
     ItfliesbyRendererShader*      shaders           = shader_store->shaders;
@@ -46,7 +46,7 @@ itfliesby_renderer_shader_compile_and_link(
     ItfliesbyRendererShaderStageBuffer* shader_stage_buffer_vertex,
     ItfliesbyRendererShaderStageBuffer* shader_stage_buffer_fragment) {
 
-    ITFLIESBY_ASSERT(
+    ifb_assert(
         renderer         &&
         shader_stage_buffer_vertex &&
         shader_stage_buffer_fragment
@@ -104,7 +104,7 @@ itfliesby_renderer_shader_compile_and_link(
     }    
 
     //sanity check
-    ITFLIESBY_ASSERT(
+    ifb_assert(
         shader_compiled_vertex    &&
         shader_compiled_fragement &&
         program_linked
@@ -185,7 +185,7 @@ ifliesby_renderer_shader_uniforms_solid_quad(
             solid_quad_uniforms->block_data_size,
             ITFLIESBY_RENDERER_SOLID_QUADS_MAX);
 
-    ITFLIESBY_NOP();
+    ifb_nop();
 }
 
 internal void
@@ -197,7 +197,7 @@ itfliesby_renderer_shader_uniforms_simple_quad(
     simple_quad_uniforms->index_color           = glGetUniformLocation(simple_quad_program_id,ITFLIESBY_RENDERER_SHADER_SIMPLE_QUAD_UNIFORM_COLOR);
     simple_quad_uniforms->index_texture_sampler = glGetUniformLocation(simple_quad_program_id,ITFLIESBY_RENDERER_SHADER_SIMPLE_QUAD_UNIFORM_TEXTURE_SAMPLER);
 
-    ITFLIESBY_NOP();
+    ifb_nop();
 }
 
 external b8

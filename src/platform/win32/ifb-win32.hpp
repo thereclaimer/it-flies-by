@@ -3,6 +3,7 @@
 
 #include <itfliesby-types.hpp>
 #include <Windows.h>
+#include <GL/GL.h>
 
 struct  IFBWin32;
 typedef IFBWin32*       IFBWin32_Ptr;
@@ -16,18 +17,28 @@ typedef void*           IFBWin32WindowHandle;
 struct  IFBWin32Opengl;
 typedef IFBWin32Opengl* IFBWin32Opengl_Ptr;
 typedef IFBWin32Opengl& IFBWin32Opengl_Ref;
+typedef void*           IFBWin32OpenglHandle;
+
 
 struct  IFBWin32ImGui;
 typedef IFBWin32ImGui*  IFBWin32ImGui_Ptr;
 typedef IFBWin32ImGui&  IFBWin32ImGui_Ref;
 
-
 //--------------------------------
 // WIN32
 //--------------------------------
 
+struct IFBWin32Args {
+    HINSTANCE h_instance;
+    HINSTANCE h_instance_prev;
+    PWSTR     cmd_line;
+    int       cmd_show;
+};
+
 struct IFBWin32 {
+    IFBWin32Args         args;
     IFBWin32WindowHandle window;
+    IFBWin32OpenglHandle opengl;
 };
 
 #define ifb_win32_main wWinMain
@@ -54,7 +65,9 @@ struct IFBWin32Window {
 };
 
 IFBWin32WindowHandle
-ifb_win32_window_create_and_initialize();
+ifb_win32_window_create_and_initialize(
+    HINSTANCE h_instance,
+    int       cmd_show);
 
 void
 ifb_win32_window_process_events();
@@ -63,5 +76,31 @@ typedef LRESULT
 (*funcptr_ifb_win32_window_on_wm_message) (
     WPARAM w_param,
     LPARAM l_param);
+
+bool
+ifb_win32_window_quit_event_received();
+
+void 
+ifb_win32_window_render();
+
+HDC
+ifb_win32_window_device_context();
+
+IFBWin32WindowDimensionsPixels
+ifb_win32_window_app_dimensions();
+
+//--------------------------------
+// OPENGL
+//--------------------------------
+
+struct IFBWin32Opengl {
+    HGLRC gl_context;
+};
+
+IFBWin32OpenglHandle
+ifb_win32_opengl_create_and_initialize();
+
+void
+ifb_win32_opengl_resize_and_clear_viewport();
 
 #endif  //IFB_WIN32_HPP

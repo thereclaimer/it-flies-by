@@ -17,12 +17,12 @@ internal handle
 itfliesby_platform_win32_api_imgui_initialize(
     handle window_reference) {
 
-    ITFLIESBY_ASSERT(window_reference);
+    ifb_assert(window_reference);
 
     ItfliesbyPlatformWin32Window* window = (ItfliesbyPlatformWin32Window*)window_reference;
 
-    ITFLIESBY_ASSERT(window->device_context);
-    ITFLIESBY_ASSERT(window->opengl_context);
+    ifb_assert(window->device_context);
+    ifb_assert(window->opengl_context);
 
     //make the opengl context current
     wglMakeCurrent(
@@ -32,7 +32,7 @@ itfliesby_platform_win32_api_imgui_initialize(
     //initialize imgui
     IMGUI_CHECKVERSION();
     ImGuiContext* imgui_context = ImGui::CreateContext();
-    ITFLIESBY_ASSERT(glewInit() == GLEW_OK);
+    ifb_assert(glewInit() == GLEW_OK);
     ImGui_ImplWin32_Init(window->window_handle);
 
     const char* glsl_version = "#version 330";
@@ -49,12 +49,12 @@ internal handle
 itfliesby_platform_win32_api_imgui_frame_start(
     handle window_reference) {
 
-    ITFLIESBY_ASSERT(window_reference);
+    ifb_assert(window_reference);
     ItfliesbyPlatformWin32Window* window = (ItfliesbyPlatformWin32Window*)window_reference;
 
-    ITFLIESBY_ASSERT(window->device_context);
-    ITFLIESBY_ASSERT(window->opengl_context);
-    ITFLIESBY_ASSERT(window->imgui_context);
+    ifb_assert(window->device_context);
+    ifb_assert(window->opengl_context);
+    ifb_assert(window->imgui_context);
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -68,7 +68,7 @@ internal void
 itfliesby_platform_win32_api_imgui_frame_end(
     handle window_reference) {
     
-    ITFLIESBY_ASSERT(window_reference);
+    ifb_assert(window_reference);
     ItfliesbyPlatformWin32Window* window = (ItfliesbyPlatformWin32Window*)window_reference;
    
     ImGui::Render();
@@ -91,7 +91,7 @@ itfliesby_platform_win32_api_opengl_initialize(
     window_class.lpszClassName = "Dummy_WGL_djuasiodwa";
 
 
-    ITFLIESBY_ASSERT(RegisterClassA(&window_class));
+    ifb_assert(RegisterClassA(&window_class));
 
     HWND dummy_window = CreateWindowExA(
         0,
@@ -107,7 +107,7 @@ itfliesby_platform_win32_api_opengl_initialize(
         window_class.hInstance,
         0);
 
-    ITFLIESBY_ASSERT(dummy_window);
+    ifb_assert(dummy_window);
 
     HDC dummy_context = GetDC(dummy_window);
 
@@ -138,7 +138,7 @@ itfliesby_platform_win32_api_opengl_initialize(
     );
 
     HGLRC dummy_opengl_rendering_context = wglCreateContext(dummy_context);
-    ITFLIESBY_ASSERT(wglMakeCurrent(dummy_context, dummy_opengl_rendering_context));
+    ifb_assert(wglMakeCurrent(dummy_context, dummy_opengl_rendering_context));
 
     ItfliesbyPlatformWin32WglApi wgl_api = {0};
     wgl_api.create_context      = (func_itfliesby_platform_win32_wgl_create_context_attribs_arb_type)wglGetProcAddress("wglCreateContextAttribsARB");
@@ -185,7 +185,7 @@ itfliesby_platform_win32_api_opengl_initialize(
         &pixel_format_descriptor
     );
     
-    ITFLIESBY_ASSERT(SetPixelFormat(window->device_context, pixel_format, &pixel_format_descriptor));
+    ifb_assert(SetPixelFormat(window->device_context, pixel_format, &pixel_format_descriptor));
 
     //create the real  opengl rendering context
     int gl33_attribs[] = {
@@ -196,11 +196,11 @@ itfliesby_platform_win32_api_opengl_initialize(
     };
 
     HGLRC opengl_rendering_context = wgl_api.create_context(window->device_context, 0, gl33_attribs);
-    ITFLIESBY_ASSERT(opengl_rendering_context);
+    ifb_assert(opengl_rendering_context);
 
     //attach the opengl and device contexts
-    ITFLIESBY_ASSERT(wglMakeCurrent(window->device_context, opengl_rendering_context));
-    // ITFLIESBY_ASSERT(wglShareLists(window->shared_opengl_context, opengl_rendering_context));
+    ifb_assert(wglMakeCurrent(window->device_context, opengl_rendering_context));
+    // ifb_assert(wglShareLists(window->shared_opengl_context, opengl_rendering_context));
     wgl_api.swap_interval(1);
 
     window->opengl_context = opengl_rendering_context;
@@ -281,8 +281,8 @@ itfliesby_platform_win32_api_read_file(
     memory allocated_buffer,
     b8     terminate) {
 
-    ITFLIESBY_ASSERT(file_handle);
-    ITFLIESBY_ASSERT(allocated_buffer);
+    ifb_assert(file_handle);
+    ifb_assert(allocated_buffer);
 
     OVERLAPPED overlapped = {0};
 

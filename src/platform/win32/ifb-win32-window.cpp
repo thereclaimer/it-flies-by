@@ -66,7 +66,7 @@ ifb_win32_window_callback(
         } break;
     }
 
-    ITFLIESBY_ASSERT(funcptr_wm_message_handler);
+    ifb_assert(funcptr_wm_message_handler);
     LRESULT ifb_result = funcptr_wm_message_handler(w_param,l_param);
 
     return(ifb_result);
@@ -87,10 +87,10 @@ ifb_win32_window_create_and_initialize(
     window_class.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 
     b8 registered = RegisterClass(&window_class);
-    ITFLIESBY_ASSERT(registered);
+    ifb_assert(registered);
 
     //create the window
-    HWND window_handle = 
+    ifb_win32_window.handle = 
         CreateWindowEx(
             0,
             window_class.lpszClassName,
@@ -105,17 +105,15 @@ ifb_win32_window_create_and_initialize(
             h_instance,
             NULL);
 
-    ITFLIESBY_ASSERT(window_handle);
-
-    ifb_win32_window.handle = window_handle;
+    ifb_assert(ifb_win32_window.handle);
 
     //get the device context
-    HDC device_context = GetDC(window_handle);
-    ITFLIESBY_ASSERT(device_context);
+    ifb_win32_window.device_context = GetDC(ifb_win32_window.handle);
+    ifb_assert(ifb_win32_window.device_context);
 
     //show the window
     ShowWindow(
-        window_handle,
+        ifb_win32_window.handle,
         cmd_show);
 
     return(&ifb_win32_window);
@@ -137,4 +135,26 @@ ifb_win32_window_process_events() {
             } break;
         }
     }
+}
+
+
+internal bool
+ifb_win32_window_quit_event_received() {
+    return(ifb_win32_window.quit_event_received);
+}
+
+internal void 
+ifb_win32_window_render() {
+    SwapBuffers(ifb_win32_window.device_context);
+}
+
+internal HDC
+ifb_win32_window_device_context() {
+    return(ifb_win32_window.device_context);
+}
+
+
+internal IFBWin32WindowDimensionsPixels
+ifb_win32_window_app_dimensions() {
+    return(ifb_win32_window.app_dimensions_pixels);
 }

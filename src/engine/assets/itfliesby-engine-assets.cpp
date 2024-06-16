@@ -16,7 +16,7 @@ itfliesby_engine_assets_file_header_num_indexes(
         false
     );
 
-    ITFLIESBY_ASSERT(
+    ifb_assert(
         header_buffer[0] == 'I' &&
         header_buffer[1] == 'F' &&
         header_buffer[2] == 'B'
@@ -58,7 +58,7 @@ itfliesby_engine_asset_indexes_load(
 
     //make sure the indexes in the file match what we expect
     u32 file_indexes_count_actual = itfliesby_engine_assets_file_header_num_indexes(file_handle);
-    ITFLIESBY_ASSERT(file_indexes_count_actual == file_indexes_count);
+    ifb_assert(file_indexes_count_actual == file_indexes_count);
 
     //read our index buffer
     memory file_index_memory = 
@@ -138,7 +138,7 @@ itfliesby_engine_assets_init(
         &assets->file_index_store
     );
 
-    ITFLIESBY_NOP();
+    ifb_nop();
 }
 
 internal void
@@ -186,7 +186,7 @@ itfliesby_engine_assets_file_handles_load(
 
     if (missing_files_count > 0) {
         //TODO: error message
-        ITFLIESBY_PANIC();
+        ifb_panic();
     }
 }
 
@@ -196,7 +196,7 @@ itfliesby_engine_assets_index_allocation_size(
     s32*                            index_ids,
     s32                             index_ids_count) {
 
-    ITFLIESBY_ASSERT(
+    ifb_assert(
         indexes    && 
         index_ids  && 
         index_ids_count > 0);
@@ -225,7 +225,7 @@ itfliesby_engine_assets_shader_allocation_size(
     ItfliesbyEngineAssetsShader* shader_index_ids,
     s32                          shader_index_ids_count) {
 
-    ITFLIESBY_ASSERT(
+    ifb_assert(
         assets                     &&
         shader_index_ids           &&
         shader_index_ids_count > 0 &&
@@ -277,7 +277,7 @@ itfliesby_engine_assets_load_shaders(
     u64*                         shader_offsets,
     u32                          shader_count) {
 
-    ITFLIESBY_ASSERT(
+    ifb_assert(
         assets && 
         shader_memory &&
         shader_count > 0);

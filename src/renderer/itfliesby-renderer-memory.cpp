@@ -9,7 +9,7 @@ itfliesby_renderer_memory_create(
     memory core_memory,
     u64    core_memory_size_bytes) {
 
-    ITFLIESBY_ASSERT(
+    ifb_assert(
         core_memory && 
         core_memory_size_bytes == ITFLIESBY_RENDERER_MEMORY_SIZE_BYTES);
 
@@ -30,8 +30,8 @@ itfliesby_renderer_memory_create(
             "RENDERER UNIFORM PRTN",
             ITFLIESBY_RENDERER_MEMORY_PARTITION_UNIFORM_BUFFER_BYTES);
 
-    ITFLIESBY_ASSERT(renderer_memory.partitions.core);
-    ITFLIESBY_ASSERT(renderer_memory.partitions.uniform_buffers);
+    ifb_assert(renderer_memory.partitions.core);
+    ifb_assert(renderer_memory.partitions.uniform_buffers);
 
     //initialize allocators
     renderer_memory.allocators.core_system_allocator = 
@@ -46,8 +46,8 @@ itfliesby_renderer_memory_create(
             "RENDERER UNIFORM ALCTR",
             ITFLIESBY_RENDERER_MEMORY_ALLOCATOR_UNIFORM_BUFFER_BYTES);
 
-    ITFLIESBY_ASSERT(renderer_memory.allocators.core_system_allocator);
-    ITFLIESBY_ASSERT(renderer_memory.allocators.uniform_buffer_allocator);
+    ifb_assert(renderer_memory.allocators.core_system_allocator);
+    ifb_assert(renderer_memory.allocators.uniform_buffer_allocator);
 }
 
 internal ItfliesbyRenderer*
@@ -59,7 +59,7 @@ itfliesby_renderer_memory_allocate_core() {
             sizeof(ItfliesbyRenderer)
         );
 
-    ITFLIESBY_ASSERT(renderer);
+    ifb_assert(renderer);
 
     *renderer = {0};
 
@@ -78,7 +78,7 @@ itfliesby_renderer_memory_allocate_uniform_buffer_memory(
             renderer_memory.allocators.uniform_buffer_allocator,
             uniform_buffer_size_bytes);
 
-    ITFLIESBY_ASSERT(uniform_buffer);
+    ifb_assert(uniform_buffer);
 
     return(uniform_buffer);
 }

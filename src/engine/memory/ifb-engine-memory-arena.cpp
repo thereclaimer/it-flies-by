@@ -6,7 +6,7 @@ internal IFBEngineMemoryArena_Ptr
 ifb_engine_memory_arena_recycle(
     IFBEngineMemoryManager_Ptr memory_manager_ptr) {
 
-    ITFLIESBY_ASSERT(memory_manager_ptr);
+    ifb_assert(memory_manager_ptr);
     IFBEngineMemoryArena_Ptr arenas_released = memory_manager_ptr->arenas_released;
 
     if (!arenas_released) {
@@ -22,7 +22,7 @@ ifb_engine_memory_arena_recycle(
         tail_arena = arena;
     }
 
-    ITFLIESBY_ASSERT(tail_arena);
+    ifb_assert(tail_arena);
 
     IFBEngineMemoryArena_Ptr previous_arena_ptr = tail_arena->previous;
     previous_arena_ptr->next = NULL;
@@ -35,7 +35,7 @@ internal IFBEngineMemoryArena_Ptr
 ifb_engine_memory_arena_released_tail(
     IFBEngineMemoryManager_Ptr memory_manager_ptr) {
 
-    ITFLIESBY_ASSERT(memory_manager_ptr);
+    ifb_assert(memory_manager_ptr);
     IFBEngineMemoryArena_Ptr arenas_released = memory_manager_ptr->arenas_released;
 
     if (!arenas_released) {
@@ -51,7 +51,7 @@ ifb_engine_memory_arena_released_tail(
         tail_arena = arena;
     }
 
-    ITFLIESBY_ASSERT(tail_arena);
+    ifb_assert(tail_arena);
 
     return(tail_arena);
 }
@@ -60,7 +60,7 @@ internal IFBEngineMemoryArena_Ptr
 ifb_engine_memory_arena_reserved_tail(
     IFBEngineMemoryManager_Ptr memory_manager_ptr) {
     
-    ITFLIESBY_ASSERT(memory_manager_ptr);
+    ifb_assert(memory_manager_ptr);
     IFBEngineMemoryArena_Ptr arenas_reserved = memory_manager_ptr->arenas_reserved;
 
     if (!arenas_reserved) {
@@ -76,7 +76,7 @@ ifb_engine_memory_arena_reserved_tail(
         tail_arena = arena;
     }
 
-    ITFLIESBY_ASSERT(tail_arena);
+    ifb_assert(tail_arena);
 
     return(tail_arena);
 }
@@ -275,14 +275,14 @@ internal IFBEngineMemoryArena_Ptr
 ifb_engine_memory_arena_reserve_64kb(
     const char arena_tag[32]) {
 
-    ITFLIESBY_ASSERT(ifb_engine_memory.platform_memory);
+    ifb_assert(ifb_engine_memory.platform_memory);
 
     IFBEngineMemoryArena_Ptr arena_64kb = 
         ifb_engine_memory_arena_reserve(
             &ifb_engine_memory.memory_manager_64kb,
             arena_tag);
 
-    ITFLIESBY_ASSERT(arena_64kb);
+    ifb_assert(arena_64kb);
 
     return(arena_64kb);
 }
@@ -291,14 +291,14 @@ internal IFBEngineMemoryArena_Ptr
 ifb_engine_memory_arena_reserve_64mb(
     const char arena_tag[32]) {
 
-    ITFLIESBY_ASSERT(ifb_engine_memory.platform_memory);
+    ifb_assert(ifb_engine_memory.platform_memory);
 
     IFBEngineMemoryArena_Ptr arena_64mb = 
         ifb_engine_memory_arena_reserve(
             &ifb_engine_memory.memory_manager_64mb,
             arena_tag);
 
-    ITFLIESBY_ASSERT(arena_64mb);
+    ifb_assert(arena_64mb);
 
     return(arena_64mb);
 }

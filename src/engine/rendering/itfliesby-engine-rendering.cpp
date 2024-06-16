@@ -39,7 +39,7 @@ itfliesby_engine_rendering_shader_programs_init(
     ItfliesbyRendererHandle     renderer,
     ItfliesbyEngineAssets*      assets) {
 
-    ITFLIESBY_ASSERT(renderer);
+    ifb_assert(renderer);
     
     const u32 shaders_count = ITFLIESBY_RENDERER_SHADER_TYPE_COUNT;
 
@@ -58,8 +58,8 @@ itfliesby_engine_rendering_shader_programs_init(
     const u64 memory_size_shader_stages_vertex   = itfliesby_engine_assets_shader_allocation_size(assets, (ItfliesbyEngineAssetsShader*)shader_stage_asset_id_vertex,   shaders_count);
     const u64 memory_size_shader_stages_fragment = itfliesby_engine_assets_shader_allocation_size(assets, (ItfliesbyEngineAssetsShader*)shader_stage_asset_id_fragment, shaders_count);
 
-    ITFLIESBY_ASSERT(memory_size_shader_stages_vertex   > 0);
-    ITFLIESBY_ASSERT(memory_size_shader_stages_fragment > 0);
+    ifb_assert(memory_size_shader_stages_vertex   > 0);
+    ifb_assert(memory_size_shader_stages_fragment > 0);
 
     memory memory_shader_stage_vertex   = itfliesby_engine_memory_renderer_shader_allocate(memory_size_shader_stages_vertex);
     memory memory_shader_stage_fragment = itfliesby_engine_memory_renderer_shader_allocate(memory_size_shader_stages_fragment);
@@ -112,7 +112,7 @@ itfliesby_engine_rendering_shader_programs_init(
 
     //make sure we are ready to go
     b8 renderer_ready = itfliesby_renderer_ready(renderer);
-    ITFLIESBY_ASSERT(renderer_ready);
+    ifb_assert(renderer_ready);
 }
 
 internal ItfliesbyRendererHandle
@@ -125,7 +125,7 @@ itfliesby_engine_rendering_init(
     //initialize renderer
     memory renderer_memory           = itfliesby_engine_memory_renderer_context();
     ItfliesbyRendererHandle renderer = itfliesby_renderer_create_and_init(platform_api,renderer_memory,ITFLIESBY_ENGINE_RENDERER_MEMORY_PARTITION_CONTEXT_SIZE);
-    ITFLIESBY_ASSERT(renderer);
+    ifb_assert(renderer);
 
     //load shaders
     itfliesby_engine_rendering_shader_programs_init(

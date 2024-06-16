@@ -54,13 +54,13 @@ itfliesby_renderer_create_and_init(
     
     //allocate the core renderer
     ItfliesbyRenderer* renderer = itfliesby_renderer_memory_allocate_core();
-    ITFLIESBY_ASSERT(renderer);
+    ifb_assert(renderer);
 
     //initialize opengl
     renderer->gl_context = platform.graphics_api_init(platform.window);    
-    ITFLIESBY_ASSERT(renderer->gl_context);
+    ifb_assert(renderer->gl_context);
     glewExperimental = TRUE;
-    ITFLIESBY_ASSERT(glewInit() == GLEW_OK);
+    ifb_assert(glewInit() == GLEW_OK);
 
     //set the clear color
     glClearColor(

@@ -10,9 +10,9 @@
 #define api      extern "C" __declspec(dllimport)
 #define null     0
 
-#define ITFLIESBY_ASSERT(condition) if(!(condition)) *((int*)(NULL)) = 1
-#define ITFLIESBY_NOP()   ITFLIESBY_ASSERT(true)
-#define ITFLIESBY_PANIC() ITFLIESBY_ASSERT(false)
+#define ifb_assert(condition) if(!(condition)) *((int*)(NULL)) = 1
+#define ifb_nop()   ifb_assert(true)
+#define ifb_panic() ifb_assert(false)
 
 #ifdef __GNUC__
 #define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))

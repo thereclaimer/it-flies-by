@@ -239,7 +239,7 @@ itfliesby_platform_win32_main(
     window_class.hInstance     = instance;
     window_class.lpszClassName = "ItfliesbyWindowClass";
 
-    ITFLIESBY_ASSERT(RegisterClass(&window_class));
+    ifb_assert(RegisterClass(&window_class));
 
     game_window = {0};
     game_window.window_handle = CreateWindowEx(
@@ -261,7 +261,7 @@ itfliesby_platform_win32_main(
 
     itfliesby_platform_win32_toggle_full_screen();
 
-    ITFLIESBY_ASSERT(game_window.window_handle);
+    ifb_assert(game_window.window_handle);
 
     game_window.device_context = GetDC(game_window.window_handle);
 
@@ -288,7 +288,7 @@ itfliesby_platform_win32_main(
 
     //allocate the memory
     memory game_memory = itfliesby_platform_win32_api_allocate_memory(ITFLIESBY_GAME_MEMORY_SIZE); 
-    ITFLIESBY_ASSERT(game_memory);
+    ifb_assert(game_memory);
 
     //initialize the game
     game_window.game = itfliesby_game_create(

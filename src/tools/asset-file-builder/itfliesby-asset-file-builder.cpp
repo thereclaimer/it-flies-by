@@ -882,7 +882,7 @@ internal s32
 
                 itfliesby_asset_file_builder_memory_block_pop(asset_file_builder);
 
-                ITFLIESBY_NOP();
+                ifb_nop();
 
             } break;
 

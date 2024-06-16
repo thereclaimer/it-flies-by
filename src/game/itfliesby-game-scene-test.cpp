@@ -13,7 +13,7 @@ itfliesby_game_scene_test(
     //create the scene 
     if (game_scene_test->scene_id == ITFLIESBY_ENGINE_SCENE_INVALID) {
         game_scene_test->scene_id   = itfliesby_engine_scene_create(game_engine);
-        ITFLIESBY_ASSERT(game_scene_test->scene_id != ITFLIESBY_ENGINE_SCENE_INVALID);
+        ifb_assert(game_scene_test->scene_id != ITFLIESBY_ENGINE_SCENE_INVALID);
     }
 
     //make the scene active
@@ -38,5 +38,5 @@ itfliesby_game_scene_test(
     }
 
 
-    ITFLIESBY_NOP();
+    ifb_nop();
 }

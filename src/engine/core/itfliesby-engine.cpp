@@ -16,7 +16,7 @@ itfliesby_engine_create(
     memory               core_memory,
     u64                  core_memory_size_bytes) {
 
-    ITFLIESBY_ASSERT(core_memory_size_bytes == ITFLIESBY_ENGINE_MEMORY_SIZE);
+    ifb_assert(core_memory_size_bytes == ITFLIESBY_ENGINE_MEMORY_SIZE);
 
     platform_api = platform;
 
@@ -153,5 +153,5 @@ itfliesby_engine_render_scene(
         platform_api.sleep(sleep_time_ms);
     }
 
-    ITFLIESBY_NOP();
+    ifb_nop();
 }

@@ -54,7 +54,7 @@ itfliesby_engine_sprites_create(
     
 
     //sanity check
-    ITFLIESBY_ASSERT(
+    ifb_assert(
         new_sprite       >= 0 &&
         physics_id       >= 0);
 
@@ -108,7 +108,7 @@ itfliesby_engine_sprites_connor_test(
     sprites->renderer_textures[connor_sprite_id] = texture_id; 
 
     //sanity check
-    ITFLIESBY_ASSERT(
+    ifb_assert(
         connor_sprite_id >= 0 &&
         physics_id       >= 0);
 
