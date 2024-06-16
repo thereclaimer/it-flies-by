@@ -31,6 +31,15 @@ struct ItfliesbyEngineMemoryManager {
 ItfliesbyEngineMemoryManager*
 itfliesby_engine_memory_manager_create();
 
+/**
+ * This is for reserving a KNOWN chunk that is available
+ * this does not check for bounds, we are assuming here
+ * that you have already done the check to make sure
+ * the reservation is a valid one. Fuck around and find out
+ */
+memory
+itfliesby_engine_memory_arena_chunk_reserve_known();
+
 //---------------------------------------------
 // MEMORY MANAGER API
 //---------------------------------------------

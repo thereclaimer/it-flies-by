@@ -175,6 +175,38 @@ itfliesby_engine_memory_arena_size_bytes_used(
     return(bytes_used);
 }
 
+internal memory
+itfliesby_engine_memory_arena_chunk_reserve_known(
+    ItfliesbyEngineMemoryArena* arena_ptr,
+    u64                         reservation_size_bytes) {
+
+    ItfliesbyEngineMemoryArena arena = *arena_ptr;
+
+    //we're good, so we need to set the new memory
+    //first, we'll adjust the reservation table
+    memory arena_reservations_start = arena.memory + new_reservation_table_start;
+    arena.reservations = (ItfliesbyEngineMemoryChunkReservation*)arena_reservations_start;
+    ++arena.reservations_count;
+
+    //make the new reservation
+    ItfliesbyEngineMemoryChunkReservation new_reservation = {0};
+    new_reservation.memory_arena_offset = reservation_start;
+    new_reservation.memory_size_bytes   = reservation_size_bytes;
+
+    //the reservation table grows downward, so the new entry is always at index 0
+    arena.reservations[0] = new_reservation;
+
+    //now we can zero and return the new memory
+    memory new_memory_chunk = arena.memory + new_reservation.memory_arena_offset; 
+    ITFLIESBY_ASSERT(new_memory_chunk);
+
+    memset(
+        new_memory_chunk,
+        0,
+        new_reservation.memory_size_bytes);
+
+}
+
 external b8
 itfliesby_engine_memory_arena_chunk_can_reserve(
     ItfliesbyEngineMemoryArenaHandle arena_handle,
@@ -361,8 +393,6 @@ itfliesby_engine_memory_arena_chunk_reserve_next(
         return(NULL);
     }
 
-
-
     //what we need to do here is check in between all of our existing reservations
     //to get the first available slot that can fit our new reservation
 
@@ -380,6 +410,8 @@ external memory
 itfliesby_engine_memory_arena_chunk_size(
     ItfliesbyEngineMemoryArenaHandle arena_handle,
     memory                           arena_memory_chunk) {
+
+
 
     return(NULL);
 }
