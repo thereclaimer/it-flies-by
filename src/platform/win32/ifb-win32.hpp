@@ -3,6 +3,7 @@
 
 #include <Windows.h>
 #include <GL/GL.h>
+#include <Xinput.h>
 
 #include <ifb.hpp>
 #include <engine/api/ifb-engine.hpp>
@@ -25,6 +26,7 @@ typedef void*           IFBWin32OpenglHandle;
 struct  IFBWin32ImGui;
 typedef IFBWin32ImGui*  IFBWin32ImGui_Ptr;
 typedef IFBWin32ImGui&  IFBWin32ImGui_Ref;
+typedef void*           IFBWin32ImGuiHandle;
 
 //--------------------------------
 // WIN32
@@ -41,7 +43,9 @@ struct IFBWin32 {
     IFBWin32Args         args;
     IFBWin32WindowHandle window;
     IFBWin32OpenglHandle opengl;
+    IFBWin32ImGuiHandle  imgui;
     IFBEngineHandle      engine;
+    IFBUserInput         user_input;
 };
 
 #define ifb_win32_main wWinMain
@@ -92,6 +96,18 @@ ifb_win32_window_device_context();
 IFBWin32WindowDimensionsPixels
 ifb_win32_window_app_dimensions();
 
+HWND
+ifb_win32_window_handle();
+
+extern IMGUI_IMPL_API LRESULT 
+ImGui_ImplWin32_WndProcHandler(
+    HWND   handle, 
+    UINT   msg, 
+    WPARAM w_param, 
+    LPARAM l_param);
+
+#define ifb_win32_imgui_message_handler ImGui_ImplWin32_WndProcHandler
+
 //--------------------------------
 // OPENGL
 //--------------------------------
@@ -111,8 +127,22 @@ ifb_win32_opengl_resize_and_clear_viewport();
 //--------------------------------
 
 struct IFBWin32ImGui {
-    
+    ImGuiContext* imgui_context;
+    bool          show_demo;
 };
+
+IFBWin32ImGuiHandle
+ifb_win32_imgui_create_and_initialize();
+
+void
+ifb_win32_imgui_frame_start();
+
+void
+ifb_win32_imgui_frame_render();
+
+void
+ifb_win32_imgui_show_demo(
+    b8 show_demo);
 
 //--------------------------------
 // API

@@ -44,6 +44,17 @@ ifb_win32_window_callback(
     WPARAM w_param,
     LPARAM l_param) {
 
+    LRESULT imgui_result = 
+        ifb_win32_imgui_message_handler(
+            window_handle,
+            message,
+            w_param,
+            l_param);
+        
+    if (imgui_result) {
+        return(imgui_result);
+    }
+
     funcptr_ifb_win32_window_on_wm_message funcptr_wm_message_handler = NULL;
 
     switch (message) {
@@ -120,6 +131,21 @@ ifb_win32_window_create_and_initialize(
 }
 
 internal void
+ifb_win32_window_monitor_info() {
+
+    HMONITOR monitor_handle = MonitorFromWindow(ifb_win32_window.handle,MONITOR_DEFAULTTONEAREST);
+
+    MONITORINFO monitor_info = {0};
+    monitor_info.cbSize = sizeof(monitor_info);
+    GetMonitorInfo(monitor_handle,&monitor_info);
+
+    RECT window_rect = monitor_info.rcMonitor;
+
+    ifb_win32_window.monitor_dimensions_pixels.width  = window_rect.right  - window_rect.left; 
+    ifb_win32_window.monitor_dimensions_pixels.height = window_rect.bottom - window_rect.top; 
+}
+
+internal void
 ifb_win32_window_process_events() {
 
     while(PeekMessage(&ifb_win32_window.message,0,0,0,PM_REMOVE)) {
@@ -157,4 +183,9 @@ ifb_win32_window_device_context() {
 internal IFBWin32WindowDimensionsPixels
 ifb_win32_window_app_dimensions() {
     return(ifb_win32_window.app_dimensions_pixels);
+}
+
+internal HWND
+ifb_win32_window_handle() {
+    return(ifb_win32_window.handle);
 }

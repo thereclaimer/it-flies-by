@@ -27,6 +27,10 @@ ifb_win32_create_opengl() {
 internal void
 ifb_win32_create_imgui() {
 
+    ifb_win32.imgui = 
+        ifb_win32_imgui_create_and_initialize();
+    
+    ifb_assert(ifb_win32.imgui);
 }
 
 internal void
@@ -68,6 +72,10 @@ ifb_win32_main(
         ifb_win32_window_process_events();
 
         ifb_win32_opengl_resize_and_clear_viewport();
+
+        ifb_win32_imgui_frame_start();
+
+        ifb_win32_imgui_frame_render();
 
         ifb_win32_window_render();
 

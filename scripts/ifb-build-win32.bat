@@ -21,7 +21,7 @@
                       /LIBPATH:vcpkg_installed\x64-windows\lib ^
                       /LIBPATH:bin
 
-@set cl_libs=         user32.lib opengl32.lib gdi32.lib imgui.lib ItFliesBy.Engine.lib
+@set cl_libs=         user32.lib opengl32.lib gdi32.lib imgui.lib ItFliesBy.Engine.lib Xinput.lib
 
 call cl.exe           ^
     %cl_preprocessor% ^
