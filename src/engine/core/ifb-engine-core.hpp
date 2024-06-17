@@ -17,13 +17,25 @@ typedef IFBEngine& IFBEngine_Ref;
 // ENGINE
 //--------------------------------
 
+struct IFBEngineFrameAllocator {
+    IFBEngineMemoryArena_Ptr arena;
+};
+
 struct IFBEngine {
-    IFBEngineMemory_Ptr memory;
+    IFBEngineMemory_Ptr     memory;
+    IFBEngineFrameAllocator frame_allocator;
 };
 
 external IFBEngine_Ptr
 ifb_engine_create_and_initialize(
     IFBPlatformApi platform);
+
+external void
+ifb_engine_render_frame();
+
+memory
+ifb_engine_frame_allocator_reserve(
+    u64 size);
 
 //--------------------------------
 // PLATFORM

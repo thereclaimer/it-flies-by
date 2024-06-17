@@ -13,6 +13,9 @@ api IFBEngineHandle
 ifb_engine_create_and_initialize(
     IFBPlatformApi platform);
 
+api void
+ifb_engine_render_frame();
+
 //--------------------------------
 // MEMORY
 //--------------------------------

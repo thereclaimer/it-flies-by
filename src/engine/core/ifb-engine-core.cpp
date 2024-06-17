@@ -29,5 +29,37 @@ ifb_engine_create_and_initialize(
     ifb_engine.memory = ifb_engine_memory_create_and_initialize();
     ifb_assert(ifb_engine.memory);
 
+    ifb_engine.frame_allocator.arena = 
+        ifb_engine_memory_arena_reserve_64mb(
+            "ENGINE FRAME");
+
     return(&ifb_engine);
+}
+
+external void
+ifb_engine_render_frame() {
+
+    ifb_nop();
+
+
+    //reset the frame allocator
+    ifb_engine_memory_arena_reset(ifb_engine.frame_allocator.arena);
+
+    return;
+}
+
+internal memory
+ifb_engine_frame_allocator_reserve(
+    u64 size) {
+    
+    ifb_assert(ifb_engine.frame_allocator.arena);
+
+    memory reservation = 
+        ifb_engine_memory_arena_bytes_push(
+            ifb_engine.frame_allocator.arena,
+            size);
+
+    ifb_assert(reservation);
+
+    return(reservation);
 }

@@ -21,5 +21,7 @@ ifb_game_update_and_render(
 
     ifb_game.user_input = user_input;
 
+    ifb_engine_render_frame();
+
     return(true);
 }

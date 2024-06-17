@@ -92,12 +92,13 @@ ifb_engine_memory_arena_reset_new(
 
     u64 arena_memory_offset = manager_ptr->arena_size - sizeof(IFBEngineMemoryArena);
 
+    //TODO: this is causing a crash
     //zero the memory
-    memset(
-        new_arena->memory,
-        0,
-        arena_memory_offset
-    );
+    // memset(
+    //     new_arena->memory,
+    //     0,
+    //     arena_memory_offset
+    // );
 
     //reset the used memory count
     new_arena->used_memory = 0;
@@ -262,10 +263,11 @@ ifb_engine_memory_arena_reset(
 
     IFBEngineMemoryManager_Ptr manager_ptr = arena_ptr->manager_ptr;
 
-    memset(
-        arena_ptr->memory,
-        0,
-        manager_ptr->arena_size);
+    //TODO: this is causing a crash
+    // memset(
+    //     arena_ptr->memory,
+    //     0,
+    //     manager_ptr->arena_size);
 
     arena_ptr->used_memory = 0;
 }

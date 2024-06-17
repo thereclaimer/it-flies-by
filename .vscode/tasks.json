@@ -4,9 +4,7 @@
 		{
 			"label": "Build All",
 			"dependsOn":[
-				"Build Memory",
 				"Build Win32",
-                "Build Renderer",
 				"Build Engine",
 				"Build Game",
 			],
@@ -34,19 +32,6 @@
 			"group": "build"
 		},
 		{
-			"label": "Build Memory",
-			"command": "scripts\\ifb-build-memory.bat",
-			"args":[
-            ],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"problemMatcher": [
-				"$msCompile"
-			],
-			"group": "build"
-		},
-		{
 			"label": "Build Game",
 			"command": "scripts\\ifb-build-game.bat",
 			"args":[
@@ -62,19 +47,6 @@
 		{
 			"label": "Build Engine",
 			"command": "scripts\\ifb-build-engine.bat",
-			"args":[
-            ],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"problemMatcher": [
-				"$msCompile"
-			],
-			"group": "build"
-		},
-		{
-			"label": "Build Renderer",
-			"command": "scripts\\ifb-build-renderer.bat",
 			"args":[
             ],
 			"options": {
