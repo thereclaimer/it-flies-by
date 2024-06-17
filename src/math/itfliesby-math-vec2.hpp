@@ -1,7 +1,7 @@
 #ifndef ITFLIESBY_MATH_VEC_HPP
 #define ITFLIESBY_MATH_VEC_HPP
 
-#include <common/itfliesby-types.hpp>
+#include <ifb.hpp>
 #include <math.h>
 
 struct ItfliesbyMathVec2 {
@@ -14,10 +14,10 @@ itfliesby_math_vec2_multiply_scalar(
     const ItfliesbyMathVec2* vec_in,
     ItfliesbyMathVec2*       vec_out,
     const f32                scalar,
-    const size               count) {
+    const u64                count) {
 
     for (
-        size vec_index = 0;
+        u64 vec_index = 0;
         vec_index < count;
         ++vec_index) {
 
@@ -31,10 +31,10 @@ itfliesby_math_vec2_multiply_scalars(
     const ItfliesbyMathVec2* vec_in,
     ItfliesbyMathVec2*       vec_out,
     const f32*               scalars,
-    const size               count) {
+    const u64                count) {
 
     for (
-        size vec_index = 0;
+        u64 vec_index = 0;
         vec_index < count;
         ++vec_index) {
 
@@ -48,12 +48,12 @@ itfliesby_math_vec2_divide_scalar(
     const ItfliesbyMathVec2* vec_in,
     ItfliesbyMathVec2*       vec_out,
     const f32                scalar,
-    const size               count) {
+    const u64              count) {
 
     f32 scalar_inverse = 1.0f / scalar;
 
     for (
-        size vec_index = 0;
+        u64 vec_index = 0;
         vec_index < count;
         ++vec_index) {
 
@@ -67,11 +67,11 @@ itfliesby_math_vec2_divide_scalars(
     const ItfliesbyMathVec2* vec_in,
     ItfliesbyMathVec2*       vec_out,
     const f32*               scalars,
-    const size               count) {
+    const u64              count) {
 
 
     for (
-        size vec_index = 0;
+        u64 vec_index = 0;
         vec_index < count;
         ++vec_index) {
 
@@ -84,11 +84,11 @@ inline void
 itfliesby_math_vec2_add(
     const ItfliesbyMathVec2* vec_in_a,
     const ItfliesbyMathVec2* vec_in_b,
-    const size               count,
+    const u64                count,
     ItfliesbyMathVec2*       vec_out) {
 
     for (
-        size vec_index = 0;
+        u64 vec_index = 0;
         vec_index < count;
         ++vec_index) {
 
@@ -101,11 +101,11 @@ inline void
 itfliesby_math_vec2_subtract(
     const ItfliesbyMathVec2* vec_in_a,
     const ItfliesbyMathVec2* vec_in_b,
-    const size               count,
+    const u64                count,
     ItfliesbyMathVec2*       vec_out) {
 
     for (
-        size vec_index = 0;
+        u64 vec_index = 0;
         vec_index < count;
         ++vec_index) {
 
@@ -119,10 +119,10 @@ inline void
 itfliesby_math_vec2_magnitude(
     const ItfliesbyMathVec2* vec_in,
     f32*                     magnitude_out,
-    const size               count) {
+    const u64                count) {
 
     for (
-        size vec_index = 0;
+        u64 vec_index = 0;
         vec_index < count;
         ++vec_index) {
 
@@ -140,7 +140,7 @@ itfliesby_math_vec2_normalize(
     const ItfliesbyMathVec2* vec_in,
     ItfliesbyMathVec2*       vec_out,
     f32*                     magnitude_out,
-    const size               count) {
+    const u64                count) {
 
 
     itfliesby_math_vec2_magnitude(

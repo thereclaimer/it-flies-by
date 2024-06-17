@@ -29,6 +29,20 @@ ifb_win32_create_imgui() {
 
 }
 
+internal void
+ifb_win32_create_engine() {
+
+    IFBPlatformApi win32_api = ifb_win32_api_create_and_initialize();
+
+    ifb_win32.engine = ifb_engine_create_and_initialize(win32_api);
+    ifb_assert(ifb_win32.engine);
+}
+
+internal void
+ifb_win32_create_game() {
+
+}
+
 internal int
 ifb_win32_main(
     HINSTANCE h_instance,
@@ -45,6 +59,7 @@ ifb_win32_main(
     ifb_win32_create_window();
     ifb_win32_create_opengl();
     ifb_win32_create_imgui();
+    ifb_win32_create_engine();
 
     bool running = true;
 

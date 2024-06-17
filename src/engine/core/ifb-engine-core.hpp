@@ -1,11 +1,10 @@
 #ifndef IFB_ENGINE_CORE_HPP
 #define IFB_ENGINE_CORE_HPP
 
-#include <itfliesby-types.hpp>
-#include <itfliesby-platform-api.hpp>
+#include <ifb.hpp>
+
 
 #include "ifb-engine-memory.hpp"
-
 
 //--------------------------------
 // TYPES
@@ -22,17 +21,15 @@ struct IFBEngine {
     IFBEngineMemory_Ptr memory;
 };
 
-global IFBEngine ifb_engine;
-
-IFBEngine_Ptr
+external IFBEngine_Ptr
 ifb_engine_create_and_initialize(
-    ItfliesbyPlatformApi platform);
+    IFBPlatformApi platform);
 
 //--------------------------------
 // PLATFORM
 //--------------------------------
 
-global ItfliesbyPlatformApi ifb_platform_api;
+global IFBPlatformApi ifb_platform_api;
 
 #define ifb_engine_platform_file_size         ifb_platform_api.file_size
 #define ifb_engine_platform_file_read         ifb_platform_api.file_read

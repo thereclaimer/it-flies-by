@@ -268,7 +268,7 @@ itfliesby_platform_win32_main(
     itfliesby_platform_win32_monitor_dimensions();
 
     //put the platform api together
-    ItfliesbyPlatformApi win32_platform_api = {0};
+    IFBPlatformApi win32_platform_api = {0};
 
     win32_platform_api.window            = (handle)&game_window;
     win32_platform_api.file_size         = itfliesby_platform_win32_api_file_get_file_size_bytes;

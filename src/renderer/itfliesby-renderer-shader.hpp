@@ -1,7 +1,7 @@
 #ifndef ITFLIESBY_RENDERER_SHADER_HPP
 #define ITFLIESBY_RENDERER_SHADER_HPP
 
-#include <common/itfliesby-types.hpp>
+#include <ifb.hpp>
 #include <common/itfliesby-platform-api.hpp>
 #include <common/itfliesby-memory.hpp>
 #include <math/itfliesby-math.hpp>

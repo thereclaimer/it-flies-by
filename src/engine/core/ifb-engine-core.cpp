@@ -2,9 +2,11 @@
 
 #include "ifb-engine-core.hpp"
 
-internal IFBEngine_Ptr
+global IFBEngine ifb_engine;
+
+external IFBEngine_Ptr
 ifb_engine_create_and_initialize(
-    ItfliesbyPlatformApi platform) {
+    IFBPlatformApi platform) {
 
     //validate the platform api
     ifb_assert(platform.file_size);
@@ -26,4 +28,6 @@ ifb_engine_create_and_initialize(
     //memory
     ifb_engine.memory = ifb_engine_memory_create_and_initialize();
     ifb_assert(ifb_engine.memory);
+
+    return(&ifb_engine);
 }

@@ -6,7 +6,7 @@
 #include <glew/glew.h>
 #include <glew/wglew.h>
 #include <glew/glew.c>
-#include <common/itfliesby-types.hpp>
+#include <ifb.hpp>
 
 inline void
 itfliesby_renderer_opengl_vertex_array_create(

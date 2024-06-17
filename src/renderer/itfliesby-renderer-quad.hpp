@@ -1,7 +1,7 @@
 #ifndef ITFLIESBY_RENDERER_QUAD_HPP
 #define ITFLIESBY_RENDERER_QUAD_HPP
 
-#include <common/itfliesby-types.hpp>
+#include <ifb.hpp>
 #include <common/itfliesby-platform-api.hpp>
 #include <common/itfliesby-memory.hpp>
 #include <math/itfliesby-math.hpp>

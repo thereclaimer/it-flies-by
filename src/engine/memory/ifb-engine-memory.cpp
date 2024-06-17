@@ -3,6 +3,8 @@
 #include "ifb-engine-core.hpp"
 #include "ifb-engine-memory.hpp"
 
+global IFBEngineMemory ifb_engine_memory;
+
 internal IFBEngineMemory_Ptr
 ifb_engine_memory_create_and_initialize() {
 
@@ -28,4 +30,6 @@ ifb_engine_memory_create_and_initialize() {
             manager_memory_size,
             ITFLIESBY_MATH_MEGABYTES(64),
             &ifb_engine_memory.platform_memory[manager_memory_size]);
+
+    return(&ifb_engine_memory);
 }

@@ -12,22 +12,26 @@
                   /I src\engine\physics   ^
                   /I src\engine\rendering ^
                   /I src\engine\scene     ^
-                  /I src\engine\sprite 
+                  /I src\engine\sprite    ^
+                  /I .\vcpkg_installed\x64-windows\include           
 
-@set cl_flags= /DLL /w /LD /Zi
 
-@set cl_output= /Fd: bin\ItFliesBy.Engine.pdb ^
-                /Fo: bin\ItFliesBy.Engine.obj ^
-                /Fe: bin\ItFliesBy.Engine.dll
+@set cl_flags=    /DLL /w /LD /Zi
 
-@set cl_src=   src\engine\ifb-engine.cpp
-@set cl_link=  /link
-@set cl_libs=  opengl32.lib glu32.lib 
+@set cl_output=   /Fd: bin\ItFliesBy.Engine.pdb ^
+                  /Fo: bin\ItFliesBy.Engine.obj ^
+                  /Fe: bin\ItFliesBy.Engine.dll
+
+@set cl_src=      src\engine\ifb-engine.cpp
+
+@set cl_linker=   /link /LIBPATH:vcpkg_installed\x64-windows\lib /LIBPATH:bin
+
+@set cl_libs=     opengl32.lib glu32.lib imgui.lib 
 
 call cl.exe       ^
     %cl_flags%    ^
     %cl_includes% ^
     %cl_output%   ^
     %cl_src%      ^
-    %cl_link%     ^
+    %cl_linker%   ^
     %cl_libs%

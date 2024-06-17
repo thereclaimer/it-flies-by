@@ -1,9 +1,7 @@
 #ifndef IFB_ENGINE_HPP
 #define IFB_ENGINE_HPP
 
-#include <itfliesby-types.hpp>
-#include <itfliesby-platform-api.hpp>
-
+#include <ifb.hpp>
 
 //--------------------------------
 // ENGINE
@@ -13,7 +11,7 @@ typedef void* IFBEngineHandle;
 
 api IFBEngineHandle
 ifb_engine_create_and_initialize(
-    ItfliesbyPlatformApi platform);
+    IFBPlatformApi platform);
 
 //--------------------------------
 // MEMORY

@@ -4,7 +4,6 @@
 
 #include "ifb-win32.hpp"
 
-
 global u64 bytes_read = 0;
 
 void CALLBACK
@@ -187,4 +186,23 @@ ifb_win32_api_sleep(
     u64 time_ms) {
 
     Sleep(time_ms);
+}
+
+IFBPlatformApi
+ifb_win32_api_create_and_initialize() {
+
+    IFBPlatformApi win32_api = {0};
+
+    win32_api.file_size       = ifb_win32_api_file_get_file_size_bytes; 
+    win32_api.file_read       = ifb_win32_api_read_file; 
+    win32_api.file_write      = ifb_win32_api_write_file; 
+    win32_api.file_open       = ifb_win32_api_open_file; 
+    win32_api.file_close      = ifb_win32_api_close_file; 
+    win32_api.memory_allocate = ifb_win32_api_allocate_memory; 
+    win32_api.memory_free     = ifb_win32_api_free_memory; 
+    win32_api.ticks           = ifb_win32_api_ticks; 
+    win32_api.delta_time_ms   = ifb_win32_api_delta_time_ms; 
+    win32_api.sleep           = ifb_win32_api_sleep; 
+
+    return(win32_api);
 }

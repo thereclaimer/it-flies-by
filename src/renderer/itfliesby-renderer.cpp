@@ -41,7 +41,7 @@ itfliesby_renderer_perspective(
 
 external ItfliesbyRenderer*
 itfliesby_renderer_create_and_init(
-    ItfliesbyPlatformApi platform_api,
+    IFBPlatformApi platform_api,
     memory               core_memory,
     u64                  core_memory_size_bytes) {
 

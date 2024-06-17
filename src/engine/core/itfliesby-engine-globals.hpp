@@ -3,6 +3,6 @@
 
 #include <itfliesby.hpp>
 
-global ItfliesbyPlatformApi platform_api;
+global IFBPlatformApi platform_api;
 
 #endif //ITFLIESBY_ENGINE_GLOBALS_HPP

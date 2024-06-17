@@ -1,7 +1,7 @@
 #ifndef ITFLIESBY_RENDERER_MEMORY_HPP
 #define ITFLIESBY_RENDERER_MEMORY_HPP
 
-#include <common/itfliesby-types.hpp>
+#include <ifb.hpp>
 #include <common/itfliesby-memory.hpp>
 
 #define ITFLIESBY_RENDERER_MEMORY_SIZE_BYTES                       ITFLIESBY_MATH_MEGABYTES(64)

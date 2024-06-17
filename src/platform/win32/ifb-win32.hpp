@@ -4,8 +4,8 @@
 #include <Windows.h>
 #include <GL/GL.h>
 
-#include <itfliesby-types.hpp>
-#include <itfliesby-platform-api.hpp>
+#include <ifb.hpp>
+#include <engine/api/ifb-engine.hpp>
 
 struct  IFBWin32;
 typedef IFBWin32*       IFBWin32_Ptr;
@@ -41,6 +41,7 @@ struct IFBWin32 {
     IFBWin32Args         args;
     IFBWin32WindowHandle window;
     IFBWin32OpenglHandle opengl;
+    IFBEngineHandle      engine;
 };
 
 #define ifb_win32_main wWinMain
@@ -106,10 +107,18 @@ void
 ifb_win32_opengl_resize_and_clear_viewport();
 
 //--------------------------------
+// IMGUI
+//--------------------------------
+
+struct IFBWin32ImGui {
+    
+};
+
+//--------------------------------
 // API
 //--------------------------------
 
-ItfliesbyPlatformApi
+IFBPlatformApi
 ifb_win32_api_create_and_initialize();
 
 #endif  //IFB_WIN32_HPP

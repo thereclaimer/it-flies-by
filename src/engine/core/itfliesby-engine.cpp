@@ -12,7 +12,7 @@
 
 external ItfliesbyEngine*
 itfliesby_engine_create(
-    ItfliesbyPlatformApi platform,
+    IFBPlatformApi platform,
     memory               core_memory,
     u64                  core_memory_size_bytes) {
 

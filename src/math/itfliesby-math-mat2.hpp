@@ -1,7 +1,7 @@
 #ifndef ITFLIESBY_MATH_MAT2
 #define ITFLIESBY_MATH_MAT2
 
-#include <common/itfliesby-types.hpp>
+#include <ifb.hpp>
 #include <immintrin.h> 
 
 struct ItfliesbyMathMat2 {
@@ -13,7 +13,7 @@ inline void
 itfliesby_math_mat2_multiply_mat2(
     const ItfliesbyMathMat2* mat2_in_a,
     const ItfliesbyMathMat2* mat2_in_b,
-    const size               count,
+    const u64                count,
     ItfliesbyMathMat2*       mat2_out) {
 
     __m128 mat_a;
@@ -21,7 +21,7 @@ itfliesby_math_mat2_multiply_mat2(
     __m128 mat_c;
 
     for (
-        size mat_index = 0;
+        u64 mat_index = 0;
         mat_index < count;
         ++mat_index) {
 

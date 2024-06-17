@@ -41,7 +41,8 @@
       "xlocnum": "cpp",
       "xstddef": "cpp",
       "atomic": "cpp",
-      "iterator": "cpp"
+      "iterator": "cpp",
+      "initializer_list": "cpp"
     },
     "todo-tree.tree.scanMode": "workspace only",
     "editor.tokenColorCustomizations": {   

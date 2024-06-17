@@ -13,6 +13,7 @@
 typedef struct                  IFBEngineMemory;
 typedef IFBEngineMemory*        IFBEngineMemory_Ptr;
 typedef IFBEngineMemory&        IFBEngineMemory_Ref;
+typedef void*                   IFBEngineMemoryHandle;
 
 typedef struct                  IFBEngineMemoryManager;
 typedef IFBEngineMemoryManager* IFBEngineMemoryManager_Ptr;
@@ -38,8 +39,7 @@ IFBEngineMemoryManager
 ifb_engine_memory_manager_create_and_initialize(
     const u64    managed_memory_size_bytes,
     const u64    managed_memory_arena_size,
-    const memory managed_memory
-);
+    const memory managed_memory);
 
 u64
 ifb_engine_memory_manager_space_reserved(
@@ -61,11 +61,8 @@ struct IFBEngineMemory {
     IFBEngineMemoryManager memory_manager_64mb;
 };
 
-global IFBEngineMemory ifb_engine_memory;
-
 IFBEngineMemory_Ptr
 ifb_engine_memory_create_and_initialize();
-
 
 //--------------------------------
 // MEMORY ARENA

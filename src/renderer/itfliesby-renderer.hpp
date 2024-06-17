@@ -2,7 +2,7 @@
 #define ITFLIESBY_RENDERER_HPP
 
 
-#include <common/itfliesby-types.hpp>
+#include <ifb.hpp>
 #include <common/itfliesby-platform-api.hpp>
 #include <common/itfliesby-memory.hpp>
 
@@ -12,7 +12,7 @@
 #include "itfliesby-renderer-memory.hpp"
 #include "itfliesby-renderer-texture.hpp"
 
-global ItfliesbyPlatformApi platform;
+global IFBPlatformApi platform;
 
 struct ItfliesbyRendererBatches{
     ItfliesbyRendererBatchSimpleQuad simple_quad;

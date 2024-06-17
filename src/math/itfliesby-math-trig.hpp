@@ -1,7 +1,7 @@
 #ifndef ITFLIESBY_MATH_TRIG_HPP
 #define ITFLIESBY_MATH_TRIG_HPP
 
-#include <common/itfliesby-types.hpp>
+#include <ifb.hpp>
 #include <math.h>
 
 #define ITFLIESBY_MATH_TRIG_PI                  3.14159265

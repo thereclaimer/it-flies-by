@@ -24,7 +24,7 @@ struct ItfliesbyGameMemoryArena {
 struct ItfliesbyGame {
     u64                      previous_time_ticks;
     u64                      delta_time_ticks;
-    ItfliesbyPlatformApi     platform;
+    IFBPlatformApi     platform;
     ItfliesbyEngineHandle    engine;
     ItfliesbyGameMemoryArena memory_arena;
     ItfliesbyGameScenes      scenes;
@@ -32,7 +32,7 @@ struct ItfliesbyGame {
 
 api ItfliesbyGame*
 itfliesby_game_create(
-    ItfliesbyPlatformApi  platform,
+    IFBPlatformApi  platform,
     memory                game_memory,
     size                  game_memory_size
 );

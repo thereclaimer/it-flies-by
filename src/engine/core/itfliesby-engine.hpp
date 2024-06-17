@@ -85,7 +85,7 @@ struct ItfliesbyEngine {
 
 api ItfliesbyEngine*
 itfliesby_engine_create(
-    ItfliesbyPlatformApi platform,
+    IFBPlatformApi platform,
     memory               mem,
     u64                  mem_size
 );

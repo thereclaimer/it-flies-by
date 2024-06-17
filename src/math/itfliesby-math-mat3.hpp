@@ -1,7 +1,7 @@
 #ifndef ITFLIESBY_MATH_MAT3_HPP
 #define ITFLIESBY_MATH_MAT3_HPP
 
-#include <common/itfliesby-types.hpp>
+#include <ifb.hpp>
 #include "itfliesby-math-trig.hpp"
 
 struct ItfliesbyMathMat3 {

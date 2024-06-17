@@ -11,13 +11,17 @@
 
 @set cl_includes=     /I .\src\                ^
                       /I .\src\platform\win32  ^
-                      /I .\src\common                          
+                      /I .\src\common          ^
+                      /I .\src\engine\api      ^
+                      /I .\vcpkg_installed\x64-windows\include           
 
 @set cl_source=       src\platform\win32\ifb-win32-src.cpp
 
-@set cl_linker=       /link /LIBPATH:vcpkg_installed\x64-windows\lib
+@set cl_linker=       /link ^
+                      /LIBPATH:vcpkg_installed\x64-windows\lib ^
+                      /LIBPATH:bin
 
-@set cl_libs=         user32.lib opengl32.lib gdi32.lib
+@set cl_libs=         user32.lib opengl32.lib gdi32.lib imgui.lib ItFliesBy.Engine.lib
 
 call cl.exe           ^
     %cl_preprocessor% ^

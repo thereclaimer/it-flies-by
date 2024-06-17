@@ -5,7 +5,7 @@
 
 external ItfliesbyGame*
 itfliesby_game_create(
-    ItfliesbyPlatformApi  platform,
+    IFBPlatformApi  platform,
     memory                game_memory,
     size                  game_memory_size) {
 
