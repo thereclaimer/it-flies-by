@@ -1,10 +1,10 @@
-#ifndef ITFLIESBY_MATH_MAT3_HPP
-#define ITFLIESBY_MATH_MAT3_HPP
+#ifndef IFB_MATH_MAT3_HPP
+#define IFB_MATH_MAT3_HPP
 
 #include <ifb.hpp>
-#include "itfliesby-math-trig.hpp"
+#include "ifb-math-trig.hpp"
 
-struct ItfliesbyMathMat3 {
+struct IFBMathMat3 {
     
     union {
         
@@ -21,10 +21,10 @@ struct ItfliesbyMathMat3 {
     };
 };
 
-inline ItfliesbyMathMat3 
-itfliesby_math_mat3_identity() {
+inline IFBMathMat3 
+ifb_math_mat3_identity() {
 
-    ItfliesbyMathMat3 m3 = {0};
+    IFBMathMat3 m3 = {0};
 
     m3.rows.row_0[0] = 1.0f;
     m3.rows.row_0[1] = 0.0f;
@@ -42,9 +42,9 @@ itfliesby_math_mat3_identity() {
 }
 
 inline void
-itfliesby_math_mat3_transpose(
-    ItfliesbyMathMat3* in_m3,
-    ItfliesbyMathMat3* out_m3) {
+ifb_math_mat3_transpose(
+    IFBMathMat3* in_m3,
+    IFBMathMat3* out_m3) {
 
     f32* in_m3_m  = in_m3->m;
     f32* out_m3_m = out_m3->m;
@@ -61,15 +61,15 @@ itfliesby_math_mat3_transpose(
 }
 
 inline void
-itfliesby_math_mat3_multiply(
-    const ItfliesbyMathMat3* in_m3_a,
-    const ItfliesbyMathMat3* in_m3_b,
+ifb_math_mat3_multiply(
+    const IFBMathMat3* in_m3_a,
+    const IFBMathMat3* in_m3_b,
     const size_t             m3_count,
-          ItfliesbyMathMat3* out_m3_c) {
+          IFBMathMat3* out_m3_c) {
 
-    ItfliesbyMathMat3 a = {0};
-    ItfliesbyMathMat3 b = {0};
-    ItfliesbyMathMat3 c = {0};
+    IFBMathMat3 a = {0};
+    IFBMathMat3 b = {0};
+    IFBMathMat3 c = {0};
     
     for (
         size_t index = 0;
@@ -95,12 +95,12 @@ itfliesby_math_mat3_multiply(
     }
 }
 
-inline ItfliesbyMathMat3
-itfliesby_math_mat3_multiply(
-    const ItfliesbyMathMat3* in_m3_a,
-    const ItfliesbyMathMat3* in_m3_b) {
+inline IFBMathMat3
+ifb_math_mat3_multiply(
+    const IFBMathMat3* in_m3_a,
+    const IFBMathMat3* in_m3_b) {
 
-    ItfliesbyMathMat3 c = {0};
+    IFBMathMat3 c = {0};
 
     const f32* a_row_0 = in_m3_a->rows.row_0;
     const f32* a_row_1 = in_m3_a->rows.row_1;
@@ -125,12 +125,12 @@ itfliesby_math_mat3_multiply(
     return(c);
 }
 
-inline ItfliesbyMathMat3
-itfliesby_math_mat3_translation(
+inline IFBMathMat3
+ifb_math_mat3_translation(
     f32 x,
     f32 y) {
 
-    ItfliesbyMathMat3 m3 = itfliesby_math_mat3_identity();
+    IFBMathMat3 m3 = ifb_math_mat3_identity();
 
     m3.rows.row_0[2] = x;
     m3.rows.row_1[2] = y;
@@ -138,12 +138,12 @@ itfliesby_math_mat3_translation(
     return(m3);
 }
 
-inline ItfliesbyMathMat3
-itfliesby_math_mat3_scaling(
+inline IFBMathMat3
+ifb_math_mat3_scaling(
     f32 x,
     f32 y) {
 
-    ItfliesbyMathMat3 m3 = itfliesby_math_mat3_identity();
+    IFBMathMat3 m3 = ifb_math_mat3_identity();
 
     m3.rows.row_0[0] = x;
     m3.rows.row_1[1] = y;
@@ -151,16 +151,16 @@ itfliesby_math_mat3_scaling(
     return(m3);
 }
 
-inline ItfliesbyMathMat3
-itfliesby_math_mat3_rotation_degrees(
+inline IFBMathMat3
+ifb_math_mat3_rotation_degrees(
     f32 degrees) {
 
-    f32 radians = itfliesby_math_trig_degrees_to_radians(degrees);
+    f32 radians = ifb_math_trig_degrees_to_radians(degrees);
 
     f32 cos_r = cosf(radians);
     f32 sin_r = sinf(radians);
     
-    ItfliesbyMathMat3 m3 = itfliesby_math_mat3_identity();
+    IFBMathMat3 m3 = ifb_math_mat3_identity();
 
     m3.rows.row_0[0] = cos_r;
     m3.rows.row_0[1] = -(sin_r);
@@ -171,14 +171,14 @@ itfliesby_math_mat3_rotation_degrees(
     return(m3);
 }
 
-inline ItfliesbyMathMat3
-itfliesby_math_mat3_rotation_radians(
+inline IFBMathMat3
+ifb_math_mat3_rotation_radians(
     f32 radians) {
 
     f32 cos_r = cosf(radians);
     f32 sin_r = sinf(radians);
     
-    ItfliesbyMathMat3 m3 = itfliesby_math_mat3_identity();
+    IFBMathMat3 m3 = ifb_math_mat3_identity();
 
     m3.rows.row_0[0] = cos_r;
     m3.rows.row_0[1] = -(sin_r);
@@ -191,18 +191,18 @@ itfliesby_math_mat3_rotation_radians(
 
 //scale,rotate,translate
 inline void
-itfliesby_math_mat3_transform_srt(
+ifb_math_mat3_transform_srt(
     size_t             transform_count,
-    ItfliesbyMathMat3* in_transform_translate, 
-    ItfliesbyMathMat3* in_transform_scale,
-    ItfliesbyMathMat3* in_transform_rotate,
-    ItfliesbyMathMat3* out_transform) {
+    IFBMathMat3* in_transform_translate, 
+    IFBMathMat3* in_transform_scale,
+    IFBMathMat3* in_transform_rotate,
+    IFBMathMat3* out_transform) {
 
-    ItfliesbyMathMat3 a = {0};
-    ItfliesbyMathMat3 b = {0};
-    ItfliesbyMathMat3 c = {0};
-    ItfliesbyMathMat3 transform = {0};
-    ItfliesbyMathMat3 temp      = {0};
+    IFBMathMat3 a = {0};
+    IFBMathMat3 b = {0};
+    IFBMathMat3 c = {0};
+    IFBMathMat3 transform = {0};
+    IFBMathMat3 temp      = {0};
 
     for (
         size_t transform_index = 0;
@@ -243,18 +243,18 @@ itfliesby_math_mat3_transform_srt(
 
 //translate,rotate,scale
 inline void
-itfliesby_math_mat3_transform_trs(
+ifb_math_mat3_transform_trs(
     const size_t             transform_count,
-    const ItfliesbyMathMat3* in_transform_translate, 
-    const ItfliesbyMathMat3* in_transform_scale,
-    const ItfliesbyMathMat3* in_transform_rotate,
-          ItfliesbyMathMat3* out_transform) {
+    const IFBMathMat3* in_transform_translate, 
+    const IFBMathMat3* in_transform_scale,
+    const IFBMathMat3* in_transform_rotate,
+          IFBMathMat3* out_transform) {
 
-    ItfliesbyMathMat3 a = {0};
-    ItfliesbyMathMat3 b = {0};
-    ItfliesbyMathMat3 c = {0};
-    ItfliesbyMathMat3 transform = {0};
-    ItfliesbyMathMat3 temp      = {0};
+    IFBMathMat3 a = {0};
+    IFBMathMat3 b = {0};
+    IFBMathMat3 c = {0};
+    IFBMathMat3 transform = {0};
+    IFBMathMat3 temp      = {0};
 
     for (
         size_t transform_index = 0;
@@ -293,12 +293,12 @@ itfliesby_math_mat3_transform_trs(
     }
 }
 
-inline ItfliesbyMathMat3
-itfliesby_math_mat3_projection(
+inline IFBMathMat3
+ifb_math_mat3_projection(
     f32 width,
     f32 height) {
 
-    ItfliesbyMathMat3 m3 = {0};
+    IFBMathMat3 m3 = {0};
 
     f32 half_width  = width  * 0.5f;
     f32 half_height = height * 0.5f;
@@ -320,4 +320,4 @@ itfliesby_math_mat3_projection(
     return(m3);
 }
 
-#endif //ITFLIESBY_MATH_MAT3_HPP
+#endif //IFB_MATH_MAT3_HPP

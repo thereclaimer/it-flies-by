@@ -22,13 +22,13 @@ ifb_engine_memory_create_and_initialize() {
     ifb_engine_memory.memory_manager_64kb = 
         ifb_engine_memory_manager_create_and_initialize(
             manager_memory_size,
-            ITFLIESBY_MATH_KILOBYTES(64),
+            IFB_MATH_KILOBYTES(64),
             ifb_engine_memory.platform_memory);
     
     ifb_engine_memory.memory_manager_64mb = 
         ifb_engine_memory_manager_create_and_initialize(
             manager_memory_size,
-            ITFLIESBY_MATH_MEGABYTES(64),
+            IFB_MATH_MEGABYTES(64),
             &ifb_engine_memory.platform_memory[manager_memory_size]);
 
     return(&ifb_engine_memory);

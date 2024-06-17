@@ -79,7 +79,7 @@ itfliesby_engine_fetch_graphics_information(
         ++index) {
 
 
-            ItfliesbyMathMat3               current_transform = sprite_rendering.transforms[index]; 
+            IFBMathMat3               current_transform = sprite_rendering.transforms[index]; 
             ItfliesbyRendererColorHex       current_color     = sprite_rendering.colors[index];
             ItfliesbyRendererTextureId      current_texture   = sprite_rendering.renderer_textures[index];
 

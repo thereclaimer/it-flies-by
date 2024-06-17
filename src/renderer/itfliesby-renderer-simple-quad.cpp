@@ -126,12 +126,12 @@ itfliesby_renderer_simple_quad_render(
     ItfliesbyRendererBatchSimpleQuad*          batch,
     GLuint                                     gl_program) {
 
-    ItfliesbyMathMat3*                batch_transforms = batch->transform;
+    IFBMathMat3*                batch_transforms = batch->transform;
     ItfliesbyRendererColorNormalized* batch_colors     = batch->color; 
     ItfliesbyRendererTextureId*       batch_textures   = batch->texture; 
     u32                               batch_count      = batch->count;
 
-    ItfliesbyMathMat3                current_transform = {0};
+    IFBMathMat3                current_transform = {0};
     ItfliesbyRendererColorNormalized current_color     = {0};
     ItfliesbyRendererTextureId       current_texture   = 0;
 

@@ -19,8 +19,8 @@ itfliesby_game_create(
     ifb_assert(game_memory_arena.arena);
 
     //partitions
-    game_memory_arena.partitions.game_core   = itfliesby_memory_partition_create(game_memory_arena.arena, "GAME SYSTEMS", ITFLIESBY_MATH_KILOBYTES(1));
-    game_memory_arena.partitions.game_engine = itfliesby_memory_partition_create(game_memory_arena.arena, "ENGINE PRTN",  ITFLIESBY_MATH_MEGABYTES(512));
+    game_memory_arena.partitions.game_core   = itfliesby_memory_partition_create(game_memory_arena.arena, "GAME SYSTEMS", IFB_MATH_KILOBYTES(1));
+    game_memory_arena.partitions.game_engine = itfliesby_memory_partition_create(game_memory_arena.arena, "ENGINE PRTN",  IFB_MATH_MEGABYTES(512));
     
     ifb_assert(game_memory_arena.partitions.game_core);
     ifb_assert(game_memory_arena.partitions.game_engine);

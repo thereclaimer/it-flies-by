@@ -231,7 +231,7 @@ itfliesby_engine_sprites_rendering_context(
     ItfliesbyEngineSpriteId*    sprite_rendering_ids        = sprite_rendering_context->sprite_ids;
     ItfliesbyRendererColorHex*  sprite_rendering_colors     = sprite_rendering_context->colors;
     ItfliesbyRendererTextureId* sprite_rendering_textures   = sprite_rendering_context->renderer_textures;
-    ItfliesbyMathMat3*          sprite_rendering_transforms = sprite_rendering_context->transforms;
+    IFBMathMat3*          sprite_rendering_transforms = sprite_rendering_context->transforms;
     ItfliesbyEnginePhysicsId    sprite_rendering_physics_ids[ITFLIESBY_ENGINE_SPRITE_COUNT_MAX];
 
     //get the active sprite ids    
@@ -254,7 +254,7 @@ itfliesby_engine_sprites_rendering_context(
     ItfliesbyRendererScaleFactor scale_factor = itfliesby_renderer_scale_factor(renderer);
 
     //now we need our physics transforms
-    ItfliesbyMathMat3 physics_transforms[ITFLIESBY_ENGINE_SPRITE_COUNT_MAX];
+    IFBMathMat3 physics_transforms[ITFLIESBY_ENGINE_SPRITE_COUNT_MAX];
     itfliesby_engine_physics_transforms(
         physics,
         sprite_rendering_physics_ids,

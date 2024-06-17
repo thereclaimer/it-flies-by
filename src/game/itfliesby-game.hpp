@@ -4,7 +4,7 @@
 #include <itfliesby.hpp>
 #include "itfliesby-game-scene.hpp"
 
-#define ITFLIESBY_GAME_MEMORY_SIZE ITFLIESBY_MATH_GIGABYTES(1)
+#define ITFLIESBY_GAME_MEMORY_SIZE IFB_MATH_GIGABYTES(1)
 
 struct ItfliesbyGameMemoryAllocators {
     itfliesby_memory_allocator_linear game_core_system_allocator;

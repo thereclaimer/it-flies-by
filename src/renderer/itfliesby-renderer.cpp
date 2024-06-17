@@ -12,7 +12,7 @@ itfliesby_renderer_perspective(
     f32 width_pixels,
     f32 height_pixels) {
 
-    ItfliesbyMathMat3 transform = {0};
+    IFBMathMat3 transform = {0};
 
     f32 half_width_pixels  = width_pixels  * 0.5f;
     f32 half_height_pixels = height_pixels * 0.5f;

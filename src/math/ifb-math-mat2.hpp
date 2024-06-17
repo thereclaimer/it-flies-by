@@ -1,20 +1,20 @@
-#ifndef ITFLIESBY_MATH_MAT2
-#define ITFLIESBY_MATH_MAT2
+#ifndef IFB_MATH_MAT2
+#define IFB_MATH_MAT2
 
 #include <ifb.hpp>
 #include <immintrin.h> 
 
-struct ItfliesbyMathMat2 {
+struct IFBMathMat2 {
     //[collumn][row]
     f32 m[2][2];
 };
 
 inline void
-itfliesby_math_mat2_multiply_mat2(
-    const ItfliesbyMathMat2* mat2_in_a,
-    const ItfliesbyMathMat2* mat2_in_b,
+ifb_math_mat2_multiply_mat2(
+    const IFBMathMat2* mat2_in_a,
+    const IFBMathMat2* mat2_in_b,
     const u64                count,
-    ItfliesbyMathMat2*       mat2_out) {
+    IFBMathMat2*       mat2_out) {
 
     __m128 mat_a;
     __m128 mat_b;
@@ -39,4 +39,4 @@ itfliesby_math_mat2_multiply_mat2(
     }
 }
 
-#endif //ITFLIESBY_MATH_MAT2
+#endif //IFB_MATH_MAT2

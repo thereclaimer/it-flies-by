@@ -64,24 +64,24 @@ itfliesby_engine_physics_transforms(
 
         //translation
         physics_transform_translation[current_physics_id] = 
-            itfliesby_math_mat3_translation(
+            ifb_math_mat3_translation(
                 physics_transform_position_x[current_physics_id],
                 physics_transform_position_y[current_physics_id]);
                         
         //scale
         physics_transform_scale[current_physics_id] = 
-            itfliesby_math_mat3_scaling(
+            ifb_math_mat3_scaling(
                 physics_transform_scale_x[current_physics_id], 
                 physics_transform_scale_y[current_physics_id]);
         
         //rotation
         physics_transform_rotation[current_physics_id] = 
-            itfliesby_math_mat3_rotation_radians(
+            ifb_math_mat3_rotation_radians(
                 physics_transform_rotation_radians[current_physics_id]);
     }
 
     //put the transforms together
-    itfliesby_math_mat3_transform_trs(
+    ifb_math_mat3_transform_trs(
         physics_count,
         physics_transform_translation,
         physics_transform_scale,
@@ -118,24 +118,24 @@ itfliesby_engine_physics_transforms(
 
         //translation
         transform_translation[index] = 
-            itfliesby_math_mat3_translation(
+            ifb_math_mat3_translation(
                 table_position_x[index],
                 table_position_y[index]);
                         
         //scale
         transform_scale[index] = 
-            itfliesby_math_mat3_scaling(
+            ifb_math_mat3_scaling(
                 table_scale_x[index], 
                 table_scale_y[index]);
         
         //rotation
         transform_rotation[index] = 
-            itfliesby_math_mat3_rotation_radians(
+            ifb_math_mat3_rotation_radians(
                 table_rotation_radians[index]);
     }
 
     //put the transforms together
-    itfliesby_math_mat3_transform_trs(
+    ifb_math_mat3_transform_trs(
         ITFLIESBY_ENGINE_PHYSICS_OBJECTS_MAX,
         transform_translation,
         transform_scale,
@@ -212,7 +212,7 @@ itfliesby_engine_physics_transforms_create(
     physics->tables.transforms.position.y[next_physics_id]       = position.y;
     physics->tables.transforms.scale.x[next_physics_id]          = scale.x;
     physics->tables.transforms.scale.y[next_physics_id]          = scale.y;
-    physics->tables.transforms.rotation.radians[next_physics_id] = itfliesby_math_trig_degrees_to_radians(rotation_degrees);
+    physics->tables.transforms.rotation.radians[next_physics_id] = ifb_math_trig_degrees_to_radians(rotation_degrees);
 
     return(next_physics_id);
 }
@@ -268,7 +268,7 @@ itfliesby_engine_physics_update_rotation_degrees(
 
     f32* table_rotation_radians = physics_table_transforms_rotation->radians;
 
-    f32 rotation_radians = itfliesby_math_trig_degrees_to_radians(rotation_degrees);
+    f32 rotation_radians = ifb_math_trig_degrees_to_radians(rotation_degrees);
 
     table_rotation_radians[physics_id] = rotation_radians; 
 }

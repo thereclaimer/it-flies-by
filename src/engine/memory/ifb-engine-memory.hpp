@@ -2,9 +2,9 @@
 #define IFB_ENGINE_MEMORY_HPP
 
 #include <string.h>
-#include <itfliesby-math.hpp>
+#include <ifb-math.hpp>
 
-#define IFB_ENGINE_MEMORY_REQUIREMENT ITFLIESBY_MATH_GIGABYTES(4)
+#define IFB_ENGINE_MEMORY_REQUIREMENT IFB_MATH_GIGABYTES(4)
 
 //--------------------------------
 // TYPES

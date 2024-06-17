@@ -9,7 +9,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
-#define ITFLIESBY_ASSET_FILE_BUILDER_MEMORY_SIZE ITFLIESBY_MATH_GIGABYTES(2)
+#define ITFLIESBY_ASSET_FILE_BUILDER_MEMORY_SIZE IFB_MATH_GIGABYTES(2)
 
 #define itfliesby_asset_file_builder_main WINAPI wWinMain
 

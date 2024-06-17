@@ -98,13 +98,13 @@ struct ItfliesbyRendererShaderBuffersSimpleQuad {
 #define ITFLIESBY_RENDERER_TEST_BATCH_COUNT_MAX 32
 
 struct ItfliesbyRendererSimpleQuad {
-    ItfliesbyMathMat3                 transform;
+    IFBMathMat3                 transform;
     ItfliesbyRendererColorNormalized  color;
     ItfliesbyRendererTextureId        texture;
 };
 
 struct ItfliesbyRendererBatchSimpleQuad {
-    ItfliesbyMathMat3                transform[ITFLIESBY_RENDERER_TEST_BATCH_COUNT_MAX];
+    IFBMathMat3                transform[ITFLIESBY_RENDERER_TEST_BATCH_COUNT_MAX];
     ItfliesbyRendererColorNormalized color[ITFLIESBY_RENDERER_TEST_BATCH_COUNT_MAX];
     ItfliesbyRendererTextureId       texture[ITFLIESBY_RENDERER_TEST_BATCH_COUNT_MAX];
     size_t                           count;

@@ -23,12 +23,12 @@ struct ItfliesbyRendererBuffers {
 };
 
 struct ItfliesbyRendererPerspective {
-    ItfliesbyMathMat3 transform;
+    IFBMathMat3 transform;
     f32               width_pixels;
     f32               height_pixels;
 };
 
-typedef ItfliesbyMathVec2 ItfliesbyRendererScaleFactor;
+typedef IFBMathVec2 ItfliesbyRendererScaleFactor;
 
 struct ItfliesbyRenderer {
     handle                        gl_context;
@@ -45,12 +45,12 @@ struct ItfliesbyRenderer {
 
 inline void
 itfliesby_renderer_apply_perspective_to_transforms(
-    const ItfliesbyMathMat3* perspective,
-    const ItfliesbyMathMat3* in_transforms,
+    const IFBMathMat3* perspective,
+    const IFBMathMat3* in_transforms,
     const size_t             transforms_count,
-          ItfliesbyMathMat3* out_transforms) {
+          IFBMathMat3* out_transforms) {
 
-    itfliesby_math_mat3_multiply(
+    ifb_math_mat3_multiply(
         perspective,
         in_transforms,
         transforms_count,

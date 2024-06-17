@@ -4,10 +4,10 @@
 #include <itfliesby.hpp>
 #include <math/itfliesby-math.hpp>
 
-typedef ItfliesbyMathMat3 ItfliesbyEnginePhysicsTransform;
-typedef ItfliesbyMathVec2 ItfliesbyEnginePhysicsPosition;
-typedef ItfliesbyMathVec2 ItfliesbyEnginePhysicsVelocity;
-typedef ItfliesbyMathVec2 ItfliesbyEnginePhysicsScale;
+typedef IFBMathMat3 ItfliesbyEnginePhysicsTransform;
+typedef IFBMathVec2 ItfliesbyEnginePhysicsPosition;
+typedef IFBMathVec2 ItfliesbyEnginePhysicsVelocity;
+typedef IFBMathVec2 ItfliesbyEnginePhysicsScale;
 typedef f32               ItfliesbyEnginePhysicsRotationDegrees;
 
 struct ItfliesbyEnginePhysicsMemory {

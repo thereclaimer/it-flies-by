@@ -22,7 +22,7 @@ struct ItfliesbyEngineSpriteRenderingContext {
     ItfliesbyEngineSpriteId    sprite_ids[ITFLIESBY_ENGINE_SPRITE_COUNT_MAX];
     ItfliesbyRendererTextureId renderer_textures[ITFLIESBY_ENGINE_SPRITE_COUNT_MAX];
     ItfliesbyRendererColorHex  colors[ITFLIESBY_ENGINE_SPRITE_COUNT_MAX];
-    ItfliesbyMathMat3          transforms[ITFLIESBY_ENGINE_SPRITE_COUNT_MAX];
+    IFBMathMat3          transforms[ITFLIESBY_ENGINE_SPRITE_COUNT_MAX];
     size_t                     sprite_count;
 };
 
