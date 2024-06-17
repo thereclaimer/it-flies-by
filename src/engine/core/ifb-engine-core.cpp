@@ -14,10 +14,6 @@ ifb_engine_create_and_initialize(
     ifb_assert(platform.file_close);
     ifb_assert(platform.memory_allocate);
     ifb_assert(platform.memory_free);
-    ifb_assert(platform.graphics_api_init);
-    ifb_assert(platform.imgui_init);
-    ifb_assert(platform.imgui_frame_start);
-    ifb_assert(platform.imgui_frame_end);
     ifb_assert(platform.ticks);
     ifb_assert(platform.delta_time_ms);
     ifb_assert(platform.sleep);

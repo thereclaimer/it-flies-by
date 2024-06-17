@@ -1,6 +1,6 @@
 @echo off
 
-@set cl_preprocessor= /D UNICODE ^ 
+@set cl_preprocessor= /D UNICODE ^
                       /D _UNICODE
 
 @set cl_flags=        /MD /utf-8 /Zi 
@@ -9,8 +9,8 @@
                       /Fd:bin\ItFliesBy.pdb ^
                       /Fo:bin\ItFliesBy.obj
 
-@set cl_includes=     /I .\src\                                ^
-                      /I .\src\platform\win32                  ^
+@set cl_includes=     /I .\src\                ^
+                      /I .\src\platform\win32  ^
                       /I .\src\common                          
 
 @set cl_source=       src\platform\win32\ifb-win32-src.cpp

@@ -41,10 +41,6 @@ global ItfliesbyPlatformApi ifb_platform_api;
 #define ifb_engine_platform_file_close        ifb_platform_api.file_close
 #define ifb_engine_platform_memory_allocate   ifb_platform_api.memory_allocate
 #define ifb_engine_platform_memory_free       ifb_platform_api.memory_free
-#define ifb_engine_platform_graphics_api_init ifb_platform_api.graphics_api_init
-#define ifb_engine_platform_imgui_init        ifb_platform_api.imgui_init
-#define ifb_engine_platform_imgui_frame_start ifb_platform_api.imgui_frame_start
-#define ifb_engine_platform_imgui_frame_end   ifb_platform_api.imgui_frame_end
 #define ifb_engine_platform_ticks             ifb_platform_api.ticks
 #define ifb_engine_platform_delta_time_ms     ifb_platform_api.delta_time_ms
 #define ifb_engine_platform_sleep             ifb_platform_api.sleep

@@ -1,9 +1,11 @@
 #ifndef IFB_WIN32_HPP
 #define IFB_WIN32_HPP
 
-#include <itfliesby-types.hpp>
 #include <Windows.h>
 #include <GL/GL.h>
+
+#include <itfliesby-types.hpp>
+#include <itfliesby-platform-api.hpp>
 
 struct  IFBWin32;
 typedef IFBWin32*       IFBWin32_Ptr;
@@ -102,5 +104,12 @@ ifb_win32_opengl_create_and_initialize();
 
 void
 ifb_win32_opengl_resize_and_clear_viewport();
+
+//--------------------------------
+// API
+//--------------------------------
+
+ItfliesbyPlatformApi
+ifb_win32_api_create_and_initialize();
 
 #endif  //IFB_WIN32_HPP
