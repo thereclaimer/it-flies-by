@@ -6,7 +6,8 @@
 #include <Xinput.h>
 
 #include <ifb.hpp>
-#include <engine/api/ifb-engine.hpp>
+#include <ifb-engine.hpp>
+#include <ifb-game.hpp>
 
 struct  IFBWin32;
 typedef IFBWin32*       IFBWin32_Ptr;
@@ -45,6 +46,7 @@ struct IFBWin32 {
     IFBWin32OpenglHandle opengl;
     IFBWin32ImGuiHandle  imgui;
     IFBEngineHandle      engine;
+    IFBGameHandle        game;
     IFBUserInput         user_input;
 };
 

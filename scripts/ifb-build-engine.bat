@@ -1,7 +1,6 @@
 @echo off
 
-@set cl_includes= /I dependencies         ^
-                  /I src                  ^
+@set cl_includes= /I src                  ^
                   /I src\common           ^
                   /I src\math             ^
                   /I src\engine           ^

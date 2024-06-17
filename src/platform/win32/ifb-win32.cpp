@@ -45,6 +45,11 @@ ifb_win32_create_engine() {
 internal void
 ifb_win32_create_game() {
 
+    ifb_assert(ifb_win32.engine);
+
+    ifb_win32.game = ifb_game_create_and_initialize(ifb_win32.engine);
+
+    ifb_assert(ifb_win32.game);
 }
 
 internal int
@@ -64,19 +69,22 @@ ifb_win32_main(
     ifb_win32_create_opengl();
     ifb_win32_create_imgui();
     ifb_win32_create_engine();
+    ifb_win32_create_game();
 
     bool running = true;
 
     while(running) {
 
+        //frame start
         ifb_win32_window_process_events();
-
         ifb_win32_opengl_resize_and_clear_viewport();
-
         ifb_win32_imgui_frame_start();
 
-        ifb_win32_imgui_frame_render();
+        //update frame
+        ifb_game_update_and_render(ifb_win32.user_input);
 
+        //frame end
+        ifb_win32_imgui_frame_render();
         ifb_win32_window_render();
 
         running = !ifb_win32_window_quit_event_received();

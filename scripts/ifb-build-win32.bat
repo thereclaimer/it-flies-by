@@ -13,6 +13,7 @@
                       /I .\src\platform\win32  ^
                       /I .\src\common          ^
                       /I .\src\engine\api      ^
+                      /I .\src\game\api        ^
                       /I .\vcpkg_installed\x64-windows\include           
 
 @set cl_source=       src\platform\win32\ifb-win32-src.cpp
@@ -21,7 +22,13 @@
                       /LIBPATH:vcpkg_installed\x64-windows\lib ^
                       /LIBPATH:bin
 
-@set cl_libs=         user32.lib opengl32.lib gdi32.lib imgui.lib ItFliesBy.Engine.lib Xinput.lib
+@set cl_libs=         user32.lib           ^
+                      opengl32.lib         ^
+                      gdi32.lib            ^
+                      imgui.lib            ^
+                      Xinput.lib           ^
+                      ItFliesBy.Engine.lib ^
+                      ItFliesBy.Game.lib
 
 call cl.exe           ^
     %cl_preprocessor% ^
