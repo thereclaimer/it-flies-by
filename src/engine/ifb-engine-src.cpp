@@ -8,6 +8,11 @@
 #include "ifb-engine-memory-arena.cpp"
 
 //--------------------------------
+// assets
+//--------------------------------
+#include "ifb-engine-assets.cpp"
+
+//--------------------------------
 // CORE
 //--------------------------------
-#include "ifb-engine-core.cpp"
+#include "ifb-engine.cpp"

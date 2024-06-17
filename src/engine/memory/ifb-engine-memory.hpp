@@ -4,6 +4,8 @@
 #include <string.h>
 #include <ifb-math.hpp>
 
+#include "ifb-engine-platform.hpp"
+
 #define IFB_ENGINE_MEMORY_REQUIREMENT IFB_MATH_GIGABYTES(4)
 
 //--------------------------------
@@ -11,28 +13,28 @@
 //--------------------------------
 
 typedef struct                  IFBEngineMemory;
-typedef IFBEngineMemory*        IFBEngineMemory_Ptr;
-typedef IFBEngineMemory&        IFBEngineMemory_Ref;
+typedef IFBEngineMemory*        IFBEngineMemoryPtr;
+typedef IFBEngineMemory&        IFBEngineMemoryRef;
 typedef void*                   IFBEngineMemoryHandle;
 
 typedef struct                  IFBEngineMemoryManager;
-typedef IFBEngineMemoryManager* IFBEngineMemoryManager_Ptr;
-typedef IFBEngineMemoryManager& IFBEngineMemoryManager_Ref;
+typedef IFBEngineMemoryManager* IFBEngineMemoryManagerPtr;
+typedef IFBEngineMemoryManager& IFBEngineMemoryManagerRef;
 
 typedef struct                  IFBEngineMemoryArena;
-typedef IFBEngineMemoryArena*   IFBEngineMemoryArena_Ptr;
-typedef IFBEngineMemoryArena&   IFBEngineMemoryArena_Ref;
+typedef IFBEngineMemoryArena*   IFBEngineMemoryArenaPtr;
+typedef IFBEngineMemoryArena&   IFBEngineMemoryArenaRef;
 
 //--------------------------------
 // MEMORY MANAGER
 //--------------------------------
 
 struct IFBEngineMemoryManager {
-    u64                      managed_memory_size_bytes;
-    u64                      arena_size;
-    memory                   managed_memory;
-    IFBEngineMemoryArena_Ptr arenas_reserved;
-    IFBEngineMemoryArena_Ptr arenas_released;
+    u64                     managed_memory_size_bytes;
+    u64                     arena_size;
+    memory                  managed_memory;
+    IFBEngineMemoryArenaPtr arenas_reserved;
+    IFBEngineMemoryArenaPtr arenas_released;
 };
 
 IFBEngineMemoryManager
@@ -43,11 +45,11 @@ ifb_engine_memory_manager_create_and_initialize(
 
 u64
 ifb_engine_memory_manager_space_reserved(
-    IFBEngineMemoryManager_Ref memory_manager_ref);
+    IFBEngineMemoryManagerRef memory_manager_ref);
 
 u64
 ifb_engine_memory_manager_space_available(
-    IFBEngineMemoryManager_Ref memory_manager_ref);
+    IFBEngineMemoryManagerRef memory_manager_ref);
 
 
 //--------------------------------
@@ -61,7 +63,7 @@ struct IFBEngineMemory {
     IFBEngineMemoryManager memory_manager_64mb;
 };
 
-IFBEngineMemory_Ptr
+IFBEngineMemoryPtr
 ifb_engine_memory_create_and_initialize();
 
 //--------------------------------
@@ -71,41 +73,41 @@ ifb_engine_memory_create_and_initialize();
 struct IFBEngineMemoryArena {
     char                       tag[32];
     u64                        used_memory;
-    IFBEngineMemoryManager_Ptr manager_ptr;
-    IFBEngineMemoryArena_Ptr   next;
-    IFBEngineMemoryArena_Ptr   previous;
+    IFBEngineMemoryManagerPtr  manager_ptr;
+    IFBEngineMemoryArenaPtr    next;
+    IFBEngineMemoryArenaPtr    previous;
     memory                     memory;
 };
 
-IFBEngineMemoryArena_Ptr
+IFBEngineMemoryArenaPtr
 ifb_engine_memory_arena_reserve(
-          IFBEngineMemoryManager_Ptr memory_manager_ptr,
-    const char                       arena_tag[32]);
+          IFBEngineMemoryManagerPtr memory_manager_ptr,
+    const char                      arena_tag[32]);
 
-IFBEngineMemoryArena_Ptr
+IFBEngineMemoryArenaPtr
 ifb_engine_memory_arena_reserve_64kb(
     const char arena_tag[32]);
 
-IFBEngineMemoryArena_Ptr
+IFBEngineMemoryArenaPtr
 ifb_engine_memory_arena_reserve_64mb(
     const char arena_tag[32]);
 
 void
 ifb_engine_memory_arena_release(
-    IFBEngineMemoryArena_Ptr arena_ptr);
+    IFBEngineMemoryArenaPtr arena_ptr);
 
 memory
 ifb_engine_memory_arena_bytes_push(
-    IFBEngineMemoryArena_Ptr arena_ptr,
-    u64                      size_bytes);
+    IFBEngineMemoryArenaPtr arena_ptr,
+    u64                     size_bytes);
 
 void
 ifb_engine_memory_arena_bytes_pop(
-    IFBEngineMemoryArena_Ptr arena_ptr,
-    u64                      size_bytes);
+    IFBEngineMemoryArenaPtr arena_ptr,
+    u64                     size_bytes);
 
 void
 ifb_engine_memory_arena_reset(
-    IFBEngineMemoryArena_Ptr arena_ptr);
+    IFBEngineMemoryArenaPtr arena_ptr);
 
 #endif //IFB_ENGINE_MEMORY_HPP

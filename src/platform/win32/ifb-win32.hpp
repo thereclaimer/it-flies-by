@@ -10,23 +10,23 @@
 #include <ifb-game.hpp>
 
 struct  IFBWin32;
-typedef IFBWin32*       IFBWin32_Ptr;
-typedef IFBWin32&       IFBWin32_Ref;
+typedef IFBWin32*       IFBWin32Ptr;
+typedef IFBWin32&       IFBWin32Ref;
 
 struct  IFBWin32Window;
-typedef IFBWin32Window* IFBWin32Window_Ptr;
-typedef IFBWin32Window& IFBWin32Window_Ref;
+typedef IFBWin32Window* IFBWin32WindowPtr;
+typedef IFBWin32Window& IFBWin32WindowRef;
 typedef void*           IFBWin32WindowHandle;
 
 struct  IFBWin32Opengl;
-typedef IFBWin32Opengl* IFBWin32Opengl_Ptr;
-typedef IFBWin32Opengl& IFBWin32Opengl_Ref;
+typedef IFBWin32Opengl* IFBWin32OpenglPtr;
+typedef IFBWin32Opengl& IFBWin32OpenglRef;
 typedef void*           IFBWin32OpenglHandle;
 
 
 struct  IFBWin32ImGui;
-typedef IFBWin32ImGui*  IFBWin32ImGui_Ptr;
-typedef IFBWin32ImGui&  IFBWin32ImGui_Ref;
+typedef IFBWin32ImGui*  IFBWin32ImGuiPtr;
+typedef IFBWin32ImGui&  IFBWin32ImGuiRef;
 typedef void*           IFBWin32ImGuiHandle;
 
 //--------------------------------

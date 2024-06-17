@@ -8,8 +8,8 @@
 // TYPES
 //--------------------------------
 struct  IFBGame;
-typedef IFBGame* IFBGame_Ptr;
-typedef IFBGame& IFBGame_Ref;
+typedef IFBGame* IFBGamePtr;
+typedef IFBGame& IFBGameRef;
 typedef void*    IFBGameHandle;
 
 //--------------------------------

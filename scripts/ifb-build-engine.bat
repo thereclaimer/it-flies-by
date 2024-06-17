@@ -4,6 +4,7 @@
                   /I src\common           ^
                   /I src\math             ^
                   /I src\engine           ^
+                  /I src\engine\common    ^
                   /I src\engine\assets    ^
                   /I src\engine\core      ^
                   /I src\engine\devtools  ^
@@ -21,7 +22,7 @@
                   /Fo: bin\ItFliesBy.Engine.obj ^
                   /Fe: bin\ItFliesBy.Engine.dll
 
-@set cl_src=      src\engine\ifb-engine.cpp
+@set cl_src=      src\engine\ifb-engine-src.cpp
 
 @set cl_linker=   /link /LIBPATH:vcpkg_installed\x64-windows\lib /LIBPATH:bin
 

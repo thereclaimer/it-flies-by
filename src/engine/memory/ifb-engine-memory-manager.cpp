@@ -26,7 +26,7 @@ ifb_engine_memory_manager_create_and_initialize(
 
 internal u64
 ifb_engine_memory_manager_space_reserved(
-    IFBEngineMemoryManager_Ref memory_manager_ref) {
+    IFBEngineMemoryManagerRef memory_manager_ref) {
 
     if (!memory_manager_ref.arenas_reserved) {
         return(0);
@@ -35,7 +35,7 @@ ifb_engine_memory_manager_space_reserved(
     u64 reserved_size_bytes = 0;
 
     for (
-        IFBEngineMemoryArena_Ptr arena = memory_manager_ref.arenas_reserved;
+        IFBEngineMemoryArenaPtr arena = memory_manager_ref.arenas_reserved;
         arena->next != NULL;
         arena = arena->next) {
 
@@ -47,11 +47,11 @@ ifb_engine_memory_manager_space_reserved(
 
 internal u64
 ifb_engine_memory_manager_space_available(
-    IFBEngineMemoryManager_Ptr memory_manager_ptr) {
+    IFBEngineMemoryManagerPtr memory_manager_ptr) {
 
     ifb_assert(memory_manager_ptr);
 
-    IFBEngineMemoryArena_Ptr arenas_reserved_ptr = memory_manager_ptr->arenas_reserved;
+    IFBEngineMemoryArenaPtr arenas_reserved_ptr = memory_manager_ptr->arenas_reserved;
 
     u64 memory_manager_size_bytes = memory_manager_ptr->managed_memory_size_bytes;
     u64 arena_size                = memory_manager_ptr->arena_size;
@@ -61,14 +61,14 @@ ifb_engine_memory_manager_space_available(
         return(memory_manager_size_bytes);
     }
 
-    u64 available_size_bytes = 0;
+    u64 available_size_bytes = memory_manager_size_bytes;
 
     for (
-        IFBEngineMemoryArena_Ptr arena = arenas_reserved_ptr; 
+        IFBEngineMemoryArenaPtr arena = arenas_reserved_ptr; 
         arena->next != NULL;
         arena = arena->next) {
 
-        memory_manager_size_bytes -= arena_size;
+        available_size_bytes -= arena_size;
     }
 
     return(available_size_bytes);

@@ -2,20 +2,20 @@
 
 #include "ifb-engine-memory.hpp"
 
-internal IFBEngineMemoryArena_Ptr
+internal IFBEngineMemoryArenaPtr
 ifb_engine_memory_arena_recycle(
-    IFBEngineMemoryManager_Ptr memory_manager_ptr) {
+    IFBEngineMemoryManagerPtr memory_manager_ptr) {
 
     ifb_assert(memory_manager_ptr);
-    IFBEngineMemoryArena_Ptr arenas_released = memory_manager_ptr->arenas_released;
+    IFBEngineMemoryArenaPtr arenas_released = memory_manager_ptr->arenas_released;
 
     if (!arenas_released) {
         return(NULL);
     }
 
-    IFBEngineMemoryArena_Ptr tail_arena = NULL;
+    IFBEngineMemoryArenaPtr tail_arena = NULL;
     for (
-        IFBEngineMemoryArena_Ptr arena = arenas_released;
+        IFBEngineMemoryArenaPtr arena = arenas_released;
         arena->next != NULL;
         arena = arena->next) {
         
@@ -24,27 +24,27 @@ ifb_engine_memory_arena_recycle(
 
     ifb_assert(tail_arena);
 
-    IFBEngineMemoryArena_Ptr previous_arena_ptr = tail_arena->previous;
+    IFBEngineMemoryArenaPtr previous_arena_ptr = tail_arena->previous;
     previous_arena_ptr->next = NULL;
     tail_arena->previous     = NULL;
 
     return(previous_arena_ptr);
 }
 
-internal IFBEngineMemoryArena_Ptr
+internal IFBEngineMemoryArenaPtr
 ifb_engine_memory_arena_released_tail(
-    IFBEngineMemoryManager_Ptr memory_manager_ptr) {
+    IFBEngineMemoryManagerPtr memory_manager_ptr) {
 
     ifb_assert(memory_manager_ptr);
-    IFBEngineMemoryArena_Ptr arenas_released = memory_manager_ptr->arenas_released;
+    IFBEngineMemoryArenaPtr arenas_released = memory_manager_ptr->arenas_released;
 
     if (!arenas_released) {
         return(NULL);
     }
 
-    IFBEngineMemoryArena_Ptr tail_arena = NULL;
+    IFBEngineMemoryArenaPtr tail_arena = NULL;
     for (
-        IFBEngineMemoryArena_Ptr arena = arenas_released;
+        IFBEngineMemoryArenaPtr arena = arenas_released;
         arena->next != NULL;
         arena = arena->next) {
         
@@ -56,20 +56,20 @@ ifb_engine_memory_arena_released_tail(
     return(tail_arena);
 }
 
-internal IFBEngineMemoryArena_Ptr
+internal IFBEngineMemoryArenaPtr
 ifb_engine_memory_arena_reserved_tail(
-    IFBEngineMemoryManager_Ptr memory_manager_ptr) {
+    IFBEngineMemoryManagerPtr memory_manager_ptr) {
     
     ifb_assert(memory_manager_ptr);
-    IFBEngineMemoryArena_Ptr arenas_reserved = memory_manager_ptr->arenas_reserved;
+    IFBEngineMemoryArenaPtr arenas_reserved = memory_manager_ptr->arenas_reserved;
 
     if (!arenas_reserved) {
         return(NULL);
     }
 
-    IFBEngineMemoryArena_Ptr tail_arena = NULL;
+    IFBEngineMemoryArenaPtr tail_arena = NULL;
     for (
-        IFBEngineMemoryArena_Ptr arena = arenas_reserved;
+        IFBEngineMemoryArenaPtr arena = arenas_reserved;
         arena->next != NULL;
         arena = arena->next) {
         
@@ -84,8 +84,8 @@ ifb_engine_memory_arena_reserved_tail(
 
 internal void
 ifb_engine_memory_arena_reset_new(
-          IFBEngineMemoryArena_Ptr   new_arena,
-          IFBEngineMemoryManager_Ptr manager_ptr,
+          IFBEngineMemoryArenaPtr   new_arena,
+          IFBEngineMemoryManagerPtr manager_ptr,
     const char                       tag[32]) {
 
     new_arena->manager_ptr = manager_ptr;
@@ -109,9 +109,9 @@ ifb_engine_memory_arena_reset_new(
         tag);
 }
 
-internal IFBEngineMemoryArena_Ptr
+internal IFBEngineMemoryArenaPtr
 ifb_engine_memory_arena_reserve(
-          IFBEngineMemoryManager_Ptr memory_manager_ptr,
+          IFBEngineMemoryManagerPtr memory_manager_ptr,
     const char                       tag[32]) {
 
     // first, see if we have space available for an arena
@@ -121,13 +121,13 @@ ifb_engine_memory_arena_reserve(
     }
 
     // we have space, so get the tail arena if we have one
-    IFBEngineMemoryArena_Ptr tail_arena = ifb_engine_memory_arena_reserved_tail(memory_manager_ptr);
+    IFBEngineMemoryArenaPtr tail_arena = ifb_engine_memory_arena_reserved_tail(memory_manager_ptr);
     
     if (!tail_arena) {
 
         // we don't have one, so make our first arena
-        memory_manager_ptr->arenas_reserved = (IFBEngineMemoryArena_Ptr)memory_manager_ptr->managed_memory;
-        IFBEngineMemoryArena_Ptr first_arena_ptr = memory_manager_ptr->arenas_reserved; 
+        memory_manager_ptr->arenas_reserved = (IFBEngineMemoryArenaPtr)memory_manager_ptr->managed_memory;
+        IFBEngineMemoryArenaPtr first_arena_ptr = memory_manager_ptr->arenas_reserved; 
 
         ifb_engine_memory_arena_reset_new(
             first_arena_ptr,
@@ -138,7 +138,7 @@ ifb_engine_memory_arena_reserve(
     }
 
     // we do have one, so lets check if we have an arena we can recycle
-    IFBEngineMemoryArena_Ptr recycled_arena = 
+    IFBEngineMemoryArenaPtr recycled_arena = 
         ifb_engine_memory_arena_recycle(memory_manager_ptr);
 
     if (recycled_arena) {
@@ -157,7 +157,7 @@ ifb_engine_memory_arena_reserve(
     
     // with nothing to recycle,we're creating a new arena,
     // so we just add that to the tail
-    IFBEngineMemoryArena_Ptr new_arena = (IFBEngineMemoryArena_Ptr)(((memory)tail_arena) + memory_manager_ptr->arena_size);
+    IFBEngineMemoryArenaPtr new_arena = (IFBEngineMemoryArenaPtr)(((memory)tail_arena) + memory_manager_ptr->arena_size);
     tail_arena->next = new_arena;
     new_arena->previous = tail_arena;
 
@@ -171,18 +171,18 @@ ifb_engine_memory_arena_reserve(
 
 void
 ifb_engine_memory_arena_release(
-    IFBEngineMemoryArena_Ptr arena_ptr) {
+    IFBEngineMemoryArenaPtr arena_ptr) {
 
     //make sure we have a valid arena
     if (!arena_ptr) {
         return;
     }
 
-    IFBEngineMemoryManager_Ptr manager_ptr = arena_ptr->manager_ptr;
+    IFBEngineMemoryManagerPtr manager_ptr = arena_ptr->manager_ptr;
 
     //get the arenas adjancent to this one
-    IFBEngineMemoryArena_Ptr arena_previous = arena_ptr->previous;
-    IFBEngineMemoryArena_Ptr arena_next     = arena_ptr->next;
+    IFBEngineMemoryArenaPtr arena_previous = arena_ptr->previous;
+    IFBEngineMemoryArenaPtr arena_next     = arena_ptr->next;
 
     //if they aren't null, join them together
     if (arena_previous) {
@@ -194,7 +194,7 @@ ifb_engine_memory_arena_release(
     }
 
     //add this to the list of released arenas
-    IFBEngineMemoryArena_Ptr released_tail_arena = 
+    IFBEngineMemoryArenaPtr released_tail_arena = 
         ifb_engine_memory_arena_released_tail(manager_ptr);
     
     if (!released_tail_arena) {
@@ -207,14 +207,14 @@ ifb_engine_memory_arena_release(
 
 internal memory
 ifb_engine_memory_arena_bytes_push(
-    IFBEngineMemoryArena_Ptr arena_ptr,
+    IFBEngineMemoryArenaPtr arena_ptr,
     u64                      size_bytes) {
 
     if (!arena_ptr || size_bytes == 0) {
         return(NULL);
     }
 
-    IFBEngineMemoryManager_Ptr manager_ptr = arena_ptr->manager_ptr;
+    IFBEngineMemoryManagerPtr manager_ptr = arena_ptr->manager_ptr;
 
     u64 new_arena_used_size = arena_ptr->used_memory + size_bytes; 
     u64 max_arena_memory    = manager_ptr->arena_size - sizeof(IFBEngineMemoryArena);
@@ -230,7 +230,7 @@ ifb_engine_memory_arena_bytes_push(
 
 internal void
 ifb_engine_memory_arena_bytes_pop(
-    IFBEngineMemoryArena_Ptr arena_ptr,
+    IFBEngineMemoryArenaPtr arena_ptr,
     u64                size_bytes) {
 
     if (!arena_ptr || size_bytes == 0) {
@@ -255,13 +255,13 @@ ifb_engine_memory_arena_bytes_pop(
 
 internal void
 ifb_engine_memory_arena_reset(
-    IFBEngineMemoryArena_Ptr arena_ptr) {
+    IFBEngineMemoryArenaPtr arena_ptr) {
 
     if (!arena_ptr) {
         return;
     }
 
-    IFBEngineMemoryManager_Ptr manager_ptr = arena_ptr->manager_ptr;
+    IFBEngineMemoryManagerPtr manager_ptr = arena_ptr->manager_ptr;
 
     //TODO: this is causing a crash
     // memset(
@@ -273,13 +273,13 @@ ifb_engine_memory_arena_reset(
 }
 
 
-internal IFBEngineMemoryArena_Ptr
+internal IFBEngineMemoryArenaPtr
 ifb_engine_memory_arena_reserve_64kb(
     const char arena_tag[32]) {
 
     ifb_assert(ifb_engine_memory.platform_memory);
 
-    IFBEngineMemoryArena_Ptr arena_64kb = 
+    IFBEngineMemoryArenaPtr arena_64kb = 
         ifb_engine_memory_arena_reserve(
             &ifb_engine_memory.memory_manager_64kb,
             arena_tag);
@@ -289,13 +289,13 @@ ifb_engine_memory_arena_reserve_64kb(
     return(arena_64kb);
 }
 
-internal IFBEngineMemoryArena_Ptr
+internal IFBEngineMemoryArenaPtr
 ifb_engine_memory_arena_reserve_64mb(
     const char arena_tag[32]) {
 
     ifb_assert(ifb_engine_memory.platform_memory);
 
-    IFBEngineMemoryArena_Ptr arena_64mb = 
+    IFBEngineMemoryArenaPtr arena_64mb = 
         ifb_engine_memory_arena_reserve(
             &ifb_engine_memory.memory_manager_64mb,
             arena_tag);

@@ -1,11 +1,10 @@
 #pragma once
 
-#include "ifb-engine-core.hpp"
 #include "ifb-engine-memory.hpp"
 
 global IFBEngineMemory ifb_engine_memory;
 
-internal IFBEngineMemory_Ptr
+internal IFBEngineMemoryPtr
 ifb_engine_memory_create_and_initialize() {
 
     ifb_engine_memory = {0};
