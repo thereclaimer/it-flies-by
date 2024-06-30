@@ -67,4 +67,18 @@ struct IFBPlatformApi  {
     func_ifb_platform_sleep           sleep;
 };
 
+global IFBPlatformApi ifb_platform_api;
+
+
+#define ifb_platform_api_file_size       ifb_platform_api.file_size
+#define ifb_platform_api_file_read       ifb_platform_api.file_read
+#define ifb_platform_api_file_write      ifb_platform_api.file_write
+#define ifb_platform_api_file_open       ifb_platform_api.file_open
+#define ifb_platform_api_file_close      ifb_platform_api.file_close
+#define ifb_platform_api_memory_allocate ifb_platform_api.memory_allocate
+#define ifb_platform_api_memory_free     ifb_platform_api.memory_free
+#define ifb_platform_api_ticks           ifb_platform_api.ticks
+#define ifb_platform_api_delta_time_ms   ifb_platform_api.delta_time_ms
+#define ifb_platform_api_sleep           ifb_platform_api.sleep
+
 #endif //IFB_PLATFORM_API_HPP

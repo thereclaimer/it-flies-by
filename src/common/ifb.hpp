@@ -5,5 +5,6 @@
 #include "ifb-types.hpp"
 #include "ifb-user-input.hpp"
 #include "ifb-platform-api.hpp"
+#include "ifb-tag.hpp"
 
 #endif //IFB_HPP
