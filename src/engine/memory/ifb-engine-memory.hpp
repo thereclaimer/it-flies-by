@@ -115,9 +115,10 @@ ifb_engine_memory_arena_allocator_total_required_size_bytes(
 //---------------------------------
 
 struct IFBEngineMemoryArena {
+    u64                     bytes_used;
     IFBEngineMemoryBlock    block;
     IFBEngineMemoryArenaPtr next;
-    u64                     bytes_used;
+    IFBEngineMemoryArenaPtr previous;
 };
 
 u64
@@ -129,11 +130,13 @@ ifb_engine_memory_arena_total_required_size_bytes(
     u64 arena_size_bytes);
 
 IFBEngineMemoryArenaPtr
-ifb_engine_memory_arena_reserve();
+ifb_engine_memory_arena_reserve(
+    IFBEngineMemoryArenaAllocatorPtr allocator_ptr);
 
 void
 ifb_engine_memory_arena_release(
-    IFBEngineMemoryArenaPtr arena_ptr);
+    IFBEngineMemoryArenaAllocatorPtr allocator_ptr,
+    IFBEngineMemoryArenaPtr          arena_ptr);
 
 memory
 ifb_engine_memory_arena_bytes_push(
@@ -144,5 +147,17 @@ void
 ifb_engine_memory_arena_bytes_pop(
     IFBEngineMemoryArenaPtr arena_ptr,
     u64                     bytes_count);
+
+void    
+ifb_engine_memory_arena_clear(
+    IFBEngineMemoryArenaPtr arena_ptr);
+
+u64
+ifb_engine_memory_arena_space_available(
+    IFBEngineMemoryArenaPtr arena_ptr);
+
+u64
+ifb_engine_memory_arena_space_used(
+    IFBEngineMemoryArenaPtr arena_ptr);
 
 #endif //IFB_ENGINE_MEMORY_HPP

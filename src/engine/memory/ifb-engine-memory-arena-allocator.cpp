@@ -64,12 +64,47 @@ ifb_engine_memory_arena_allocator_create(
     allocator_new_ptr->arenas.arena_size_bytes = arena_size_bytes;
     allocator_new_ptr->arenas.reserved         = NULL;
 
+    //set initiali offsets
     u64 remaining_arena_space_available = allocator_size_bytes;
-    u64 
+    u64 single_arena_total_size         = ifb_engine_memory_arena_total_required_size_bytes(arena_size_bytes); 
+    u64 last_arena_offset               = allocator_size_bytes - single_arena_total_size; 
+
+    //set the first arena pointer
+    memory arena_memory = allocator_new_ptr->block;
+
+    allocator_new_ptr->arenas.available = (IFBEngineMemoryArenaPtr)arena_memory; 
+
+    IFBEngineMemoryArenaPtr arena_previous  = allocator_new_ptr->arenas;
+    arena_previous->block.memory            = arena_memory;
+    arena_previous->block.memory_size_bytes = arena_size_bytes; 
+    arena_previous->bytes_used              = 0;
+    arena_previous->next                    = NULL;
+    arena_previous->previous                = NULL;
+
+    IFBEngineMemoryArenaPtr arena_current         = NULL;
+    memory                  arena_current_memory  = NULL;
+    memory                  arena_previous_memory = (memory)arena_previous; 
 
     for (
+        u64 offset = single_arena_total_size;
+        offset <  last_arena_offset;
+        offset += single_arena_total_size) {
 
-    )
+        arena_current_memory = arena_previous_memory + single_arena_total_size;
+        arena_current        = (IFBEngineMemoryArenaPtr)arena_current_memory;
+        arena_previous->next = arena_current;
+
+        arena_current->block.memory            = arena_current_memory + sizeof(IFBEngineMemoryArena);
+        arena_current->block.memory_size_bytes = arena_size_bytes;
+        arena_current->bytes_used              = 0;
+        arena_current->next                    = NULL;
+
+        arena_previous_memory = (memory)arena_current;
+        arena_previous->next  = arena_current;
+        arena_previous        = arena_current
+    }
+
+    return(allocator_new_ptr);
 
 }
 
