@@ -35,7 +35,7 @@ ifb_engine_memory_arena_allocator_create(
     //if there's no existing allocator, just grab the first one
     if (!allocator_last_ptr) {
         allocator_new_ptr            = (IFBEngineMemoryArenaAllocatorPtr)region_ptr->block.memory;
-        allocator_new_memory         = (memory)region_new_ptr; 
+        allocator_new_memory         = (memory)allocator_new_ptr; 
         region_ptr->arena_allocators = allocator_new_ptr;
     }
     //if there are existing allocators, grab the last one
@@ -50,7 +50,7 @@ ifb_engine_memory_arena_allocator_create(
         u64    allocator_last_size   = ifb_engine_memory_arena_allocator_total_size_bytes(allocator_last_ptr);            
     
         allocator_new_memory     = allocator_last_memory + allocator_last_size;
-        allocator_new_ptr        = (IFBEngineMemoryRegionPtr)allocator_new_ptr;         
+        allocator_new_ptr        = (IFBEngineMemoryArenaAllocatorPtr)allocator_new_ptr;         
         allocator_last_ptr->next = allocator_new_ptr; 
     }
 
@@ -69,12 +69,12 @@ ifb_engine_memory_arena_allocator_create(
     u64 single_arena_total_size         = ifb_engine_memory_arena_total_required_size_bytes(arena_size_bytes); 
     u64 last_arena_offset               = allocator_size_bytes - single_arena_total_size; 
 
-    //set the first arena pointer
-    memory arena_memory = allocator_new_ptr->block;
+    //set the first allocator pointer
+    memory arena_memory = allocator_new_ptr->block.memory;
 
     allocator_new_ptr->arenas.available = (IFBEngineMemoryArenaPtr)arena_memory; 
 
-    IFBEngineMemoryArenaPtr arena_previous  = allocator_new_ptr->arenas;
+    IFBEngineMemoryArenaPtr arena_previous  = allocator_new_ptr->arenas.available;
     arena_previous->block.memory            = arena_memory;
     arena_previous->block.memory_size_bytes = arena_size_bytes; 
     arena_previous->bytes_used              = 0;
@@ -101,7 +101,7 @@ ifb_engine_memory_arena_allocator_create(
 
         arena_previous_memory = (memory)arena_current;
         arena_previous->next  = arena_current;
-        arena_previous        = arena_current
+        arena_previous        = arena_current;
     }
 
     return(allocator_new_ptr);

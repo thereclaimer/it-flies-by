@@ -14,9 +14,9 @@ ifb_engine_memory_create_and_initialize() {
     ifb_assert(platform_memory);
 
     //initialize engine memory
-    ifb_engine_memory.platform_memory_block.block      = platform_memory;
-    ifb_engine_memory.platform_memory_block.size_bytes = IFB_ENGINE_MEMORY_REQUIREMENT;
-    ifb_engine_memory.regions                          = NULL;
+    ifb_engine_memory.platform_memory_block.memory            = ifb_engine_platform_memory_allocate(IFB_ENGINE_MEMORY_REQUIREMENT);
+    ifb_engine_memory.platform_memory_block.memory_size_bytes = IFB_ENGINE_MEMORY_REQUIREMENT;
+    ifb_engine_memory.regions                                 = NULL;
 
     return(&ifb_engine_memory);
 }

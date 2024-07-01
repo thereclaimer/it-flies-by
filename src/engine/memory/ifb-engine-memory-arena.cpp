@@ -7,7 +7,7 @@ ifb_engine_memory_arena_total_size_bytes(
     IFBEngineMemoryArenaPtr arena_ptr) {
 
     u64 arena_total_size_bytes = 
-        sizeof(IFBEngineMemoryArena`) +
+        sizeof(IFBEngineMemoryArena) +
         arena_ptr->block.memory_size_bytes;
 
     return(arena_total_size_bytes);
@@ -19,7 +19,7 @@ ifb_engine_memory_arena_total_required_size_bytes(
 
     u64 required_size_bytes = 
         sizeof(IFBEngineMemoryArena) +
-        region_size_bytes;        
+        arena_size_bytes;        
 
     return(required_size_bytes);
 }
@@ -37,16 +37,16 @@ ifb_engine_memory_arena_reserve(
     allocator_ptr->arenas.available        = reserved_arena->next;
 
     //put this new arena at the front of the reserved arenas
-    reserved_arena->previous     = NULL;
-    reserved_arena->next         = allocator_ptr->arenas.reserved;
-    vcbat_memory.arenas_reserved = reserved_arena;
+    reserved_arena->previous       = NULL;
+    reserved_arena->next           = allocator_ptr->arenas.reserved;
+    allocator_ptr->arenas.reserved = reserved_arena;
 
     //reset the reserved arena
     reserved_arena->bytes_used = 0;
     memset(
         reserved_arena->block.memory,
         0,
-        allocator_ptr->arenas.arena_size_bytes;
+        allocator_ptr->arenas.arena_size_bytes);
 
     return(reserved_arena);      
 
@@ -89,7 +89,7 @@ ifb_engine_memory_arena_bytes_push(
     u64 new_size  = arena_ptr->bytes_used + bytes_count;
     u64 max_size  = arena_ptr->block.memory_size_bytes; 
 
-    if (new_size >= max_space) {
+    if (new_size >= max_size) {
         return(NULL);
     }
 
@@ -113,12 +113,12 @@ ifb_engine_memory_arena_bytes_pop(
 
     ifb_assert(arena_ptr->block.memory);
 
-    if (arena_ptr->bytes_used < size) {
+    if (arena_ptr->bytes_used < bytes_count) {
         arena_ptr->bytes_used = 0;
         return;
     }
 
-    arena_ptr->bytes_used -= size;
+    arena_ptr->bytes_used -= bytes_count;
 }
 
 internal void    
@@ -134,7 +134,7 @@ ifb_engine_memory_arena_clear(
     memset(
         arena_ptr->block.memory,
         0,
-        arena_ptr->block.memory_size_bytes
+        arena_ptr->block.memory_size_bytes);
 
     arena_ptr->bytes_used = 0;
 

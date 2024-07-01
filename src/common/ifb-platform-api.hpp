@@ -67,9 +67,6 @@ struct IFBPlatformApi  {
     func_ifb_platform_sleep           sleep;
 };
 
-global IFBPlatformApi ifb_platform_api;
-
-
 #define ifb_platform_api_file_size       ifb_platform_api.file_size
 #define ifb_platform_api_file_read       ifb_platform_api.file_read
 #define ifb_platform_api_file_write      ifb_platform_api.file_write

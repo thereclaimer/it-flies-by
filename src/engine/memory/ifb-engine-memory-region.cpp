@@ -84,7 +84,7 @@ ifb_engine_memory_region_space_availabe_bytes(
     u64 space_available = region_ptr->block.memory_size_bytes;
 
     for (
-        IFBEngineMemoryArenaAllocatorPtr allocator = region_ptr;
+        IFBEngineMemoryArenaAllocatorPtr allocator = region_ptr->arena_allocators;
         allocator && allocator->next;
         allocator =  allocator->next) {
 

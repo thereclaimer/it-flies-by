@@ -24,15 +24,21 @@ const char* ITFLIESBY_ENGINE_ASSETS_FILE_PATHS[] = {
     "ItFliesBy.Assets.Images.ifb"   // IFBEngineAssetFileId_images
 };
 
-struct IFBEngineAssetMemory {
+#define IFB_ENGINE_ASSET_MEMORY_REGION_SIZE  IFB_MATH_MEGABYTES(64)
+#define IFB_ENGINE_ASSET_MEMORY_ARENA_8KB    IFB_MATH_KILOBYTES(8)
+#define IFB_ENGINE_ASSET_MEMORY_ARENA_64KB   IFB_MATH_KILOBYTES(64)
+#define IFB_ENGINE_ASSET_MEMORY_ARENA_128KB  IFB_MATH_KILOBYTES(128)
+#define IFB_ENGINE_ASSET_MEMORY_ARENA_1MB    IFB_MATH_MEGABYTES(1)
+#define IFB_ENGINE_ASSET_MEMORY_ARENA_4MB    IFB_MATH_MEGABYTES(4)
 
-    union {
-        struct{
-            IFBEngineMemoryArenaPtr arena_shader_64kb; // IFBEngineAssetFileId_shaders
-            IFBEngineMemoryArenaPtr arena_image_64mb;  // IFBEngineAssetFileId_images
-        };
-        IFBEngineMemoryArenaPtr array[IFBEngineAssetFileId_count];
-    };
+
+struct IFBEngineAssetMemory {
+    IFBEngineMemoryRegionPtr         region;
+    IFBEngineMemoryArenaAllocatorPtr asset_arena_allocator_8kb;
+    IFBEngineMemoryArenaAllocatorPtr asset_arena_allocator_64kb;
+    IFBEngineMemoryArenaAllocatorPtr asset_arena_allocator_128kb;
+    IFBEngineMemoryArenaAllocatorPtr asset_arena_allocator_1mb;
+    IFBEngineMemoryArenaAllocatorPtr asset_arena_allocator_4mb;
 };
 
 struct IFBEngineAssetIndex {
