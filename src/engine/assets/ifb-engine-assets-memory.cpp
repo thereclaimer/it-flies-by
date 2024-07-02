@@ -52,6 +52,31 @@ ifb_engine_assets_memory_allocator_arena_create() {
     return(arena_allocator);
 }
 
+IFBEngineAssetMemoryBlockAllocator
+ifb_engine_assets_memory_allocator_block_create() {
+
+    IFBEngineAssetMemoryBlockAllocator block_allocator = {0};
+
+
+    return(block_allocator);
+}
+
+IFBEngineAssetMemoryIndexAllocator
+ifb_engine_assets_memory_allocator_index_create() {
+
+    IFBEngineAssetMemoryIndexAllocator index_allocator = {0};
+
+    index_allocator.arena = 
+        ifb_engine_memory_arena_reserve(
+            ifb_engine_asset_memory.allocators.arena.arena_8KB);
+
+    ifb_assert(index_allocator.arena);
+
+    index_allocator.stack_ptr = NULL;
+
+    return(index_allocator);
+}
+
 IFBEngineAssetsMemoryPtr
 ifb_engine_assets_memory_create_and_initialize() {
 
@@ -65,7 +90,10 @@ ifb_engine_assets_memory_create_and_initialize() {
 
     ifb_assert(ifb_engine_asset_memory.region);
 
+    //create the allocators
     ifb_engine_asset_memory.allocators.arena = ifb_engine_assets_memory_allocator_arena_create();
+    ifb_engine_asset_memory.allocators.block = ifb_engine_assets_memory_allocator_block_create();
+    ifb_engine_asset_memory.allocators.index = ifb_engine_assets_memory_allocator_index_create();
 
     return(&ifb_engine_asset_memory);
 }

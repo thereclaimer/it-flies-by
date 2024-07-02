@@ -50,7 +50,7 @@ ifb_engine_memory_arena_allocator_create(
         u64    allocator_last_size   = ifb_engine_memory_arena_allocator_total_size_bytes(allocator_last_ptr);            
     
         allocator_new_memory     = allocator_last_memory + allocator_last_size;
-        allocator_new_ptr        = (IFBEngineMemoryArenaAllocatorPtr)allocator_new_ptr;         
+        allocator_new_ptr        = (IFBEngineMemoryArenaAllocatorPtr)allocator_new_memory;         
         allocator_last_ptr->next = allocator_new_ptr; 
     }
 
@@ -77,7 +77,7 @@ ifb_engine_memory_arena_allocator_create(
     allocator_new_ptr->arenas.available = (IFBEngineMemoryArenaPtr)arena_memory; 
 
     IFBEngineMemoryArenaPtr arena_previous  = allocator_new_ptr->arenas.available;
-    arena_previous->block.memory            = arena_memory;
+    arena_previous->block.memory            = arena_memory + + sizeof(IFBEngineMemoryArena);
     arena_previous->block.memory_size_bytes = arena_size_bytes; 
     arena_previous->bytes_used              = 0;
     arena_previous->next                    = NULL;
@@ -96,6 +96,9 @@ ifb_engine_memory_arena_allocator_create(
         arena_current_memory = arena_previous_memory + single_arena_total_size;
         arena_current        = (IFBEngineMemoryArenaPtr)arena_current_memory;
         arena_previous->next = arena_current;
+
+        //TODO: something is going on that is causing the block memory to have the same address of the 
+        //arena, the block memory should be at the end of the arena structure
 
         arena_current->block.memory            = arena_current_memory + sizeof(IFBEngineMemoryArena);
         arena_current->block.memory_size_bytes = arena_size_bytes;
