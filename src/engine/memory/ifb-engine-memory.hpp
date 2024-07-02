@@ -85,6 +85,7 @@ ifb_engine_memory_region_space_availabe_bytes(
 struct IFBEngineMemoryArenaAllocator {
     IFBTag                           tag;
     IFBEngineMemoryBlock             block;
+    IFBEngineMemoryRegionPtr         region;
     IFBEngineMemoryArenaAllocatorPtr next;
 
     struct {
@@ -109,21 +110,21 @@ u64
 ifb_engine_memory_arena_allocator_total_required_size_bytes(
     u64 allocator_size_bytes);
 
-
 //---------------------------------
 // ARENA
 //---------------------------------
 
 struct IFBEngineMemoryArena {
-    u64                     bytes_used;
-    IFBEngineMemoryBlock    block;
-    IFBEngineMemoryArenaPtr next;
-    IFBEngineMemoryArenaPtr previous;
+    u64                              bytes_used;
+    IFBEngineMemoryBlock             block;
+    IFBEngineMemoryArenaPtr          next;
+    IFBEngineMemoryArenaPtr          previous;
+    IFBEngineMemoryArenaAllocatorPtr allocator;
 };
 
 u64
 ifb_engine_memory_arena_total_size_bytes(
-    IFBEngineMemoryArenaPtr allocator_ptr);
+    IFBEngineMemoryArenaPtr arena_ptr);
 
 u64
 ifb_engine_memory_arena_total_required_size_bytes(
@@ -135,15 +136,14 @@ ifb_engine_memory_arena_reserve(
 
 void
 ifb_engine_memory_arena_release(
-    IFBEngineMemoryArenaAllocatorPtr allocator_ptr,
-    IFBEngineMemoryArenaPtr          arena_ptr);
+    IFBEngineMemoryArenaPtr arena_ptr);
 
 memory
 ifb_engine_memory_arena_bytes_push(
     IFBEngineMemoryArenaPtr arena_ptr,
     u64                     bytes_count);
 
-void
+memory
 ifb_engine_memory_arena_bytes_pop(
     IFBEngineMemoryArenaPtr arena_ptr,
     u64                     bytes_count);

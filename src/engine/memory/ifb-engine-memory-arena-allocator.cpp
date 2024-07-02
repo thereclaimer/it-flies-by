@@ -41,7 +41,7 @@ ifb_engine_memory_arena_allocator_create(
     //if there are existing allocators, grab the last one
     else {
 
-        for (
+        for ( 
             allocator_last_ptr;
             allocator_last_ptr && allocator_last_ptr->next;
             allocator_last_ptr =  allocator_last_ptr->next);
@@ -58,9 +58,11 @@ ifb_engine_memory_arena_allocator_create(
     ifb_assert(allocator_new_ptr);
 
     //we have an allocator, initialize it
+    allocator_new_ptr->tag                     = ifb_tag(allocator_tag);
     allocator_new_ptr->block.memory            = allocator_new_memory + sizeof(IFBEngineMemoryArenaAllocator);
     allocator_new_ptr->block.memory_size_bytes = allocator_size_bytes;
-    allocator_new_ptr->tag                     = ifb_tag(allocator_tag);
+    allocator_new_ptr->region                  = region_ptr;
+    allocator_new_ptr->next                    = NULL;
     allocator_new_ptr->arenas.arena_size_bytes = arena_size_bytes;
     allocator_new_ptr->arenas.reserved         = NULL;
 
@@ -80,6 +82,7 @@ ifb_engine_memory_arena_allocator_create(
     arena_previous->bytes_used              = 0;
     arena_previous->next                    = NULL;
     arena_previous->previous                = NULL;
+    arena_previous->allocator               = allocator_new_ptr;    
 
     IFBEngineMemoryArenaPtr arena_current         = NULL;
     memory                  arena_current_memory  = NULL;
@@ -98,6 +101,7 @@ ifb_engine_memory_arena_allocator_create(
         arena_current->block.memory_size_bytes = arena_size_bytes;
         arena_current->bytes_used              = 0;
         arena_current->next                    = NULL;
+        arena_current->allocator               = allocator_new_ptr;    
 
         arena_previous_memory = (memory)arena_current;
         arena_previous->next  = arena_current;
@@ -105,7 +109,6 @@ ifb_engine_memory_arena_allocator_create(
     }
 
     return(allocator_new_ptr);
-
 }
 
 internal u64

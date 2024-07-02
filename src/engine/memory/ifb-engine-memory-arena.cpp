@@ -54,8 +54,7 @@ ifb_engine_memory_arena_reserve(
 
 internal void
 ifb_engine_memory_arena_release(
-    IFBEngineMemoryArenaAllocatorPtr allocator_ptr,
-    IFBEngineMemoryArenaPtr          arena_ptr) {
+    IFBEngineMemoryArenaPtr arena_ptr) {
 
     if (!arena_ptr) {
         return;
@@ -71,6 +70,8 @@ ifb_engine_memory_arena_release(
     if (arena_next) {
         arena_next->previous = arena_previous;
     }
+
+    IFBEngineMemoryArenaAllocatorPtr allocator_ptr = arena_ptr->allocator;
 
     arena_ptr->previous             = NULL;
     arena_ptr->next                 = allocator_ptr->arenas.available;
@@ -102,23 +103,29 @@ ifb_engine_memory_arena_bytes_push(
 
 }
 
-internal void
+internal memory
 ifb_engine_memory_arena_bytes_pop(
     IFBEngineMemoryArenaPtr          arena_ptr,
     u64                              bytes_count) {
 
     if (!arena_ptr) {
-        return;
+        return(NULL);
     }
 
     ifb_assert(arena_ptr->block.memory);
 
     if (arena_ptr->bytes_used < bytes_count) {
         arena_ptr->bytes_used = 0;
-        return;
+        return(NULL);
     }
 
     arena_ptr->bytes_used -= bytes_count;
+
+    memory new_memory =
+        arena_ptr->block.memory +
+        arena_ptr->bytes_used;
+        
+    return(new_memory);
 }
 
 internal void    
@@ -165,4 +172,3 @@ ifb_engine_memory_arena_space_used(
 
     u64 space_used = arena_ptr->bytes_used;
 }
-

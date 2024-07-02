@@ -5,84 +5,203 @@
 
 #include "ifb-engine-memory.hpp"
 
+//---------------------------------
+// TYPES
+//---------------------------------
+
 struct  IFBEngineAssets;
 typedef IFBEngineAssets* IFBEngineAssetsPtr;
 typedef IFBEngineAssets& IFBEngineAssetsRef;
 
-#define IFB_ENGINE_ASSET_ARENA_TAG_SHADER "ENGINE ASSETS SHADER"
-#define IFB_ENGINE_ASSET_ARENA_TAG_IMAGE  "ENGINE ASSETS IMAGE"
+struct  IFBEngineAssetsMemory;
+typedef IFBEngineAssetsMemory* IFBEngineAssetsMemoryPtr;
+typedef IFBEngineAssetsMemory& IFBEngineAssetsMemoryRef;
 
-enum IFBEngineAssetFileId_ : s32 {
-    IFBEngineAssetFileId_invalid = -1,
-    IFBEngineAssetFileId_shaders =  0,
-    IFBEngineAssetFileId_images  =  1,
-    IFBEngineAssetFileId_count   =  2
-};
+struct  IFBEngineAssetMemoryBlock;
+typedef IFBEngineAssetMemoryBlock* IFBEngineAssetMemoryBlockPtr;
+typedef IFBEngineAssetMemoryBlock& IFBEngineAssetMemoryBlockRef;
 
-const char* ITFLIESBY_ENGINE_ASSETS_FILE_PATHS[] = {
-    "ItFliesBy.Assets.Shaders.ifb", // IFBEngineAssetFileId_shaders
-    "ItFliesBy.Assets.Images.ifb"   // IFBEngineAssetFileId_images
-};
+
+struct  IFBEngineAssetTableIndex;
+typedef IFBEngineAssetTableIndex* IFBEngineAssetTableIndexPtr;
+typedef IFBEngineAssetTableIndex& IFBEngineAssetTableIndexRef;
+
+
+struct  IFBAssetIndexStore;
+typedef IFBAssetIndexStore* IFBAssetIndexStorePtr;
+typedef IFBAssetIndexStore& IFBAssetIndexStoreRef;
+
+struct  IFBEngineAssetTables;
+typedef IFBEngineAssetTables* IFBEngineAssetTablesPtr;
+typedef IFBEngineAssetTables& IFBEngineAssetTablesRef;
+
+typedef s16 IFBEngineAssetType;
+typedef s16 IFBEngineAssetIndexId;
+typedef u64 IFBEngineAssetHandle;
+
+struct IFBEngineAsset;
+
+//---------------------------------
+// MEMORY
+//---------------------------------
 
 #define IFB_ENGINE_ASSET_MEMORY_REGION_SIZE  IFB_MATH_MEGABYTES(64)
-#define IFB_ENGINE_ASSET_MEMORY_ARENA_8KB    IFB_MATH_KILOBYTES(8)
-#define IFB_ENGINE_ASSET_MEMORY_ARENA_64KB   IFB_MATH_KILOBYTES(64)
-#define IFB_ENGINE_ASSET_MEMORY_ARENA_128KB  IFB_MATH_KILOBYTES(128)
-#define IFB_ENGINE_ASSET_MEMORY_ARENA_1MB    IFB_MATH_MEGABYTES(1)
-#define IFB_ENGINE_ASSET_MEMORY_ARENA_4MB    IFB_MATH_MEGABYTES(4)
+
+#define IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_8KB   IFB_MATH_KILOBYTES(8)
+#define IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_64KB  IFB_MATH_KILOBYTES(64)
+#define IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_128KB IFB_MATH_KILOBYTES(128)
+#define IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_1MB   IFB_MATH_MEGABYTES(1)
+#define IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_4MB   IFB_MATH_MEGABYTES(4)
+
+struct IFBEngineAssetMemoryBlock {
+    IFBEngineMemoryArenaPtr          arena;
+    memory                           memory;
+    u32                              size;  
+    IFBEngineAssetMemoryBlockPtr     next;
+    IFBEngineAssetMemoryBlockPtr     previous;
+};
+
+struct IFBEngineAssetMemoryBlockAllocator {
+    IFBEngineAssetMemoryBlockPtr blocks_8KB;
+    IFBEngineAssetMemoryBlockPtr blocks_64KB;
+    IFBEngineAssetMemoryBlockPtr blocks_128KB;
+    IFBEngineAssetMemoryBlockPtr blocks_1MB;
+    IFBEngineAssetMemoryBlockPtr blocks_4MB;
+};
 
 
-struct IFBEngineAssetMemory {
-    IFBEngineMemoryRegionPtr         region;
-    IFBEngineMemoryArenaAllocatorPtr asset_arena_allocator_8kb;
-    IFBEngineMemoryArenaAllocatorPtr asset_arena_allocator_64kb;
-    IFBEngineMemoryArenaAllocatorPtr asset_arena_allocator_128kb;
-    IFBEngineMemoryArenaAllocatorPtr asset_arena_allocator_1mb;
-    IFBEngineMemoryArenaAllocatorPtr asset_arena_allocator_4mb;
+struct IFBEngineAssetMemoryArenaAllocator {
+    IFBEngineMemoryArenaAllocatorPtr arena_8KB;
+    IFBEngineMemoryArenaAllocatorPtr arena_64KB;
+    IFBEngineMemoryArenaAllocatorPtr arena_128KB;
+    IFBEngineMemoryArenaAllocatorPtr arena_1MB;
+    IFBEngineMemoryArenaAllocatorPtr arena_4MB;
+};
+
+struct IFBEngineAssetMemoryIndexAllocator {
+    IFBEngineMemoryArenaPtr arena;
+    memory                  stack_ptr;
+};
+
+struct IFBEngineAssetMemoryAllocators {
+    IFBEngineAssetMemoryBlockAllocator block;
+    IFBEngineAssetMemoryArenaAllocator arena;    
+    IFBEngineAssetMemoryIndexAllocator index;
+};
+
+struct IFBEngineAssetsMemory {
+    IFBEngineMemoryRegionPtr       region;
+    IFBEngineAssetMemoryAllocators allocators;
+};
+
+IFBEngineAssetsMemoryPtr
+ifb_engine_assets_memory_create_and_initialize();
+
+IFBEngineAssetMemoryBlockPtr
+ifb_engine_assets_memory_block_allocate(
+    const u64 size);
+
+void
+ifb_engine_assets_memory_block_free(
+    IFBEngineAssetMemoryBlockPtr block);
+
+memory
+ifb_engine_assets_memory_block_bytes_push(
+    IFBEngineAssetMemoryBlockPtr block,
+    u32                          size);
+
+void
+ifb_engine_assets_memory_block_bytes_pop(
+    IFBEngineAssetMemoryBlockPtr block,
+    u32                          size);
+
+IFBEngineAssetTableIndexPtr 
+ifb_engine_assets_memory_index_array_push(
+    u32 index_count);
+
+IFBEngineAssetMemoryBlockPtr*
+ifb_engine_assets_memory_index_block_array_push(
+    u32 index_count);
+
+//---------------------------------
+// INDEX
+//---------------------------------
+
+#define IFB_ASSETS_INDEX_TABLE_SIZE IFB_MATH_KILOBYTES(8)
+
+const char* IFB_ENGINE_ASSETS_FILE_PATHS[] = {
+    "ItFliesBy.Assets.Shaders.ifb",
+    "ItFliesBy.Assets.Images.ifb"
 };
 
 struct IFBEngineAssetIndex {
-    char tag[32];         // plaintext identifier for the entity the asset belongs to
-    u32  file_size;       // size of the data is stored in the file
-    u32  allocation_size; // the size of the space we need to allocate when storing the asset data in memory
-    u32  offset;          // the index of the first byte of asset data in the file
+    IFBTag                       tag;
+    u32                          size;
+    u32                          offset;
+    IFBEngineAssetMemoryBlockPtr block;
 };
 
-inline u64
-ifb_engine_asset_indexes_allocation_size(
-    u32 indexes_count) {
-
-    u64 index_allocation_size = 
-        sizeof(IFBEngineAssetIndex) *
-        indexes_count;
-
-    return(index_allocation_size);
-}
-
-typedef IFBEngineAssetIndex* IFBEngineAssetIndexPtr; 
-typedef IFBEngineAssetIndex& IFBEngineAssetIndexRef;
-
-struct IFBEngineAssetFile {
-    u32                     indexes_count;
-    IFBEngineAssetIndexPtr  indexes;
-    handle                  file_handle;
-    IFBEngineMemoryArenaPtr arena;
+struct IFBEngineAssetTableIndex {
+    u32 size;
+    u32 offset;
 };
 
-struct IFBEngineAssetFiles {
+struct IFBEngineAssetTable {
+    IFBEngineAssetType            type;
+    u32                           index_count;
+    handle                        asset_file_handle;
+    IFBEngineAssetTableIndexPtr   index_array;
+    IFBEngineAssetMemoryBlockPtr* index_block_array;
+};
+
+typedef s16 ItfliesbyEngineAssetsType;
+
+enum ItfliesbyEngineAssetsType_ {
+     ItfliesbyEngineAssetsType_Invalid = -1,
+     ItfliesbyEngineAssetsType_Shader  =  0,
+     ItfliesbyEngineAssetsType_Image   =  1,
+     ItfliesbyEngineAssetsType_Count   =  2
+};
+
+enum ItfliesbyEngineAssetsShader_ {
+     ItfliesbyEngineAssetsShader_Invalid                    = -1,
+     ItfliesbyEngineAssetsShader_TexturedQuadVertexShader   =  0, 
+     ItfliesbyEngineAssetsShader_TexturedQuadFragmentShader =  1,
+     ItfliesbyEngineAssetsShader_SolidQuadVertexShader      =  2,
+     ItfliesbyEngineAssetsShader_SolidQuadFragmentShader    =  3,
+     ItfliesbyEngineAssetsShader_TestVertexShader           =  4,
+     ItfliesbyEngineAssetsShader_TestFragmentShader         =  5,
+     ItfliesbyEngineAssetsShader_Count                      =  6
+};
+
+enum ItfliesbyEngineAssetsImage_ {
+     ItfliesbyEngineAssetsImage_Invalid            = -1, 
+     ItfliesbyEngineAssetsImage_ConnorCalibaration =  0,
+     ItfliesbyEngineAssetsImage_JigCalibratrion    =  1,
+     ItfliesbyEngineAssetsImage_Count              =  2
+};
+
+struct IFBEngineAssetTables {
     union {
         struct {
-            IFBEngineAssetFile shader; // IFBEngineAssetFileId_shaders
-            IFBEngineAssetFile image;  // IFBEngineAssetFileId_images
+            IFBEngineAssetTable shader; 
+            IFBEngineAssetTable image; 
         };
-
-        IFBEngineAssetFile array[IFBEngineAssetFileId_count];
+        
+        IFBEngineAssetTable array[ItfliesbyEngineAssetsType_Count]; 
     };
 };
 
+IFBEngineAssetTablesPtr 
+ifb_engine_assets_tables_create_and_initialize();
+
+//---------------------------------
+// ASSETS
+//---------------------------------
+
 struct IFBEngineAssets {
-    IFBEngineAssetMemory memory;
-    IFBEngineAssetFiles  files;
+    IFBEngineAssetsMemoryPtr memory;
+    IFBEngineAssetTablesPtr  tables;
 };
 
 IFBEngineAssetsPtr

@@ -4,33 +4,36 @@
 
 global IFBEngine ifb_engine;
 
-internal void 
+internal IFBEngineSystems 
 ifb_engine_systems_initialize() {
 
+    IFBEngineSystems engine_systems = {0};
+
     //memory
-    ifb_engine.memory = ifb_engine_memory_create_and_initialize();
-    ifb_assert(ifb_engine.memory);
+    engine_systems.memory = ifb_engine_memory_create_and_initialize();
+    ifb_assert(engine_systems.memory);
 
     //assets
-    ifb_engine.assets = ifb_engine_assets_create_and_initialize();
-    ifb_assert(ifb_engine.assets);
+    engine_systems.assets = ifb_engine_assets_create_and_initialize();
+    ifb_assert(engine_systems.assets);
+
+    return(engine_systems);
 }
 
 external IFBEnginePtr
 ifb_engine_create_and_initialize(
     IFBPlatformApi platform) {
 
+    ifb_engine = {0};
+
     //validate the platform api
     ifb_engine_platform_validate(platform);
 
-    //initialize the engine
-    ifb_engine = {0};
-    ifb_engine_systems_initialize();
+    //initialize engine systems
+    ifb_engine.systems = ifb_engine_systems_initialize();
 
-    //post initialization stuff
-    ifb_engine.frame_allocator.arena = 
-        ifb_engine_memory_arena_reserve_64mb(
-            "ENGINE FRAME");
+    //initialize engine core
+    ifb_engine.memory = ifb_engine_core_memory_create_and_initialize();
 
     return(&ifb_engine);
 }
@@ -38,26 +41,6 @@ ifb_engine_create_and_initialize(
 external void
 ifb_engine_render_frame() {
 
-    ifb_nop();
-
     //reset the frame allocator
-    ifb_engine_memory_arena_reset(ifb_engine.frame_allocator.arena);
-
-    return;
-}
-
-internal memory
-ifb_engine_frame_allocator_reserve(
-    u64 size) {
-    
-    ifb_assert(ifb_engine.frame_allocator.arena);
-
-    memory reservation = 
-        ifb_engine_memory_arena_bytes_push(
-            ifb_engine.frame_allocator.arena,
-            size);
-
-    ifb_assert(reservation);
-
-    return(reservation);
+    ifb_engine_core_memory_frame_reset();
 }
