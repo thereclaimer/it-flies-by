@@ -199,3 +199,45 @@ ifb_engine_assets_memory_block_bytes_pop(
         size
     );
 }
+
+IFBEngineAssetTableIndexPtr 
+ifb_engine_assets_memory_index_array_push(
+    u32 index_count) {
+
+    u32 allocation_size = sizeof(IFBEngineAssetTableIndex) * index_count;
+
+    IFBEngineAssetMemoryIndexAllocator& index_allocator = ifb_engine_asset_memory.allocators.index; 
+
+    index_allocator.stack_ptr = 
+        ifb_engine_memory_arena_bytes_push(
+            index_allocator.arena,
+            allocation_size);
+
+    ifb_assert(index_allocator.stack_ptr);
+
+    IFBEngineAssetTableIndexPtr index_arrray = 
+        (IFBEngineAssetTableIndexPtr)index_allocator.stack_ptr;
+
+    return(index_arrray);
+}
+
+IFBEngineAssetMemoryBlockPtr*
+ifb_engine_assets_memory_index_block_array_push(
+    u32 index_count) {
+
+    u32 allocation_size = sizeof(IFBEngineAssetMemoryBlockPtr) * index_count;
+
+    IFBEngineAssetMemoryIndexAllocator& index_allocator = ifb_engine_asset_memory.allocators.index; 
+
+    index_allocator.stack_ptr = 
+        ifb_engine_memory_arena_bytes_push(
+            index_allocator.arena,
+            allocation_size);
+
+    ifb_assert(index_allocator.stack_ptr);
+
+    IFBEngineAssetMemoryBlockPtr* index_block_array = 
+        (IFBEngineAssetMemoryBlockPtr*)index_allocator.stack_ptr;
+
+    return(index_block_array);
+}
