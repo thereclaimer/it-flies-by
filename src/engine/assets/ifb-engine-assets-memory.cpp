@@ -202,31 +202,6 @@ ifb_engine_assets_memory_block_free(
     block = NULL;
 }
 
-internal memory
-ifb_engine_assets_memory_block_bytes_push(
-    IFBEngineAssetMemoryBlockPtr block,
-    u32                          size) {
-
-    memory asset_block_memory = 
-        ifb_engine_memory_arena_bytes_push(
-            block->arena,
-            size);
-
-    ifb_assert(asset_block_memory);
-
-    return(asset_block_memory);
-}
-
-internal void
-ifb_engine_assets_memory_block_bytes_pop(
-    IFBEngineAssetMemoryBlockPtr block,
-    u32                          size) {
-
-    ifb_engine_memory_arena_bytes_pop(
-        block->arena,
-        size
-    );
-}
 
 IFBEngineAssetTableIndexPtr 
 ifb_engine_assets_memory_index_array_push(

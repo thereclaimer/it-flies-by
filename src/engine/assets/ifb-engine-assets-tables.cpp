@@ -47,6 +47,13 @@ ifb_engine_assets_tables_table_create(ItfliesbyEngineAssetsType asset_type) {
     ifb_assert(index_array);
     ifb_assert(index_block_array);
 
+    IFBEngineAssetMemoryBlockPtr asset_file_memory_block = 
+        ifb_engine_assets_memory_block_allocate(
+
+        );
+
+
+
     //make sure everything is set everything to 0
     for (
         u32 index = 0;

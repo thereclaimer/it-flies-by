@@ -105,16 +105,6 @@ void
 ifb_engine_assets_memory_block_free(
     IFBEngineAssetMemoryBlockPtr block);
 
-memory
-ifb_engine_assets_memory_block_bytes_push(
-    IFBEngineAssetMemoryBlockPtr block,
-    u32                          size);
-
-void
-ifb_engine_assets_memory_block_bytes_pop(
-    IFBEngineAssetMemoryBlockPtr block,
-    u32                          size);
-
 IFBEngineAssetTableIndexPtr 
 ifb_engine_assets_memory_index_array_push(
     u32 index_count);
@@ -122,6 +112,7 @@ ifb_engine_assets_memory_index_array_push(
 IFBEngineAssetMemoryBlockPtr*
 ifb_engine_assets_memory_index_block_array_push(
     u32 index_count);
+
 
 //---------------------------------
 // INDEX
