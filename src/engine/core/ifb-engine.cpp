@@ -43,4 +43,8 @@ ifb_engine_render_frame() {
 
     //reset the frame allocator
     ifb_engine_core_memory_frame_reset();
+
+    //test the asset loading
+    IFBEngineAssetData shader_data = 
+        ifb_engine_assets_data_shader_load(IFBEngineAssetsShader_SolidQuadVertexShader);
 }

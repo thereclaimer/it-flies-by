@@ -41,35 +41,35 @@ typedef u64 IFBEngineAssetHandle;
 
 struct IFBEngineAsset;
 
-enum ItfliesbyEngineAssetsType_ {
-     ItfliesbyEngineAssetsType_Invalid = -1,
-     ItfliesbyEngineAssetsType_Shader  =  0,
-     ItfliesbyEngineAssetsType_Image   =  1,
-     ItfliesbyEngineAssetsType_Count   =  2
+enum IFBEngineAssetsType_ {
+     IFBEngineAssetsType_Invalid = -1,
+     IFBEngineAssetsType_Shader  =  0,
+     IFBEngineAssetsType_Image   =  1,
+     IFBEngineAssetsType_Count   =  2
 };
 
 
-enum ItfliesbyEngineAssetsShader_ {
-     ItfliesbyEngineAssetsShader_Invalid                    = -1,
-     ItfliesbyEngineAssetsShader_TexturedQuadVertexShader   =  0, 
-     ItfliesbyEngineAssetsShader_TexturedQuadFragmentShader =  1,
-     ItfliesbyEngineAssetsShader_SolidQuadVertexShader      =  2,
-     ItfliesbyEngineAssetsShader_SolidQuadFragmentShader    =  3,
-     ItfliesbyEngineAssetsShader_TestVertexShader           =  4,
-     ItfliesbyEngineAssetsShader_TestFragmentShader         =  5,
-     ItfliesbyEngineAssetsShader_Count                      =  6
+enum IFBEngineAssetsShader_ {
+     IFBEngineAssetsShader_Invalid                    = -1,
+     IFBEngineAssetsShader_TexturedQuadVertexShader   =  0, 
+     IFBEngineAssetsShader_TexturedQuadFragmentShader =  1,
+     IFBEngineAssetsShader_SolidQuadVertexShader      =  2,
+     IFBEngineAssetsShader_SolidQuadFragmentShader    =  3,
+     IFBEngineAssetsShader_TestVertexShader           =  4,
+     IFBEngineAssetsShader_TestFragmentShader         =  5,
+     IFBEngineAssetsShader_Count                      =  6
 };
 
-enum ItfliesbyEngineAssetsImage_ {
-     ItfliesbyEngineAssetsImage_Invalid            = -1, 
-     ItfliesbyEngineAssetsImage_ConnorCalibaration =  0,
-     ItfliesbyEngineAssetsImage_JigCalibratrion    =  1,
-     ItfliesbyEngineAssetsImage_Count              =  2
+enum IFBEngineAssetsImage_ {
+     IFBEngineAssetsImage_Invalid            = -1, 
+     IFBEngineAssetsImage_ConnorCalibaration =  0,
+     IFBEngineAssetsImage_JigCalibratrion    =  1,
+     IFBEngineAssetsImage_Count              =  2
 };
 
-typedef s16 ItfliesbyEngineAssetsType;
-typedef s16 ItfliesbyEngineAssetsShader;
-typedef s16 ItfliesbyEngineAssetsImage;
+typedef s16 IFBEngineAssetsType;
+typedef s16 IFBEngineAssetsShader;
+typedef s16 IFBEngineAssetsImage;
 
 //---------------------------------
 // ASSET FILE
@@ -122,7 +122,7 @@ struct IFBEngineAssetFiles {
             IFBEngineAssetFile images;
         };
 
-        IFBEngineAssetFile array[ItfliesbyEngineAssetsType_Count];        
+        IFBEngineAssetFile array[IFBEngineAssetsType_Count];        
     };
 };
 
@@ -159,19 +159,39 @@ ifb_engine_assets_files_header_size_bytes(
     return(header_size_bytes);
 }
 
+void
+ifb_engine_asset_files_read(
+    handle asset_file_handle,
+    u64    asset_file_data_start,
+    u64    asset_buffer_offset,
+    u64    asset_buffer_size,
+    memory asset_buffer
+);
+
+IFBEngineAssetMemoryBlockPtr 
+ifb_engine_assets_files_asset_allocate_and_read(
+    IFBEngineAssetsType asset_type,
+    u16                 asset_id);
+
+void
+ifb_engine_assets_files_asset_free(
+    IFBEngineAssetMemoryBlockPtr asset_memory_block);
+
+
 //---------------------------------
 // ASSET DATA
 //---------------------------------
 
 struct IFBEngineAssetData {
     IFBEngineAssetType            type;
+    u16                           index;
     u64                           buffer_size_bytes;
     memory                        buffer;
 };
 
 struct IFBEngineAssetDataTable {
-    IFBEngineAssetMemoryBlockPtr shader[ItfliesbyEngineAssetsShader_Count];
-    IFBEngineAssetMemoryBlockPtr image[ItfliesbyEngineAssetsImage_Count];
+    IFBEngineAssetMemoryBlockPtr shader[IFBEngineAssetsShader_Count];
+    IFBEngineAssetMemoryBlockPtr image[IFBEngineAssetsImage_Count];
 };
 
 typedef IFBEngineAssetDataTable* IFBEngineAssetDataTablePtr;
@@ -179,6 +199,16 @@ typedef IFBEngineAssetDataTable& IFBEngineAssetDataTableRef;
 
 IFBEngineAssetDataTablePtr
 ifb_engine_assets_data_table_create_and_initialize();
+
+IFBEngineAssetData
+ifb_engine_assets_data_table_asset_load(
+    IFBEngineAssetsType asset_type,
+    u16                 asset_id);
+
+void
+ifb_engine_assets_data_table_asset_unload(
+    IFBEngineAssetsType asset_type,
+    u16                 asset_id);
 
 //---------------------------------
 // ASSETS
@@ -192,6 +222,19 @@ struct IFBEngineAssets {
 
 IFBEngineAssetsPtr
 ifb_engine_assets_create_and_initialize();
+
+IFBEngineAssetData
+ifb_engine_assets_data_shader_load(
+    IFBEngineAssetsShader shader);
+
+IFBEngineAssetData
+ifb_engine_assets_data_image_load(
+    IFBEngineAssetsImage image);
+
+void
+ifb_engine_assets_data_unload(
+    IFBEngineAssetData& asset_data_ref);
+
 
 //---------------------------------
 // MEMORY

@@ -107,7 +107,7 @@ ifb_engine_asset_files_create_and_initialize() {
 
     for (
         IFBEngineAssetType asset_file_type = 0;
-        asset_file_type < ItfliesbyEngineAssetsType_Count;
+        asset_file_type < IFBEngineAssetsType_Count;
         ++asset_file_type) {
 
         IFBEngineAssetFile& asset_file_ref = ifb_engine_asset_files.array[asset_file_type];
@@ -146,4 +146,63 @@ ifb_engine_asset_files_create_and_initialize() {
     }
 
     return(&ifb_engine_asset_files);
+}
+
+
+internal void
+ifb_engine_asset_files_read(
+    handle asset_file_handle,
+    u64    asset_file_data_start,
+    u64    asset_buffer_offset,
+    u64    asset_buffer_size,
+    memory asset_buffer) {
+
+    ifb_assert(
+        asset_file_handle && 
+        asset_buffer      && 
+        asset_buffer_size > 0);
+
+    u64 file_offset = asset_file_data_start + asset_buffer_offset;
+
+    ifb_platform_api_file_read(
+        asset_file_handle,
+        file_offset,
+        asset_buffer_size,
+        asset_buffer,
+        false);
+}
+
+internal IFBEngineAssetMemoryBlockPtr 
+ifb_engine_assets_files_asset_allocate_and_read(
+    IFBEngineAssetsType asset_type,
+    u16                 asset_id) {
+
+    //get the file and index
+    IFBEngineAssetFile&       asset_file_ref       = ifb_engine_asset_files.array[asset_type];
+    IFBEngineAssetsFileIndex& asset_file_index_ref = asset_file_ref.index_buffer.indexes[asset_id];
+
+    //allocate a block for the asset
+    IFBEngineAssetMemoryBlockPtr asset_memory_block_ptr = 
+        ifb_engine_assets_memory_block_allocate(asset_file_index_ref.allocation_size);    
+
+    ifb_assert(asset_memory_block_ptr);
+
+    //read the asset data from the file
+    ifb_engine_asset_files_read(
+        asset_file_ref.file_handle,
+        asset_file_ref.asset_data_start,
+        asset_file_index_ref.offset,
+        asset_memory_block_ptr->size,
+        asset_memory_block_ptr->memory);
+
+    //and we're done    
+    return(asset_memory_block_ptr);
+}
+
+internal void
+ifb_engine_assets_files_asset_free(
+    IFBEngineAssetMemoryBlockPtr asset_memory_block) {
+
+    ifb_assert(asset_memory_block);
+    ifb_engine_assets_memory_block_free(asset_memory_block);
 }

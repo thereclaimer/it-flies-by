@@ -15,3 +15,37 @@ ifb_engine_assets_create_and_initialize() {
 
     return(&ifb_engine_assets);
 }
+
+internal IFBEngineAssetData
+ifb_engine_assets_data_shader_load(
+    IFBEngineAssetsShader shader) {
+
+    IFBEngineAssetData shader_data = 
+        ifb_engine_assets_data_table_asset_load(
+            IFBEngineAssetsType_Shader,
+            shader);
+
+    return(shader_data);
+}
+
+internal IFBEngineAssetData
+ifb_engine_assets_data_image_load(
+    IFBEngineAssetsImage image) {
+    
+    IFBEngineAssetData image_data = 
+        ifb_engine_assets_data_table_asset_load(
+            IFBEngineAssetsType_Image,
+            image);
+
+    return(image_data);
+}
+
+internal void
+ifb_engine_assets_data_unload(
+    IFBEngineAssetData& asset_data_ref) {
+
+    ifb_engine_assets_data_table_asset_unload(
+        asset_data_ref.type,
+        asset_data_ref.index
+    );
+}
