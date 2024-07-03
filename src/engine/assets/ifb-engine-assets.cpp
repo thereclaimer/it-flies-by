@@ -16,28 +16,54 @@ ifb_engine_assets_create_and_initialize() {
     return(&ifb_engine_assets);
 }
 
-internal IFBEngineAssetData
+internal void
 ifb_engine_assets_data_shader_load(
-    IFBEngineAssetsShader shader) {
+    const IFBEngineAssetsShaderId shader_id_vertex,
+    const IFBEngineAssetsShaderId shader_id_fragment,
+          IFBEngineAssetShader&   shader_asset_ref) {
 
-    IFBEngineAssetData shader_data = 
+    IFBEngineAssetData shader_data_vertex = 
         ifb_engine_assets_data_table_asset_load(
             IFBEngineAssetsType_Shader,
-            shader);
+            shader_id_vertex);
 
-    return(shader_data);
+    IFBEngineAssetData shader_data_fragment = 
+        ifb_engine_assets_data_table_asset_load(
+            IFBEngineAssetsType_Shader,
+            shader_id_fragment);
+
+    //initialize result
+    shader_asset_ref = {0};
+    shader_asset_ref.shader_data_vertex   = shader_data_vertex;
+    shader_asset_ref.shader_data_fragment = shader_data_fragment;
 }
 
-internal IFBEngineAssetData
-ifb_engine_assets_data_image_load(
-    IFBEngineAssetsImage image) {
-    
+internal void
+ifb_engine_assets_image_load(
+    const IFBEngineAssetsImageId image_id,
+          IFBEngineAssetImage&   image_asset_ref) {
+
+    //load the image data
     IFBEngineAssetData image_data = 
         ifb_engine_assets_data_table_asset_load(
             IFBEngineAssetsType_Image,
-            image);
+            image_id);
 
-    return(image_data);
+    //set the dimensions and pixel information
+    const u32 image_dimensions_size_bytes = sizeof(u32) * 2;
+    const u32 image_pixels_size_bytes     = image_data.buffer_size_bytes - image_dimensions_size_bytes;
+
+    u32*   dimensions    = (u32*)image_data.buffer;
+    u32    pixels_width  = dimensions[0]; 
+    u32    pixels_height = dimensions[1];
+    memory pixels        = image_data.buffer + image_dimensions_size_bytes;
+
+    //initialize result
+    image_asset_ref = {0};
+    image_asset_ref.data               = image_data;
+    image_asset_ref.pixels_rgba        = pixels;
+    image_asset_ref.pixels_rgba_width  = pixels_width;
+    image_asset_ref.pixels_rgba_height = pixels_height;
 }
 
 internal void

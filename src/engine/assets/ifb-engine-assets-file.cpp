@@ -152,8 +152,7 @@ ifb_engine_asset_files_create_and_initialize() {
 internal void
 ifb_engine_asset_files_read(
     handle asset_file_handle,
-    u64    asset_file_data_start,
-    u64    asset_buffer_offset,
+    u64    asset_file_offset,
     u64    asset_buffer_size,
     memory asset_buffer) {
 
@@ -162,11 +161,9 @@ ifb_engine_asset_files_read(
         asset_buffer      && 
         asset_buffer_size > 0);
 
-    u64 file_offset = asset_file_data_start + asset_buffer_offset;
-
     ifb_platform_api_file_read(
         asset_file_handle,
-        file_offset,
+        asset_file_offset,
         asset_buffer_size,
         asset_buffer,
         false);
@@ -190,7 +187,6 @@ ifb_engine_assets_files_asset_allocate_and_read(
     //read the asset data from the file
     ifb_engine_asset_files_read(
         asset_file_ref.file_handle,
-        asset_file_ref.asset_data_start,
         asset_file_index_ref.offset,
         asset_memory_block_ptr->size,
         asset_memory_block_ptr->memory);

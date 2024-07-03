@@ -55,8 +55,8 @@ enum IFBEngineAssetsShader_ {
      IFBEngineAssetsShader_TexturedQuadFragmentShader =  1,
      IFBEngineAssetsShader_SolidQuadVertexShader      =  2,
      IFBEngineAssetsShader_SolidQuadFragmentShader    =  3,
-     IFBEngineAssetsShader_TestVertexShader           =  4,
-     IFBEngineAssetsShader_TestFragmentShader         =  5,
+     IFBEngineAssetsShader_SimpleQuadVertexShader     =  4,
+     IFBEngineAssetsShader_SimpleQuadFragmentShader   =  5,
      IFBEngineAssetsShader_Count                      =  6
 };
 
@@ -68,13 +68,12 @@ enum IFBEngineAssetsImage_ {
 };
 
 typedef s16 IFBEngineAssetsType;
-typedef s16 IFBEngineAssetsShader;
-typedef s16 IFBEngineAssetsImage;
+typedef s16 IFBEngineAssetsShaderId;
+typedef s16 IFBEngineAssetsImageId;
 
 //---------------------------------
 // ASSET FILE
 //---------------------------------
-
 
 const char* IFB_ENGINE_ASSETS_FILE_PATHS[] = {
     "ItFliesBy.Assets.Shaders.ifb",
@@ -162,8 +161,7 @@ ifb_engine_assets_files_header_size_bytes(
 void
 ifb_engine_asset_files_read(
     handle asset_file_handle,
-    u64    asset_file_data_start,
-    u64    asset_buffer_offset,
+    u64    asset_file_offset,
     u64    asset_buffer_size,
     memory asset_buffer
 );
@@ -220,21 +218,39 @@ struct IFBEngineAssets {
     IFBEngineAssetFilesPtr     files;
 };
 
+struct IFBEngineAssetImage {
+    IFBEngineAssetData data;
+    u32                pixels_rgba_width;
+    u32                pixels_rgba_height;
+    memory             pixels_rgba;
+};
+
+struct IFBEngineAssetShader {
+    IFBEngineAssetData shader_data_vertex;
+    IFBEngineAssetData shader_data_fragment;
+};
+
 IFBEngineAssetsPtr
 ifb_engine_assets_create_and_initialize();
 
-IFBEngineAssetData
+void
 ifb_engine_assets_data_shader_load(
-    IFBEngineAssetsShader shader);
-
-IFBEngineAssetData
-ifb_engine_assets_data_image_load(
-    IFBEngineAssetsImage image);
+    const IFBEngineAssetsShaderId shader_id_vertex,
+    const IFBEngineAssetsShaderId shader_id_fragment,
+          IFBEngineAssetShader&   shader_asset_ref);
 
 void
-ifb_engine_assets_data_unload(
-    IFBEngineAssetData& asset_data_ref);
+ifb_engine_assets_data_shader_unload(
+    const IFBEngineAssetShader& shader_asset_ref);
 
+void
+ifb_engine_assets_image_load(
+    const IFBEngineAssetsImageId image_id,
+          IFBEngineAssetImage&   image_ref);
+
+void
+ifb_engine_assets_image_unload(
+    const IFBEngineAssetImage& image_ref);
 
 //---------------------------------
 // MEMORY

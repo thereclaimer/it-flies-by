@@ -45,6 +45,16 @@ ifb_engine_render_frame() {
     ifb_engine_core_memory_frame_reset();
 
     //test the asset loading
-    IFBEngineAssetData shader_data = 
-        ifb_engine_assets_data_shader_load(IFBEngineAssetsShader_SolidQuadVertexShader);
+    IFBEngineAssetImage image_asset = {0}; 
+        ifb_engine_assets_image_load(
+            IFBEngineAssetsImage_ConnorCalibaration,
+            image_asset);
+
+    IFBEngineAssetShader shader_asset = {0};
+    ifb_engine_assets_data_shader_load(
+        IFBEngineAssetsShader_SolidQuadVertexShader,
+        IFBEngineAssetsShader_SolidQuadFragmentShader,
+        shader_asset);
+
+    ifb_nop();
 }
