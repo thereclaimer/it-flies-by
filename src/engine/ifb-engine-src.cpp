@@ -13,7 +13,8 @@
 //--------------------------------
 #include "ifb-engine-assets.cpp"
 #include "ifb-engine-assets-memory.cpp"
-#include "ifb-engine-assets-tables.cpp"
+#include "ifb-engine-assets-file.cpp"
+#include "ifb-engine-assets-data-table.cpp"
 
 //--------------------------------
 // CORE
