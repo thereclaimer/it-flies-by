@@ -1,6 +1,8 @@
 #ifndef ITFLIESBY_GUESSTIMATER_HPP
 #define ITFLIESBY_GUESSTIMATER_HPP
 
+#define IFB_NO_API
+
 /**
  * Guesstimator is a tool to calculate theoretical vs actual performance
  * characteristics of a system. It will not be 100% accurate, but we 

@@ -26,7 +26,6 @@ struct  IFBEngineAssetTableIndex;
 typedef IFBEngineAssetTableIndex* IFBEngineAssetTableIndexPtr;
 typedef IFBEngineAssetTableIndex& IFBEngineAssetTableIndexRef;
 
-
 struct  IFBAssetIndexStore;
 typedef IFBAssetIndexStore* IFBAssetIndexStorePtr;
 typedef IFBAssetIndexStore& IFBAssetIndexStoreRef;
@@ -137,6 +136,7 @@ ifb_engine_asset_files_index_buffer_allocate_and_read(
 
 #define IFB_ENGINE_ASSETS_FILE_VERIFICATION_SIZE_BYTES (sizeof(u32) + 3)
 #define IFB_ENGINE_ASSETS_FILE_INDEX_SIZE_BYTES        ((sizeof(u32) * 3) + 32)
+
 
 inline u64
 ifb_engine_assets_files_index_size_byes(

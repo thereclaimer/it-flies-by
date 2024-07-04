@@ -1,6 +1,8 @@
 #ifndef ITFLIESBY_ASSET_FILE_BUILDER_HPP
 #define ITFLIESBY_ASSET_FILE_BUILDER_HPP
 
+#define IFB_NO_API
+
 #include <Windows.h>
 
 #include <ifb-types.hpp>
