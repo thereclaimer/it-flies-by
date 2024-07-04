@@ -3,11 +3,9 @@
 
 #include <Windows.h>
 
-#include <itfliesby.hpp>
-#include <math/itfliesby-math.hpp>
+#include <ifb-types.hpp>
+#include <ifb-math.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
 
 #define ITFLIESBY_ASSET_FILE_BUILDER_MEMORY_SIZE IFB_MATH_GIGABYTES(2)
 
@@ -70,7 +68,7 @@ struct ItfliesbyAssetFileBuilderCsvFile {
     asset_handle                          file_handle;  
     u32                                   num_entries;
     u64                                   file_size;
-    str                                   buffer;
+    char*                                 buffer;
     ItfliesbyAssetFileBuilderMemoryBlock* memory;
     ItfliesbyAssetFileBuilderCsvEntry*    entries;
 };

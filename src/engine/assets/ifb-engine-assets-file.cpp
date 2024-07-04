@@ -21,7 +21,7 @@ ifb_engine_assets_file_index_buffer_allocate_and_read(
         7,
         index_buffer_size_bytes,
         asset_file_buffer,
-        false);
+        true);
 
     //allocate space for our index buffer
     IFBEngineAssetsFileIndexPtr asset_file_index_buffer = 
@@ -36,23 +36,26 @@ ifb_engine_assets_file_index_buffer_allocate_and_read(
         index < asset_file_index_count;
         ++index) {
 
-        //get the current index data
-        memory asset_index_data = asset_file_buffer + asset_file_buffer_offset;
-
         //get the current index
-        IFBEngineAssetsFileIndexPtr current_asset_index_ptr = &asset_file_index_buffer[index];  
+        IFBEngineAssetsFileIndexPtr current_asset_index_ptr          = &asset_file_index_buffer[index]; 
+        memory                      current_asset_index_memory       = (memory)current_asset_index_ptr;
+        memory                      current_asset_index_memory_tag   = (memory)&current_asset_index_ptr->tag[0];
+        memory                      current_asset_index_memory_sizes = current_asset_index_memory_tag + 32; 
 
-        //tag
+        //get the current index data
+        memory asset_file_memory_tag   = asset_file_buffer + asset_file_buffer_offset;
+        memory asset_file_memory_sizes = asset_file_memory_tag + 32;
+
+        // copy the tag from the memory
         memmove(
-            (void*)current_asset_index_ptr->tag,
-            (void*)&asset_index_data[asset_file_buffer_offset],
-            32
-        );
+            current_asset_index_memory_tag,
+            asset_file_memory_tag,
+            32);
 
         //rest of the data
         memmove(
-            (void*)((memory)current_asset_index_ptr + 32),
-            (void*)&asset_index_data[asset_file_buffer_offset + 32],
+            current_asset_index_memory_sizes,
+            asset_file_memory_sizes,
             IFB_ENGINE_ASSETS_FILE_INDEX_SIZE_BYTES - 32
         );
 

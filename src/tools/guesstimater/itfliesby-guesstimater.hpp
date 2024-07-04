@@ -9,7 +9,9 @@
  * 
 */
 
-#include <itfliesby.hpp>
+#define IFB_DEPENDENCIES_EXCLUDE_ALL
+
+#include <ifb.hpp>
 
 #include <Windows.h>
 #include <stdio.h>

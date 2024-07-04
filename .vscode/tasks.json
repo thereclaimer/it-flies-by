@@ -59,15 +59,13 @@
 		},
 		{
 			"label": "Build Tools",
-			"command": "scripts\\ifb-build-tools.bat",
-			"args":[
-            ],
+			"dependsOn":[
+				"Build Asset Builder",
+				"Build Guesstimater",
+			],
 			"options": {
 				"cwd": "${workspaceFolder}"
 			},
-			"problemMatcher": [
-				"$msCompile"
-			],
 			"group": "build"
 		},
 		{
@@ -82,6 +80,32 @@
 				"$msCompile"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Build Asset Builder",
+			"command": "scripts\\ifb-build-asset-builder.bat",
+			"args":[
+            ],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "none"
+		},
+		{
+			"label": "Build Guesstimater",
+			"command": "scripts\\ifb-build-guesstimater.bat",
+			"args":[
+            ],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "none"
 		},
 	]
 }

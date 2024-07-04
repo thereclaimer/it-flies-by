@@ -362,5 +362,4 @@ memory
 ifb_engine_assets_memory_scratch_pop(
     u64 size_bytes);
 
-
 #endif //IFB_ENGINE_ASSETS_HPP

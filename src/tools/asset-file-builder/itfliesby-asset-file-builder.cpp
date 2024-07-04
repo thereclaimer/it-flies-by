@@ -344,7 +344,7 @@ itfliesby_asset_file_builder_memory_clear(
 
 internal HANDLE
 itfliesby_asset_file_builder_open_asset_file(
-    str file_path) {
+    char* file_path) {
     
     HANDLE file_handle = 
         CreateFile(
@@ -364,7 +364,7 @@ itfliesby_asset_file_builder_open_asset_file(
 
 internal HANDLE
 itfliesby_asset_file_builder_file_open(
-    str file_path) {
+    char* file_path) {
 
     HANDLE file_handle = 
         CreateFile(
