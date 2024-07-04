@@ -21,20 +21,9 @@ ifb_win32_window_on_quit(
     LPARAM l_param) {
 
     ifb_win32_window.quit_event_received = true;
-
-    return(0);
-}
-
-internal LRESULT
-ifb_win32_window_on_destroy(
-    WPARAM w_param,
-    LPARAM l_param) {
-
-    LRESULT result = 0;
-
     PostQuitMessage(0);
 
-    return(result);
+    return(0);
 }
 
 internal LRESULT CALLBACK 
@@ -59,9 +48,10 @@ ifb_win32_window_callback(
 
     switch (message) {
         
-        case WM_SIZE:    funcptr_wm_message_handler = ifb_win32_window_on_sized;   break;
-        case WM_QUIT:    funcptr_wm_message_handler = ifb_win32_window_on_quit;    break;
-        case WM_DESTROY: funcptr_wm_message_handler = ifb_win32_window_on_destroy; break;
+        case WM_SIZE:    funcptr_wm_message_handler = ifb_win32_window_on_sized; break;
+        case WM_QUIT:    funcptr_wm_message_handler = ifb_win32_window_on_quit;  break;
+        case WM_DESTROY: funcptr_wm_message_handler = ifb_win32_window_on_quit;  break;
+        case WM_CLOSE:   funcptr_wm_message_handler = ifb_win32_window_on_quit;  break;
 
         default: {
 
@@ -106,7 +96,7 @@ ifb_win32_window_create_and_initialize(
             0,
             window_class.lpszClassName,
             L"It Flies By", 
-            WS_OVERLAPPEDWINDOW | WS_MAXIMIZE,
+            WS_OVERLAPPEDWINDOW,
             CW_USEDEFAULT,
             CW_USEDEFAULT,
             IFB_WIN32_WINDOW_DEFAULT_WIDTH, 
@@ -117,6 +107,26 @@ ifb_win32_window_create_and_initialize(
             NULL);
 
     ifb_assert(ifb_win32_window.handle);
+
+    //center the window
+    RECT screen_rect;
+    SystemParametersInfo(SPI_GETWORKAREA,0,&screen_rect,0);
+    u32 screen_width  = screen_rect.right  - screen_rect.left; 
+    u32 screen_height = screen_rect.bottom - screen_rect.top; 
+
+    RECT window_rect;
+    GetWindowRect(ifb_win32_window.handle,&window_rect);
+    int center_x = (screen_width  - IFB_WIN32_WINDOW_DEFAULT_WIDTH)  / 2;
+    int center_y = (screen_height - IFB_WIN32_WINDOW_DEFAULT_HEIGHT) / 2;
+
+    SetWindowPos(
+        ifb_win32_window.handle,
+        HWND_TOP,
+        center_x,
+        center_y ,
+        0,
+        0,
+        SWP_NOSIZE | SWP_NOZORDER);
 
     //get the device context
     ifb_win32_window.device_context = GetDC(ifb_win32_window.handle);
@@ -149,20 +159,10 @@ internal void
 ifb_win32_window_process_events() {
 
     while(PeekMessage(&ifb_win32_window.message,0,0,0,PM_REMOVE)) {
-        
-        switch (ifb_win32_window.message.message)
-        {
-            //TODO: this is where we need to pass key/mouse events to the game
-            //BUT we gotta let Windows/ImGUi process those as well
-
-            default: {
-                TranslateMessage(&ifb_win32_window.message);
-                DispatchMessage(&ifb_win32_window.message);
-            } break;
-        }
+        TranslateMessage(&ifb_win32_window.message);
+        DispatchMessage(&ifb_win32_window.message);
     }
 }
-
 
 internal bool
 ifb_win32_window_quit_event_received() {

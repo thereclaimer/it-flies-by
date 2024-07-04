@@ -1,6 +1,8 @@
 #ifndef IFB_ENGINE_CORE_HPP
 #define IFB_ENGINE_CORE_HPP
 
+#define IFB_ENGINE_INTERNAL
+
 #include <ifb.hpp>
 #include "ifb-engine-platform.hpp"
 #include "ifb-engine-memory.hpp"

@@ -1,7 +1,5 @@
 @echo off
 
-@set cl_preprocessor 
-
 @set cl_includes= /I src        ^
                   /I src/common ^
                   /I src/math   ^

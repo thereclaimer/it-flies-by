@@ -1,6 +1,6 @@
 @echo off
 
-@set cl_preprocessor= /D UNICODE ^
+@set cl_preprocessor= /D UNICODE  ^
                       /D _UNICODE
 
 @set cl_flags=        /MD /utf-8 /Zi 
@@ -12,8 +12,8 @@
 @set cl_includes=     /I .\src\                ^
                       /I .\src\platform\win32  ^
                       /I .\src\common          ^
-                      /I .\src\engine\api      ^
-                      /I .\src\game\api        ^
+                      /I .\src\engine\include  ^
+                      /I .\src\game\include    ^
                       /I .\vcpkg_installed\x64-windows\include           
 
 @set cl_source=       src\platform\win32\ifb-win32-src.cpp

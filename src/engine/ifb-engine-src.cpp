@@ -1,5 +1,7 @@
 #pragma once
 
+#define IFB_ENGINE_INTERNAL
+
 //--------------------------------
 // MEMORY
 //--------------------------------

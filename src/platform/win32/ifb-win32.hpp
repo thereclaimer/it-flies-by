@@ -6,8 +6,6 @@
 #include <Xinput.h>
 
 #include <ifb.hpp>
-#include <ifb-engine.hpp>
-#include <ifb-game.hpp>
 
 struct  IFBWin32;
 typedef IFBWin32*       IFBWin32Ptr;

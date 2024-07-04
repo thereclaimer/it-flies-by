@@ -1,8 +1,9 @@
 #ifndef IFB_GAME_HPP
 #define IFB_GAME_HPP
 
+#define IFB_GAME_INTERNAL
+
 #include <ifb.hpp>
-#include <ifb-engine.hpp>
 
 //--------------------------------
 // TYPES

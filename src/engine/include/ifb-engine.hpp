@@ -1,7 +1,9 @@
 #ifndef IFB_ENGINE_HPP
 #define IFB_ENGINE_HPP
 
-#include <ifb.hpp>
+#include <ifb-types.hpp>
+
+#ifndef IFB_ENGINE_INTERNAL
 
 //--------------------------------
 // ENGINE
@@ -41,5 +43,7 @@ api void
 ifb_engine_memory_arena_bytes_pop(
     IFBEngineMemoryArenaHandle arena_ptr,
     u64                        size_bytes);
-    
+
+#endif //IFB_ENGINE_INTERNAL
+
 #endif //IFB_ENGINE_HPP

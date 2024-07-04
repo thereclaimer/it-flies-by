@@ -1,12 +1,12 @@
 @echo off
 
-@set cl_includes= /I src             ^
-                  /I src\engine\api  ^
-                  /I src\common      ^
-                  /I src\game        ^
-                  /I src\game\core   ^
-                  /I src\game\scenes ^
-                  /I src\scenes      ^
+@set cl_includes= /I src                ^
+                  /I src\common         ^
+                  /I src\engine\include ^
+                  /I src\game           ^
+                  /I src\game\core      ^
+                  /I src\game\scenes    ^
+                  /I src\scenes         ^
                   /I .\vcpkg_installed\x64-windows\include           
 
 @set cl_flags=    /DLL /w /LD /Zi

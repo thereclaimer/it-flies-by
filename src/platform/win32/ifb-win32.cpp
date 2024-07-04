@@ -29,6 +29,22 @@ ifb_win32_create_imgui() {
 
 }
 
+internal void
+ifb_win32_create_game() {
+
+    //platform api
+    IFBPlatformApi win32_platform_api = ifb_win32_api_create_and_initialize();
+
+    //engine
+    ifb_win32.engine = ifb_engine_create_and_initialize(win32_platform_api);
+    ifb_assert(ifb_win32.engine);
+
+    //game
+    ifb_win32.game = ifb_game_create_and_initialize(ifb_win32.engine);
+    ifb_assert(ifb_win32.game);
+
+}
+
 internal int
 ifb_win32_main(
     HINSTANCE h_instance,
@@ -47,19 +63,23 @@ ifb_win32_main(
     ifb_win32_create_opengl();
     ifb_win32_create_imgui();
 
-    //platform api
+    //initialize the game
+    ifb_win32_create_game();
 
     bool running = true;
 
     while(running) {
 
+        //frame start
         ifb_win32_window_process_events();
-
         ifb_win32_opengl_resize_and_clear_viewport();
 
-        ifb_win32_window_render();
+        //update game
+        running &= ifb_game_update_and_render(ifb_win32.user_input);
 
-        running = !ifb_win32_window_quit_event_received();
+        //render frame
+        ifb_win32_window_render();
+        running &= !ifb_win32_window_quit_event_received();
     }
 
     return(0);

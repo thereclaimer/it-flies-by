@@ -28,10 +28,10 @@
 
 @set cl_libs=     opengl32.lib glu32.lib imgui.lib 
 
-call cl.exe       ^
-    %cl_flags%    ^
-    %cl_includes% ^
-    %cl_output%   ^
-    %cl_src%      ^
-    %cl_linker%   ^
+call cl.exe           ^
+    %cl_flags%        ^
+    %cl_includes%     ^
+    %cl_output%       ^
+    %cl_src%          ^
+    %cl_linker%       ^
     %cl_libs%

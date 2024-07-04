@@ -2,7 +2,6 @@
 #define IFB_GAME_HPP
 
 #include <ifb.hpp>
-#include <ifb-engine.hpp>
 
 typedef void* IFBGameHandle;
 
