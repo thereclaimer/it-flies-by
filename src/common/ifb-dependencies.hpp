@@ -15,6 +15,11 @@
 #include <stb_image.h>
 #endif //IFB_DEPENDENCIES_EXCLUDE_IMGUI
 
+#ifndef IFB_DEPENDENCIES_EXCLUDE_GLEW
+#include <GL/glew.h>
+#include <GL/wglew.h>
+#endif //IFB_DEPENDENCIES_EXCLUDE_GLEW
+
 #endif //IFB_DEPENDENCIES_EXCLUDE_ALL
 
 #endif //IFB_DEPENDENCIES_HPP

@@ -4,6 +4,7 @@
 
 global ItfliesbyRendererMemory renderer_memory;
 
+
 internal void
 itfliesby_renderer_memory_create(
     memory core_memory,

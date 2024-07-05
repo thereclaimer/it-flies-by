@@ -7,6 +7,7 @@
 #include "ifb-engine-platform.hpp"
 #include "ifb-engine-memory.hpp"
 #include "ifb-engine-assets.hpp"
+#include "ifb-engine-renderer.hpp"
 
 //--------------------------------
 // TYPES
@@ -71,8 +72,9 @@ ifb_engine_memory_frame_bytes_pop(
 //--------------------------------
 
 struct IFBEngineSystems {
-    IFBEngineMemoryPtr memory;
-    IFBEngineAssetsPtr assets;
+    IFBEngineMemoryPtr   memory;
+    IFBEngineAssetsPtr   assets;
+    IFBEngineRendererPtr renderer;
 };
 
 struct IFBEngine {

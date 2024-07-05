@@ -34,8 +34,10 @@ ifb_engine_assets_data_shader_load(
 
     //initialize result
     shader_asset_ref = {0};
-    shader_asset_ref.shader_data_vertex   = shader_data_vertex;
-    shader_asset_ref.shader_data_fragment = shader_data_fragment;
+    shader_asset_ref.shader_data_vertex     = shader_data_vertex;
+    shader_asset_ref.shader_data_fragment   = shader_data_fragment;
+    shader_asset_ref.shader_buffer_vertex   = (char*)shader_data_vertex.buffer;
+    shader_asset_ref.shader_buffer_fragment = (char*)shader_data_fragment.buffer;
 }
 
 internal void

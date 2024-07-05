@@ -12,7 +12,9 @@ struct IFBTag {
 
 inline const IFBTag
 ifb_tag(
-    const char tag_value[32]) {
+    const char* tag_value) {
+
+    assert(strlen(tag_value) <= 32);
 
     IFBTag tag = {0};
 

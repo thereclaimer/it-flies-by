@@ -3,13 +3,13 @@
 
 #define IFB_NO_API
 
-/**
+/**************************************************
  * Guesstimator is a tool to calculate theoretical vs actual performance
  * characteristics of a system. It will not be 100% accurate, but we 
  * can make a best guess (aka guesstimate) on how to make the best
  * use of a cache line and how many cycles per frame we can use
  * 
-*/
+**************************************************/
 
 #define IFB_DEPENDENCIES_EXCLUDE_ALL
 

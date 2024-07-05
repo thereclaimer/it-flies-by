@@ -24,9 +24,13 @@
 
 @set cl_src=      src\engine\ifb-engine-src.cpp
 
-@set cl_linker=   /link /LIBPATH:vcpkg_installed\x64-windows\lib /LIBPATH:bin
+@set cl_linker=   /link                                     ^
+                  /LIBPATH:vcpkg_installed\x64-windows\lib ^
+                  /LIBPATH:bin
 
-@set cl_libs=     opengl32.lib glu32.lib imgui.lib 
+@set cl_libs=     opengl32.lib ^
+                  glu32.lib    ^
+                  imgui.lib 
 
 call cl.exe           ^
     %cl_flags%        ^

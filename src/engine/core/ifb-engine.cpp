@@ -17,6 +17,10 @@ ifb_engine_systems_initialize() {
     engine_systems.assets = ifb_engine_assets_create_and_initialize();
     ifb_assert(engine_systems.assets);
 
+    //renderer
+    engine_systems.renderer = ifb_engine_renderer_create_and_initialize();
+    ifb_assert(engine_systems.renderer);
+
     return(engine_systems);
 }
 
@@ -45,16 +49,16 @@ ifb_engine_render_frame() {
     ifb_engine_core_memory_frame_reset();
 
     //test the asset loading
-    IFBEngineAssetImage image_asset = {0}; 
-        ifb_engine_assets_image_load(
-            IFBEngineAssetsImage_ConnorCalibaration,
-            image_asset);
+    // IFBEngineAssetImage image_asset = {0}; 
+    //     ifb_engine_assets_image_load(
+    //         IFBEngineAssetsImage_ConnorCalibaration,
+    //         image_asset);
 
-    IFBEngineAssetShader shader_asset = {0};
-    ifb_engine_assets_data_shader_load(
-        IFBEngineAssetsShader_SolidQuadVertexShader,
-        IFBEngineAssetsShader_SolidQuadFragmentShader,
-        shader_asset);
+    // IFBEngineAssetShader shader_asset = {0};
+    // ifb_engine_assets_data_shader_load(
+    //     IFBEngineAssetsShader_SolidQuadVertexShader,
+    //     IFBEngineAssetsShader_SolidQuadFragmentShader,
+    //     shader_asset);
 
     ifb_nop();
 }

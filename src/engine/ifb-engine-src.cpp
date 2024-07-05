@@ -19,6 +19,13 @@
 #include "ifb-engine-assets-data-table.cpp"
 
 //--------------------------------
+// RENDERER
+//--------------------------------
+#include "ifb-engine-renderer.cpp"
+#include "ifb-engine-renderer-memory.cpp"
+#include "ifb-engine-renderer-shader.cpp"
+
+//--------------------------------
 // CORE
 //--------------------------------
 #include "ifb-engine.cpp"

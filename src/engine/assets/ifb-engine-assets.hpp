@@ -228,6 +228,8 @@ struct IFBEngineAssetImage {
 struct IFBEngineAssetShader {
     IFBEngineAssetData shader_data_vertex;
     IFBEngineAssetData shader_data_fragment;
+    char* shader_buffer_vertex;
+    char* shader_buffer_fragment;
 };
 
 IFBEngineAssetsPtr
