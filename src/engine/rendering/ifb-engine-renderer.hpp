@@ -17,19 +17,6 @@ struct  IFBEngineRendererMemory;
 typedef IFBEngineRendererMemory* IFBEngineRendererMemoryPtr;
 typedef IFBEngineRendererMemory& IFBEngineRendererMemoryRef;
 
-struct  IFBEngineRendererShader;
-typedef IFBEngineRendererShader* IFBEngineRendererShaderPtr;
-typedef IFBEngineRendererShader& IFBEngineRendererShaderRef;
-
-struct  IFBEngineRendererShaderUniform;
-typedef IFBEngineRendererShaderUniform* IFBEngineRendererShaderUniformPtr;
-typedef IFBEngineRendererShaderUniform& IFBEngineRendererShaderUniformRef;
-
-struct  IFBEngineRendererShaderStore;
-typedef IFBEngineRendererShaderStore* IFBEngineRendererShaderStorePtr;
-typedef IFBEngineRendererShaderStore& IFBEngineRendererShaderStoreRef;
-
-
 struct  IFBEngineRendererBuffer;
 typedef IFBEngineRendererBuffer* IFBEngineRendererBufferPtr;
 typedef IFBEngineRendererBuffer& IFBEngineRendererBufferRef;
@@ -40,92 +27,141 @@ typedef IFBEngineRendererBuffer& IFBEngineRendererBufferRef;
 
 
 //--------------------------------
-// SHADERS
+// SHADER
 //--------------------------------
 
-//shader store
-struct IFBEngineRendererShaderStore {
-    IFBEngineRendererShaderPtr shaders;
-    u32                        shaders_count;
+struct IFBEngineRendererShaderOpenglIds {
+    GLuint program;
+    GLuint stage_vertex;
+    GLuint stage_fragment;
+    GLuint vertex_array_object;
 };
 
-IFBEngineRendererShaderStorePtr
-ifb_engine_renderer_shader_store_create_and_initialize();
-
-struct IFBEngineRendererShaderStages {
-    GLuint gl_program_id;
-    GLuint gl_shader_stage_vertex;
-    GLuint gl_shader_stage_fragment;
+struct IFBEngineRendererShaderUniformTable {
+    IFBTag* uniform_name_tags;
+    GLint*  uniform_locations;
+    u32     count;
 };
 
-//shader uniform
-struct IFBEngineRendererShaderUniform {
-    IFBTag name;
-    GLint  id;
+struct IFBEngineRendererShaderMemoryUniform {
+    IFBEngineMemoryArenaPtr arena_1kb;
+    u64                     uniform_table_size;
+    memory                  uniform_table_memory;
 };
 
+struct IFBEngineRendererShaderMemoryVertexArrayObject {
+    IFBEngineMemoryArenaPtr arena_1kb;
+    u64                     vertex_attribute_table_size;
+    memory                  vertex_attribute_table_memory;
+};
 
-typedef void
-(*funcptr_ifb_engine_renderer_shader_update)(
-    void* shader_impl
-);
+struct IFBEngineRendererShaderMemoryDrawBuffer {
+    IFBEngineMemoryArenaPtr arena_16kb;
+    u64                     draw_buffer_size;
+    memory                  draw_buffer_memory;
+};
+
+struct IFBEngineRendererShaderMemory {
+    IFBEngineRendererShaderMemoryVertexArrayObject vertex_array_object;    
+    IFBEngineRendererShaderMemoryUniform           uniform;
+    IFBEngineRendererShaderMemoryDrawBuffer        draw_buffer;    
+};
+
+struct IFBEngineRendererShaderVertexArrayAttributeTable {
+    GLenum*      gl_types;
+    GLboolean*   gl_normalizeds;
+    GLsizei*     gl_strides;
+    void**       gl_offsets;
+    IFBTag*      tags;
+    u32          count;
+};
+
+struct IFBEngineRendererShaderVertexArrayObject {
+    GLuint                                           vertex_array_object;
+    IFBEngineRendererShaderVertexArrayAttributeTable attribute_table;
+};
 
 struct IFBEngineRendererShader {
-    IFBEngineMemoryArenaPtr                   arena_8k;
-    IFBEngineRendererShaderStages             stages;
-    u32                                       uniform_count;
-    IFBEngineRendererShaderUniformPtr         uniforms;
-    IFBEngineAssetShader                      asset;
-    funcptr_ifb_engine_renderer_shader_update update_callback;
-    void*                                     shader_impl;
+    IFBEngineRendererShaderMemory       memory;
+    IFBEngineAssetShader                assets;
+    IFBEngineRendererShaderOpenglIds    gl_ids;
+    IFBEngineRendererShaderUniformTable uniform_table;
+    IFBTag                              tag;
 };
 
 typedef IFBEngineRendererShader* IFBEngineRendererShaderPtr;
 typedef IFBEngineRendererShader& IFBEngineRendererShaderRef;
 
-struct IFBEngineRendererShaderSimpleQuad {
-    IFBEngineRendererShaderPtr shader_base;
+typedef u32 IFBEngineRendererShaderHandle;
+
+struct IFBEngineRendererShaderManager {
+    IFBEngineMemoryArenaPtr  arena_16kb;
+    IFBEngineRendererShader* shaders;
+    u32                      shaders_count;    
 };
 
-struct IFBEngineRendererShaderSolidQuad {
-    IFBEngineRendererShaderPtr shader_base;
-};
+typedef IFBEngineRendererShaderManager* IFBEngineRendererShaderManagerPtr;
 
+IFBEngineRendererShaderManagerPtr
+ifb_engine_renderer_shader_manager_create_and_initialize();
 
-struct IFBEngineRendererShaderTexturedQuad {
-    IFBEngineRendererShaderPtr shader_base;
-};
-
-struct IFBEngineRendererShaders {
-    IFBEngineRendererShaderStore         shader_store;
-    IFBEngineRendererShaderSimpleQuad*   shader_simple_quad;
-    IFBEngineRendererShaderSolidQuad*    shader_solid_quad;
-    IFBEngineRendererShaderTexturedQuad* shader_textured_quad;
-};
-
-struct  IFBEngineRendererShaders;
-typedef IFBEngineRendererShaders* IFBEngineRendererShadersPtr;
-typedef IFBEngineRendererShaders& IFBEngineRendererShadersRef;
-
-IFBEngineRendererShaderPtr
+IFBEngineRendererShaderHandle
 ifb_engine_renderer_shader_create(
-    const IFBEngineAssetsShaderId                   stage_id_vertex,
-    const IFBEngineAssetsShaderId                   stage_id_fragment,
-    const u32                                       uniform_count,
-    const char**                                    uniform_names,
-    const funcptr_ifb_engine_renderer_shader_update update_callback);
+    const IFBEngineAssetsShaderId asset_stage_vertex,
+    const IFBEngineAssetsShaderId asset_stage_fragment,
+    const char*                   shader_tag);
 
 void
-ifb_engine_renderer_shader_store_update();
+ifb_engine_renderer_shader_uniform_push(
+    const IFBEngineRendererShaderHandle shader_handle,
+    const u32                           uniform_count,              
+    const char**                        uniform_name);
 
+void
+ifb_engine_renderer_shader_compile(
+    const IFBEngineRendererShaderHandle shader_handle);
 
+//--------------------------------
+// SOLID QUAD SHADER
+//--------------------------------
+
+IFBEngineRendererShaderHandle
+ifb_engine_renderer_shader_solid_quad_create();
+
+//--------------------------------
+// TEXTURED QUAD SHADER
+//--------------------------------
+
+IFBEngineRendererShaderHandle
+ifb_engine_renderer_shader_textured_quad_create();
 
 //--------------------------------
 // Renderer
 //--------------------------------
 
+enum IFBEngineRendererShaderType_ {
+     IFBEngineRendererShaderType_SolidQuad    = 0,
+     IFBEngineRendererShaderType_TexturedQuad = 1,
+     IFBEngineRendererShaderType_Count        = 2
+};
+
+typedef u32 IFBEngineRendererShaderType;
+
+struct IFBEngineRendererShaderHandles {
+    union {
+        struct {
+            IFBEngineRendererShaderHandle solid_quad;
+            IFBEngineRendererShaderHandle textured_quad;
+        };
+
+        IFBEngineRendererShaderHandle array[IFBEngineRendererShaderType_Count];
+    };
+};
+
 struct IFBEngineRenderer {
-    IFBEngineRendererMemoryPtr memory;
+    IFBEngineRendererMemoryPtr        memory;
+    IFBEngineRendererShaderHandles    shader_handles;
+    IFBEngineRendererShaderManagerPtr shader_manager;
 };
 
 IFBEngineRendererPtr
@@ -188,29 +224,8 @@ void
 ifb_engine_renderer_memory_arena_release(
     IFBEngineMemoryArenaPtr arena);
 
-struct IFBEngineRendererMemoryAllocatorUniform {
-    IFBEngineMemoryArenaPtr arena_8k;
-    memory                  stack_ptr;
-    u32                     uniforms_count_total;
-};
-
-IFBEngineRendererShaderUniformPtr
-ifb_engine_renderer_memory_uniforms_push(
-    u32 uniforms_count);
-
-struct IFBEngineRendererMemoryAllocatorShader {
-    IFBEngineMemoryArenaPtr arena_8k;
-    u32                     shaders_count;
-    memory                  stack_ptr;
-};
-
-IFBEngineRendererShaderPtr
-ifb_engine_renderer_memory_allocator_shader_push();
-
 struct IFBEngineRendererMemoryAllocators {
     IFBEngineRendererMemoryAllocatorArena   arena;
-    IFBEngineRendererMemoryAllocatorUniform uniform;      
-    IFBEngineRendererMemoryAllocatorShader  shader;      
 };
 
 #define IFB_ENGINE_RENDERER_MEMORY_REGION_SIZE IFB_MATH_MEGABYTES(64)

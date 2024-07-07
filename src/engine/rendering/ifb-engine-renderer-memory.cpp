@@ -4,36 +4,6 @@
 
 global IFBEngineRendererMemory ifb_engine_renderer_memory;
 
-internal IFBEngineRendererMemoryAllocatorShader
-ifb_engine_renderer_memory_allocator_shader_create() {
-
-    IFBEngineMemoryArenaPtr arena = 
-        ifb_engine_renderer_memory_arena_reserve(IFBEngineAssetMemoryArenaSize_8KB);
-    ifb_assert(arena);
-
-    IFBEngineRendererMemoryAllocatorShader shader_allocator = {0};    
-    shader_allocator.arena_8k             = arena;
-    shader_allocator.shaders_count        = 0;
-    shader_allocator.stack_ptr            = NULL;
-
-    return(shader_allocator);
-}
-
-internal IFBEngineRendererMemoryAllocatorUniform
-ifb_engine_renderer_memory_allocator_uniform_create() {
-
-    IFBEngineMemoryArenaPtr arena = 
-        ifb_engine_renderer_memory_arena_reserve(IFBEngineAssetMemoryArenaSize_8KB);
-    ifb_assert(arena);
-
-    IFBEngineRendererMemoryAllocatorUniform uniform_allocator = {0};    
-    uniform_allocator.arena_8k             = arena;
-    uniform_allocator.uniforms_count_total = 0;
-    uniform_allocator.stack_ptr            = NULL;
-
-    return(uniform_allocator);
-}
-
 internal IFBEngineRendererMemoryAllocatorArena
 ifb_engine_renderer_memory_allocator_arena_create() {
 
@@ -99,8 +69,6 @@ ifb_engine_renderer_memory_create_and_initialize() {
 
     //create allocators
     ifb_engine_renderer_memory.allocators.arena   = ifb_engine_renderer_memory_allocator_arena_create(); 
-    ifb_engine_renderer_memory.allocators.uniform = ifb_engine_renderer_memory_allocator_uniform_create(); 
-    ifb_engine_renderer_memory.allocators.shader  = ifb_engine_renderer_memory_allocator_shader_create(); 
 
     return(&ifb_engine_renderer_memory);
 }
@@ -185,62 +153,3 @@ ifb_engine_renderer_memory_arena_free(
 
     ifb_engine_memory_arena_release(arena);
 }
-
-internal IFBEngineRendererShaderUniformPtr
-ifb_engine_renderer_memory_uniforms_push(
-    u32 uniforms_count) {
-
-    //validate the allocator
-    IFBEngineRendererMemoryAllocatorUniform& uniform_allocator_ref = 
-        ifb_engine_renderer_memory.allocators.uniform;
-
-    ifb_assert(uniform_allocator_ref.arena_8k);
-
-    //make the allocation
-    u64 allocation_size = sizeof(IFBEngineRendererShaderUniform) * uniforms_count;
-    
-    uniform_allocator_ref.stack_ptr =     
-        ifb_engine_memory_arena_bytes_push(
-            uniform_allocator_ref.arena_8k,
-            allocation_size        
-        );
-
-    ifb_assert(uniform_allocator_ref.stack_ptr);
-
-    ++uniform_allocator_ref.uniforms_count_total;
-
-    //return the uniforms
-    IFBEngineRendererShaderUniformPtr uniforms = 
-        (IFBEngineRendererShaderUniformPtr)uniform_allocator_ref.stack_ptr;
-
-    return(uniforms);
-}
-
-internal IFBEngineRendererShaderPtr
-ifb_engine_renderer_memory_allocator_shader_push() {
-
-    //validate the allocator
-    IFBEngineRendererMemoryAllocatorShader& shader_allocator_ref = 
-        ifb_engine_renderer_memory.allocators.shader;    
-
-    //make the allocation
-    ifb_assert(shader_allocator_ref.arena_8k);
-
-    u64 allocation_size = sizeof(IFBEngineRendererShader);
-
-    shader_allocator_ref.stack_ptr = 
-        ifb_engine_memory_arena_bytes_push(
-            shader_allocator_ref.arena_8k,
-            allocation_size        
-        );
-
-    ifb_assert(shader_allocator_ref.stack_ptr);
-
-    ++shader_allocator_ref.shaders_count;
-
-    IFBEngineRendererShaderPtr shader = 
-            (IFBEngineRendererShaderPtr)shader_allocator_ref.stack_ptr;
-
-    return(shader);
-}
-

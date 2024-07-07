@@ -29,7 +29,7 @@
                   /LIBPATH:bin
 
 @set cl_libs=     opengl32.lib ^
-                  glu32.lib    ^
+                  GlU32.lib ^
                   imgui.lib 
 
 call cl.exe           ^

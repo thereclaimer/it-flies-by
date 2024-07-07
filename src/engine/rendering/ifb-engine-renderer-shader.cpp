@@ -2,232 +2,161 @@
 
 #include "ifb-engine-renderer.hpp"
 
-global IFBEngineRendererShaderStore ifb_engine_renderer_shader_store;
-global IFBEngineRendererShaders ifb_engine_renderer_shaders;
+global IFBEngineRendererShaderManager ifb_engine_renderer_shader_manager;
 
+internal IFBEngineRendererShaderManagerPtr
+ifb_engine_renderer_shader_manager_create_and_initialize() {
 
-internal IFBEngineRendererShaderStorePtr
-ifb_engine_renderer_shader_store_create_and_initialize() {
+    ifb_engine_renderer_shader_manager               = {0};
+    ifb_engine_renderer_shader_manager.shaders_count = 0;
+    ifb_engine_renderer_shader_manager.arena_16kb    = 
+        ifb_engine_renderer_memory_arena_reserve(IFBEngineRendererMemoryArenaSize_16KB);    
 
-    ifb_engine_renderer_shader_store = {0};
+    ifb_engine_renderer_shader_manager.shaders = 
+        (IFBEngineRendererShaderPtr)ifb_engine_renderer_shader_manager.arena_16kb->block.memory;
 
-    return(&ifb_engine_renderer_shader_store);
+    ifb_assert(ifb_engine_renderer_shader_manager.arena_16kb);
+
+    return(&ifb_engine_renderer_shader_manager);
 }
 
-internal IFBEngineRendererShaderPtr
+internal IFBEngineRendererShaderHandle
 ifb_engine_renderer_shader_create(
-    const IFBEngineAssetsShaderId                   stage_id_vertex,
-    const IFBEngineAssetsShaderId                   stage_id_fragment,
-    const u32                                       uniform_count,
-    const char**                                    uniform_names,
-    const funcptr_ifb_engine_renderer_shader_update update_callback) {
+    const IFBEngineAssetsShaderId asset_stage_vertex,
+    const IFBEngineAssetsShaderId asset_stage_fragment,
+    const char*                   shader_tag) {
 
-    ifb_assert(update_callback);
+    ifb_assert(ifb_engine_renderer_shader_manager.arena_16kb);
 
-    //load the asset
-    IFBEngineAssetShader shader_asset = {0};
+    IFBEngineRendererShaderHandle new_shader_handle = 
+        ifb_engine_renderer_shader_manager.shaders_count;
+
+    //allocation size
+    u64 new_shader_size = sizeof(IFBEngineRendererShader);  
+
+    //allocate a new shader
+    memory new_shader_memory = 
+        ifb_engine_memory_arena_bytes_push(
+            ifb_engine_renderer_shader_manager.arena_16kb,            
+            new_shader_size); 
+
+    ifb_assert(new_shader_memory);
+
+    u32 new_shader_index = ifb_engine_renderer_shader_manager.shaders_count; 
+
+    ++ifb_engine_renderer_shader_manager.shaders_count;
+
+    //get the reference to the  new shader
+    IFBEngineRendererShaderRef new_shader_ref = ifb_engine_renderer_shader_manager.shaders[new_shader_index]; 
+    new_shader_ref = {0};
+
+    //get the shader assets
     ifb_engine_assets_data_shader_load(
-        stage_id_vertex,
-        stage_id_fragment,
-        shader_asset);
+        asset_stage_vertex,
+        asset_stage_fragment,        
+        new_shader_ref.assets);
 
-    //compile the shader
-    GLuint gl_id_shader_stage_vertex   = ifb_engine_renderer_opengl_shader_stage_vertex_compile((const char*)shader_asset.shader_buffer_vertex);
-    GLuint gl_id_shader_stage_fragment = ifb_engine_renderer_opengl_shader_stage_fragment_compile((const char*)shader_asset.shader_buffer_fragment);
-    
+    //allocate the arenas
+    new_shader_ref.memory.vertex_array_object.arena_1kb = ifb_engine_renderer_memory_arena_reserve(IFBEngineRendererMemoryArenaSize_1KB);
+    new_shader_ref.memory.uniform.arena_1kb             = ifb_engine_renderer_memory_arena_reserve(IFBEngineRendererMemoryArenaSize_1KB);
+    new_shader_ref.memory.draw_buffer.arena_16kb        = ifb_engine_renderer_memory_arena_reserve(IFBEngineRendererMemoryArenaSize_16KB);
+
+    ifb_assert(new_shader_ref.memory.vertex_array_object.arena_1kb);
+    ifb_assert(new_shader_ref.memory.uniform.arena_1kb);
+    ifb_assert(new_shader_ref.memory.draw_buffer.arena_16kb);
+
+    new_shader_ref.memory.vertex_array_object.vertex_attribute_table_memory = new_shader_ref.memory.vertex_array_object.arena_1kb->block.memory; 
+    new_shader_ref.memory.uniform.uniform_table_memory                      = new_shader_ref.memory.uniform.arena_1kb->block.memory; 
+    new_shader_ref.memory.draw_buffer.draw_buffer_memory                    = new_shader_ref.memory.draw_buffer.arena_16kb->block.memory;
+
+    //tag
+    new_shader_ref.tag = ifb_tag(shader_tag);
+
+    return(new_shader_handle);
+}
+
+internal void
+ifb_engine_renderer_shader_uniform_push(
+    const IFBEngineRendererShaderHandle shader_handle,
+    const u32                           uniform_count,              
+    const char**                        uniform_name) {
+
+    //get the shader reference
+    IFBEngineRendererShaderRef shader_ref = 
+        ifb_engine_renderer_shader_manager.shaders[shader_handle];        
+
+    //allocate space for the tag
+    memory uniform_tag_memory = 
+        ifb_engine_memory_arena_bytes_push(
+            shader_ref.memory.uniform.arena_1kb,
+            sizeof(IFBTag) * uniform_count);
+
+    ifb_assert(uniform_tag_memory);
+
+    //set the uniform array if its not already
+    if (!shader_ref.uniform_table.uniform_name_tags) {
+        shader_ref.uniform_table.uniform_name_tags = (IFBTag*)uniform_tag_memory; 
+    }
+
+    //set the tag values
+    for (
+        u32 uniform_name_index = 0;
+        uniform_name_index < uniform_count;
+        ++uniform_name_index) {
+
+        shader_ref.uniform_table.uniform_name_tags[
+            shader_ref.uniform_table.count +
+            uniform_name_index] = ifb_tag(uniform_name[uniform_name_index]);
+    }
+
+    //update the uniform count
+    shader_ref.uniform_table.count += uniform_count;
+}
+
+internal void
+ifb_engine_renderer_shader_compile(
+    const IFBEngineRendererShaderHandle shader_handle) {
+
+    //get the shader reference
+    IFBEngineRendererShaderRef shader_ref = 
+        ifb_engine_renderer_shader_manager.shaders[shader_handle];
+
+    //compile the shader stages
+    shader_ref.gl_ids.stage_vertex   = ifb_engine_renderer_opengl_shader_stage_vertex_compile(shader_ref.assets.shader_buffer_vertex);
+    shader_ref.gl_ids.stage_fragment = ifb_engine_renderer_opengl_shader_stage_fragment_compile(shader_ref.assets.shader_buffer_fragment);
+
     ifb_assert(
-        gl_id_shader_stage_vertex   > 0 &&
-        gl_id_shader_stage_fragment > 0);
+        shader_ref.gl_ids.stage_vertex   > 0 &&
+        shader_ref.gl_ids.stage_fragment > 0);
 
-    GLuint gl_id_shader_program = 
+    //create and link the shader program    
+    shader_ref.gl_ids.program  = 
         ifb_engine_renderer_opengl_program_create_and_link(
-            gl_id_shader_stage_vertex,
-            gl_id_shader_stage_fragment);
+            shader_ref.gl_ids.stage_vertex,
+            shader_ref.gl_ids.stage_fragment);
 
-    ifb_assert(gl_id_shader_program);
+    ifb_assert(shader_ref.gl_ids.program > 0);
 
-    //get a new arena for the shader
-    IFBEngineMemoryArenaPtr shader_arena = 
-        ifb_engine_renderer_memory_arena_reserve(IFB_ENGINE_RENDERER_MEMORY_ARENA_SIZE_8KB);
-    ifb_assert(shader_arena);
+    //we don't need the shader data anymore
+    ifb_engine_assets_data_shader_unload(shader_ref.assets);
 
-    //allocate and initialize the uniforms
-    IFBEngineRendererShaderUniformPtr uniforms = 
-        ifb_engine_renderer_memory_uniforms_push(uniform_count);
-    ifb_assert(uniforms);
-
-    IFBEngineRendererShaderUniformPtr uniform_ptr;
-    const char*                       uniform_name;
-
+    //get the uniform locations
+    IFBTag current_uniform_tag;
+    GLint  current_uniform_location;
     for (
         u32 uniform_index = 0;
-        uniform_index < uniform_count;
+        uniform_index < shader_ref.uniform_table.count;
         ++uniform_index) {
 
-        uniform_ptr  = &uniforms[uniform_index];
-        uniform_name = uniform_names[uniform_index];
+        current_uniform_tag      = shader_ref.uniform_table.uniform_name_tags[uniform_index]; 
+        current_uniform_location = 
+            ifb_engine_renderer_opengl_uniform_location(
+                shader_ref.gl_ids.program,
+                current_uniform_tag);
         
-        uniform_ptr->name = ifb_tag(uniform_name);
-        uniform_ptr->id   = glGetUniformLocation(gl_id_shader_program,uniform_name); 
+        ifb_assert(current_uniform_location >= 0);
+
+        shader_ref.uniform_table.uniform_locations[uniform_index] = current_uniform_location; 
     }
 
-    //allocate and initialize the structure
-    IFBEngineRendererShaderPtr shader_ptr = ifb_engine_renderer_memory_allocator_shader_push();
-    ifb_assert(shader_ptr);
-
-    //update the count, and make this the list if its the first one
-    ++ifb_engine_renderer_shader_store.shaders_count;
-    if (!ifb_engine_renderer_shader_store.shaders) {
-        ifb_engine_renderer_shader_store.shaders = shader_ptr;
-    }
-
-    shader_ptr->arena_8k                      = shader_arena;
-    shader_ptr->asset                         = shader_asset;
-    shader_ptr->stages.gl_program_id          = gl_id_shader_program;
-    shader_ptr->stages.gl_shader_stage_vertex = gl_id_shader_stage_vertex;
-    shader_ptr->stages.gl_shader_stage_vertex = gl_id_shader_stage_fragment;
-    shader_ptr->uniform_count                 = uniform_count;
-    shader_ptr->uniforms                      = uniform_ptr;
-    shader_ptr->update_callback               = update_callback;
-
-    return(shader_ptr);
-}
-
-internal void
-ifb_engine_renderer_shader_store_update() {
-
-    IFBEngineRendererShaderPtr shader_ptr = NULL;
-
-    for (
-        u32 shader_index = 0;
-        shader_index < ifb_engine_renderer_shader_store.shaders_count;
-        ++shader_index) {
-
-        shader_ptr = &ifb_engine_renderer_shader_store.shaders[shader_index];
-        
-        shader_ptr->update_callback(shader_ptr->shader_impl);
-    }
-}
-
-
-internal void
-ifb_engine_renderer_shader_simple_quad_update(
-    void* shader_impl) {
-    
-    ifb_assert(shader_impl);
-    IFBEngineRendererShaderSimpleQuad* simple_quad_shader = (IFBEngineRendererShaderSimpleQuad*)shader_impl;
-}
-
-internal void
-ifb_engine_renderer_shader_solid_quad_update(
-    void* shader_impl) {
-
-    ifb_assert(shader_impl);
-    IFBEngineRendererShaderSolidQuad* solid_quad_shader = (IFBEngineRendererShaderSolidQuad*)shader_impl;
-}
-
-internal void
-ifb_engine_renderer_shader_textured_quad_update(
-    void* shader_impl) {
-
-    ifb_assert(shader_impl);
-    IFBEngineRendererShaderTexturedQuad* textured_quad_shader = (IFBEngineRendererShaderTexturedQuad*)shader_impl;
-}
-
-internal void 
-ifb_engine_renderer_shaders_create() {
-
-    ifb_engine_renderer_shaders = {0};
-
-    IFBEngineRendererShaderPtr shader        = NULL;
-    memory                     shader_memory = NULL;
-
-    //----------------------------------
-    // SIMPLE QUAD SHADER
-    //----------------------------------
-
-    const char* simple_quad_shader_uniforms[] = {
-        "transform",
-        "color"
-    };
-
-    shader =
-        ifb_engine_renderer_shader_create(
-            IFBEngineAssetsShader_SimpleQuadVertexShader,
-            IFBEngineAssetsShader_SimpleQuadFragmentShader,
-            2,
-            simple_quad_shader_uniforms,            
-            ifb_engine_renderer_shader_simple_quad_update);
-
-    ifb_assert(shader);
-
-    shader_memory = 
-        ifb_engine_memory_arena_bytes_push(
-            shader->arena_8k,
-            sizeof(IFBEngineRendererShaderSimpleQuad)); 
-    
-    shader->shader_impl = shader_memory;
-
-    ifb_assert(shader_memory);
-
-    ifb_engine_renderer_shaders.shader_simple_quad = (IFBEngineRendererShaderSimpleQuad*)shader_memory;
-
-    //----------------------------------
-    // SOLID QUAD SHADER
-    //----------------------------------
-
-    const char* solid_quad_shader_uniforms[] = {
-        "solid_quad_update",
-        "model",
-        "color"
-    };
-
-    shader =
-        ifb_engine_renderer_shader_create(
-            IFBEngineAssetsShader_SolidQuadVertexShader,
-            IFBEngineAssetsShader_SolidQuadFragmentShader,
-            2,
-            solid_quad_shader_uniforms,            
-            ifb_engine_renderer_shader_solid_quad_update);
-
-    ifb_assert(shader);
-
-    shader_memory = 
-        ifb_engine_memory_arena_bytes_push(
-            shader->arena_8k,
-            sizeof(IFBEngineRendererShaderSimpleQuad)); 
-    
-    ifb_assert(shader_memory);
-
-    ifb_engine_renderer_shaders.shader_solid_quad = (IFBEngineRendererShaderSolidQuad*)shader_memory;
-
-    //----------------------------------
-    // TEXTURED QUAD SHADER
-    //----------------------------------
-
-    const char* textured_quad_shader_uniforms[] = {
-        "solid_quad_update",
-        "model",
-        "color"
-    };
-
-    shader =
-        ifb_engine_renderer_shader_create(
-            IFBEngineAssetsShader_TexturedQuadVertexShader,
-            IFBEngineAssetsShader_TexturedQuadFragmentShader,
-            2,
-            textured_quad_shader_uniforms,            
-            ifb_engine_renderer_shader_textured_quad_update);
-
-    ifb_assert(shader);
-
-    shader_memory = 
-        ifb_engine_memory_arena_bytes_push(
-            shader->arena_8k,
-            sizeof(IFBEngineRendererShaderTexturedQuad)); 
-    
-    ifb_assert(shader_memory);
-
-    ifb_engine_renderer_shaders.shader_textured_quad = (IFBEngineRendererShaderTexturedQuad*)shader_memory;
-    
 }

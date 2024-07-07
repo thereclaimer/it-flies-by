@@ -2,7 +2,6 @@
 #define IFB_WIN32_HPP
 
 #include <Windows.h>
-#include <GL/GL.h>
 #include <Xinput.h>
 
 #include <ifb.hpp>

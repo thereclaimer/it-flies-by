@@ -77,3 +77,18 @@ ifb_engine_assets_data_unload(
         asset_data_ref.index
     );
 }
+
+internal void
+ifb_engine_assets_data_shader_unload(
+    const IFBEngineAssetShader& shader_asset_ref) {
+
+    ifb_engine_assets_data_table_asset_unload(
+        IFBEngineAssetsType_Shader,
+        shader_asset_ref.shader_data_vertex.index);
+
+    ifb_engine_assets_data_table_asset_unload(
+        IFBEngineAssetsType_Shader,
+        shader_asset_ref.shader_data_fragment.index);
+}
+
+

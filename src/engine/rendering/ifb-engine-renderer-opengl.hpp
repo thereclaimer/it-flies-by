@@ -57,8 +57,8 @@ ifb_engine_renderer_opengl_shader_stage_fragment_compile(
 
 inline GLuint
 ifb_engine_renderer_opengl_program_create_and_link(
-    GLuint gl_shader_stage_id_vertex,
-    GLuint gl_shader_stage_id_fragment) {
+    const GLuint gl_shader_stage_id_vertex,
+    const GLuint gl_shader_stage_id_fragment) {
 
     //create the program
     GLuint gl_shader_program_id = glCreateProgram();
@@ -79,6 +79,26 @@ ifb_engine_renderer_opengl_program_create_and_link(
     ifb_assert(gl_error == GL_NO_ERROR); 
 
     return(gl_shader_program_id);
+}
+
+inline GLint
+ifb_engine_renderer_opengl_uniform_location(
+    const GLuint  gl_program_id,
+    const IFBTag& uniform_tag) {
+
+    //get and validate the uniform location
+    GLint uniform_location =
+        glGetUniformLocation(
+            gl_program_id,
+            uniform_tag.value);
+
+    ifb_assert(uniform_location >= 0);
+
+    //opengl sanity check
+    u32 gl_error = glGetError();
+    ifb_assert(gl_error == GL_NO_ERROR); 
+
+    return(uniform_location);
 }
 
 #endif //IFB_ENGINE_RENDERING_OPENGL_HPP

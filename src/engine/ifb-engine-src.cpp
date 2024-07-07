@@ -24,6 +24,8 @@
 #include "ifb-engine-renderer.cpp"
 #include "ifb-engine-renderer-memory.cpp"
 #include "ifb-engine-renderer-shader.cpp"
+#include "ifb-engine-renderer-shader-solid-quad.cpp"
+#include "ifb-engine-renderer-shader-textured-quad.cpp"
 
 //--------------------------------
 // CORE
