@@ -48,17 +48,10 @@ ifb_engine_render_frame() {
     //reset the frame allocator
     ifb_engine_core_memory_frame_reset();
 
-    //test the asset loading
-    // IFBEngineAssetImage image_asset = {0}; 
-    //     ifb_engine_assets_image_load(
-    //         IFBEngineAssetsImage_ConnorCalibaration,
-    //         image_asset);
+    //test rendering a solid quad
+    IFBEngineRendererSolidQuad quad = {0};
+    quad.color     = ifb_engine_renderer_color_normalize_value_rgba(0xEBDBB2FF);
+    quad.transform = ifb_math_mat3_identity();
 
-    // IFBEngineAssetShader shader_asset = {0};
-    // ifb_engine_assets_data_shader_load(
-    //     IFBEngineAssetsShader_SolidQuadVertexShader,
-    //     IFBEngineAssetsShader_SolidQuadFragmentShader,
-    //     shader_asset);
-
-    ifb_nop();
+    ifb_engine_renderer_push_solid_quad(&quad,1);
 }

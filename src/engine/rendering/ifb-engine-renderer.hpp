@@ -79,6 +79,26 @@ ifb_engine_renderer_color_normalize(
     return(color_normalized);    
 }
 
+inline IFBEngineRendererColorNormalized
+ifb_engine_renderer_color_normalize_value_rgba(
+    const u32 color_hex_value) {
+
+    IFBEngineRendererColorHex color_hex = {0};
+
+    color_hex.a = (color_hex_value >> 24) & 0xFF; 
+    color_hex.b = (color_hex_value >> 16) & 0xFF; 
+    color_hex.g = (color_hex_value >> 8)  & 0xFF; 
+    color_hex.r =  color_hex_value        & 0xFF; 
+
+    IFBEngineRendererColorNormalized color_normalized = {0};
+    color_normalized.r = color_hex.r * IFB_ENGINE_RENDERER_COLOR_NORMALIZATION_FACTOR;
+    color_normalized.g = color_hex.g * IFB_ENGINE_RENDERER_COLOR_NORMALIZATION_FACTOR;
+    color_normalized.b = color_hex.b * IFB_ENGINE_RENDERER_COLOR_NORMALIZATION_FACTOR;
+    color_normalized.a = color_hex.a * IFB_ENGINE_RENDERER_COLOR_NORMALIZATION_FACTOR;
+
+    return(color_normalized);    
+}
+
 //--------------------------------
 // BUFFER
 //--------------------------------
@@ -269,6 +289,12 @@ ifb_engine_renderer_create_and_initialize();
 
 void
 ifb_engine_renderer_update();
+
+void
+ifb_engine_renderer_push_solid_quad(
+    const IFBEngineRendererSolidQuad* solid_quads,
+    const u32                         count);
+
 
 //--------------------------------
 // MEMORY

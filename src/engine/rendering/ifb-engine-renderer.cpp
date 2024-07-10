@@ -23,3 +23,11 @@ internal void
 ifb_engine_renderer_update() {
 
 }
+
+internal void
+ifb_engine_renderer_push_solid_quad(
+    const IFBEngineRendererSolidQuad* solid_quads,
+    const u32                         count) {
+
+    ifb_nop();
+}

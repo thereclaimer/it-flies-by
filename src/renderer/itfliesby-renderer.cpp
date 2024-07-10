@@ -141,3 +141,4 @@ itfliesby_renderer_scale_factor(
 
     return(renderer->scale_factor);
 }
+ 
