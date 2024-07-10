@@ -47,11 +47,14 @@ ifb_win32_opengl_create_and_initialize() {
  
     ifb_assert(context_is_current);
 
+    assert(glewInit() == GLEW_OK);
+
     glClearColor(
         0.1569f, 
         0.1569f,
         0.1569f,
         1.0000f);
+
 
     return(&ifb_win32_opengl);
 }

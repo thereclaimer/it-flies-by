@@ -24,6 +24,7 @@
 
 @set cl_libs=         user32.lib           ^
                       opengl32.lib         ^
+                      glew32.lib           ^
                       gdi32.lib            ^
                       imgui.lib            ^
                       Xinput.lib           ^
