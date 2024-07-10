@@ -16,8 +16,11 @@
 #endif //IFB_DEPENDENCIES_EXCLUDE_IMGUI
 
 #ifndef IFB_DEPENDENCIES_EXCLUDE_GLEW
+#include <Windows.h>
 #include <GL/glew.h>
-#include <GL/wglew.h>
+#include <GL/gl.h>
+#include <GL/wgl.h>
+#include <GL/glu.h>
 #endif //IFB_DEPENDENCIES_EXCLUDE_GLEW
 
 #endif //IFB_DEPENDENCIES_EXCLUDE_ALL
