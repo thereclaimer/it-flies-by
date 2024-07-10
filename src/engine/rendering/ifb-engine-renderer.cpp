@@ -13,8 +13,8 @@ ifb_engine_renderer_create_and_initialize() {
 
     //create the shaders
     ifb_engine_renderer.shader_manager               = ifb_engine_renderer_shader_manager_create_and_initialize();
-    ifb_engine_renderer.shader_handles.solid_quad    = ifb_engine_renderer_shader_solid_quad_create();
-    ifb_engine_renderer.shader_handles.textured_quad = ifb_engine_renderer_shader_textured_quad_create();
+    ifb_engine_renderer.shaders.solid_quad    = ifb_engine_renderer_shader_solid_quad_create();
+    ifb_engine_renderer.shaders.textured_quad = ifb_engine_renderer_shader_textured_quad_create();
 
     return(&ifb_engine_renderer);
 }

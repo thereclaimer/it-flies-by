@@ -21,6 +21,64 @@ struct  IFBEngineRendererBuffer;
 typedef IFBEngineRendererBuffer* IFBEngineRendererBufferPtr;
 typedef IFBEngineRendererBuffer& IFBEngineRendererBufferRef;
 
+#define IFB_ENGINE_RENDERER_COLOR_NORMALIZATION_FACTOR   0.003921569
+#define IFB_ENGINE_RENDERER_COLOR_DENORMALIZATION_FACTOR 255 
+
+struct IFBEngineRendererColorHex {
+
+    union {
+        struct {
+            u8 r;
+            u8 g;
+            u8 b;
+            u8 a;
+        };
+
+        f32 rgba;
+    };
+
+};
+
+struct IFBEngineRendererColorNormalized {
+    union {
+
+        struct {
+            f32 r;
+            f32 g;
+            f32 b;
+            f32 a;
+        };
+
+        f32 rgba[4];
+    };
+};
+
+inline IFBEngineRendererColorHex
+ifb_engine_renderer_color_normalized_to_hex(
+    const IFBEngineRendererColorNormalized& color_normalized) {
+
+    IFBEngineRendererColorHex color_hex = {0};
+    color_hex.r = color_normalized.r * IFB_ENGINE_RENDERER_COLOR_DENORMALIZATION_FACTOR;
+    color_hex.g = color_normalized.g * IFB_ENGINE_RENDERER_COLOR_DENORMALIZATION_FACTOR;
+    color_hex.b = color_normalized.b * IFB_ENGINE_RENDERER_COLOR_DENORMALIZATION_FACTOR;
+    color_hex.a = color_normalized.a * IFB_ENGINE_RENDERER_COLOR_DENORMALIZATION_FACTOR;
+
+    return(color_hex);
+} 
+
+inline IFBEngineRendererColorNormalized
+ifb_engine_renderer_color_normalize(
+    const IFBEngineRendererColorHex& color_hex) {
+
+    IFBEngineRendererColorNormalized color_normalized = {0};
+    color_normalized.r = color_hex.r * IFB_ENGINE_RENDERER_COLOR_NORMALIZATION_FACTOR;
+    color_normalized.g = color_hex.g * IFB_ENGINE_RENDERER_COLOR_NORMALIZATION_FACTOR;
+    color_normalized.b = color_hex.b * IFB_ENGINE_RENDERER_COLOR_NORMALIZATION_FACTOR;
+    color_normalized.a = color_hex.a * IFB_ENGINE_RENDERER_COLOR_NORMALIZATION_FACTOR;
+
+    return(color_normalized);    
+}
+
 //--------------------------------
 // BUFFER
 //--------------------------------
@@ -67,13 +125,21 @@ struct IFBEngineRendererShaderMemory {
     IFBEngineRendererShaderMemoryDrawBuffer        draw_buffer;    
 };
 
+struct IFBEngineRendererShaderVertexArrayAttribute {
+    GLenum     gl_type;
+    GLboolean  gl_normalized;
+    u32        element_size;
+    u32        element_count;
+    IFBTag     tag;
+};
+
 struct IFBEngineRendererShaderVertexArrayAttributeTable {
-    GLenum*      gl_types;
-    GLboolean*   gl_normalizeds;
-    GLsizei*     gl_strides;
-    void**       gl_offsets;
-    IFBTag*      tags;
-    u32          count;
+    GLenum*    gl_types;
+    GLboolean* gl_normalizeds;
+    u32*       element_sizes;
+    u32*       element_counts;
+    IFBTag*    tags;
+    u32        count;
 };
 
 struct IFBEngineRendererShaderVertexArrayObject {
@@ -82,11 +148,12 @@ struct IFBEngineRendererShaderVertexArrayObject {
 };
 
 struct IFBEngineRendererShader {
-    IFBEngineRendererShaderMemory       memory;
-    IFBEngineAssetShader                assets;
-    IFBEngineRendererShaderOpenglIds    gl_ids;
-    IFBEngineRendererShaderUniformTable uniform_table;
-    IFBTag                              tag;
+    IFBEngineRendererShaderMemory            memory;
+    IFBEngineAssetShader                     assets;
+    IFBEngineRendererShaderVertexArrayObject vertex_array_object;
+    IFBEngineRendererShaderOpenglIds         gl_ids;
+    IFBEngineRendererShaderUniformTable      uniform_table;
+    IFBTag                                   tag;
 };
 
 typedef IFBEngineRendererShader* IFBEngineRendererShaderPtr;
@@ -118,21 +185,60 @@ ifb_engine_renderer_shader_uniform_push(
     const char**                        uniform_name);
 
 void
+ifb_engine_renderer_shader_vertex_array_attributes_push(
+    const IFBEngineRendererShaderHandle                shader_handle,
+    const u32                                          attribute_count,
+    const IFBEngineRendererShaderVertexArrayAttribute* attributes);
+
+void
 ifb_engine_renderer_shader_compile(
     const IFBEngineRendererShaderHandle shader_handle);
+
+memory
+ifb_engine_renderer_shader_push_vertex(
+    const IFBEngineRendererShaderHandle shader_handle,
+    const u32                           vertex_count);
 
 //--------------------------------
 // SOLID QUAD SHADER
 //--------------------------------
 
-IFBEngineRendererShaderHandle
+struct IFBEngineRendererShaderSolidQuad {
+    IFBEngineRendererShaderHandle shader_handle;
+};
+
+struct IFBEngineRendererSolidQuad {
+    IFBMathMat3                      transform;
+    IFBEngineRendererColorNormalized color;
+};
+
+struct IFBEngineRendererSolidQuadVertex {
+    union {
+        struct {
+            f32 transform[9];
+            f32 color[4];
+        };
+        f32 buffer[13];
+    };
+};
+
+IFBEngineRendererShaderSolidQuad*
 ifb_engine_renderer_shader_solid_quad_create();
+
+void
+ifb_engine_renderer_shader_solid_quad_push(
+    IFBEngineRendererSolidQuad* solid_quads,
+    u32                         solid_quads_count);
 
 //--------------------------------
 // TEXTURED QUAD SHADER
 //--------------------------------
 
-IFBEngineRendererShaderHandle
+struct IFBEngineRendererShaderTexturedQuad {
+    IFBEngineRendererShaderHandle shader_handle;
+};
+
+IFBEngineRendererShaderTexturedQuad*
 ifb_engine_renderer_shader_textured_quad_create();
 
 //--------------------------------
@@ -147,20 +253,14 @@ enum IFBEngineRendererShaderType_ {
 
 typedef u32 IFBEngineRendererShaderType;
 
-struct IFBEngineRendererShaderHandles {
-    union {
-        struct {
-            IFBEngineRendererShaderHandle solid_quad;
-            IFBEngineRendererShaderHandle textured_quad;
-        };
-
-        IFBEngineRendererShaderHandle array[IFBEngineRendererShaderType_Count];
-    };
+struct IFBEngineRendererShaders {
+    IFBEngineRendererShaderSolidQuad*    solid_quad;
+    IFBEngineRendererShaderTexturedQuad* textured_quad;
 };
 
 struct IFBEngineRenderer {
     IFBEngineRendererMemoryPtr        memory;
-    IFBEngineRendererShaderHandles    shader_handles;
+    IFBEngineRendererShaders          shaders;
     IFBEngineRendererShaderManagerPtr shader_manager;
 };
 

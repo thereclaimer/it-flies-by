@@ -72,6 +72,11 @@ ifb_engine_renderer_shader_create(
     //tag
     new_shader_ref.tag = ifb_tag(shader_tag);
 
+    //vertex array object
+    glGenVertexArrays(
+        1,
+        &new_shader_ref.gl_ids.vertex_array_object);
+
     return(new_shader_handle);
 }
 
@@ -83,7 +88,7 @@ ifb_engine_renderer_shader_uniform_push(
 
     //get the shader reference
     IFBEngineRendererShaderRef shader_ref = 
-        ifb_engine_renderer_shader_manager.shaders[shader_handle];        
+        ifb_engine_renderer_shader_manager.shaders[shader_handle];
 
     //allocate space for the tags and locations
     memory uniform_tag_memory = 
@@ -113,6 +118,56 @@ ifb_engine_renderer_shader_uniform_push(
 
     //update the uniform count
     shader_ref.uniform_table.count += uniform_count;
+}
+
+internal void
+ifb_engine_renderer_shader_vertex_array_attributes_push(
+    const IFBEngineRendererShaderHandle                shader_handle,
+    const u32                                          attribute_count,
+    const IFBEngineRendererShaderVertexArrayAttribute* attributes) {
+
+    //get the shader reference
+    IFBEngineRendererShaderRef shader_ref = 
+        ifb_engine_renderer_shader_manager.shaders[shader_handle];
+
+    //allocate space for the attributes
+    u64 row_size = 
+        sizeof(GLenum)    + 
+        sizeof(GLboolean) + 
+        sizeof(GLsizei)   + 
+        sizeof(void*)     + 
+        sizeof(IFBTag);
+
+    u64 table_size = row_size * attribute_count;  
+
+    memory table_memory = 
+        ifb_engine_memory_arena_bytes_push(
+            shader_ref.memory.vertex_array_object.arena_1kb,
+            table_size);
+
+    ifb_assert(table_memory);
+
+    shader_ref.memory.vertex_array_object.vertex_attribute_table_memory = table_memory;
+    shader_ref.memory.vertex_array_object.vertex_attribute_table_size   = table_size;
+
+    //set the table pointers
+    IFBEngineRendererShaderVertexArrayAttributeTable& attribute_table = 
+        shader_ref.vertex_array_object.attribute_table;
+    
+    u64 offset = 0;
+    attribute_table.gl_types       = (GLenum*)table_memory;
+    
+    offset += sizeof(GLenum)       * attribute_count;
+    attribute_table.gl_normalizeds = (GLboolean*)&table_memory[offset]; 
+
+    offset += sizeof(GLboolean)    * attribute_count;
+    attribute_table.element_sizes  = (u32*)&table_memory[offset];
+
+    offset += sizeof(u32)          * attribute_count;
+    attribute_table.element_counts = (u32*)&table_memory[offset];
+
+    offset += sizeof(u32)          * attribute_count;
+    attribute_table.tags           = (IFBTag*)&table_memory[offset];
 }
 
 internal void
@@ -161,4 +216,94 @@ ifb_engine_renderer_shader_compile(
         shader_ref.uniform_table.uniform_locations[uniform_index] = current_uniform_location; 
     }
 
+}
+
+internal memory
+ifb_engine_renderer_shader_push_vertex(
+    const IFBEngineRendererShaderHandle shader_handle,
+    const u32                           vertex_count) {
+
+    //get the shader reference
+    IFBEngineRendererShaderRef shader_ref = 
+        ifb_engine_renderer_shader_manager.shaders[shader_handle];
+
+    u64 allocation_size = 0;
+    u64 element_size    = 0;
+    u64 element_count   = 0;
+
+    for (
+        u32 attribute_index = 0;
+        attribute_index < shader_ref.vertex_array_object.attribute_table.count;
+        ++attribute_index) {
+
+        element_size  = shader_ref.vertex_array_object.attribute_table.element_sizes[attribute_index];
+        element_count = shader_ref.vertex_array_object.attribute_table.element_counts[attribute_index];
+
+        allocation_size += element_size * element_count;
+    }
+
+    ifb_assert(allocation_size > 0);
+
+    memory vertex_buffer =
+        ifb_engine_memory_arena_bytes_push(
+            shader_ref.memory.draw_buffer.arena_16kb,
+            allocation_size);
+
+    ifb_assert(vertex_buffer);
+
+    shader_ref.memory.draw_buffer.draw_buffer_size += allocation_size; 
+
+    return(vertex_buffer);
+}
+
+internal void
+ifb_engine_renderer_shader_enable_vertex_array(
+    IFBEngineRendererShaderHandle shader_handle) {
+
+    //get the shader reference
+    IFBEngineRendererShaderRef shader_ref = 
+        ifb_engine_renderer_shader_manager.shaders[shader_handle];
+
+    glBindVertexArray(shader_ref.gl_ids.vertex_array_object);
+
+    IFBEngineRendererShaderVertexArrayAttributeTable& vertex_attribute_table = 
+        shader_ref.vertex_array_object.attribute_table;
+
+    u64 offset = 0;
+
+    u32       element_count    = 0;
+    u32       element_size     = 0;
+    GLenum    gl_type          = 0;
+    GLboolean gl_normalized    = 0;
+    u32       attribute_stride = 0;
+
+    for (
+        u32 vertex_attribute_index = 0;
+        vertex_attribute_index < vertex_attribute_table.count;
+        ++vertex_attribute_index) {
+
+        //enable the attribute index
+        glEnableVertexAttribArray(vertex_attribute_index);
+
+        //get our vertex attribute data
+        element_count = vertex_attribute_table.element_counts[vertex_attribute_index];
+        element_size  = vertex_attribute_table.element_sizes[vertex_attribute_index];
+        gl_type       = vertex_attribute_table.gl_types[vertex_attribute_index];
+        gl_normalized = vertex_attribute_table.gl_normalizeds[vertex_attribute_index];
+        
+        //calculate the stride
+        attribute_stride = element_count * element_size;
+
+        //set the pointer to this attribute
+        glVertexAttribPointer(
+            vertex_attribute_index,
+            element_count,
+            gl_type,
+            gl_normalized,
+            attribute_stride,
+            (void*)offset);
+
+        //update the offset
+        offset += attribute_stride;
+    }
 }

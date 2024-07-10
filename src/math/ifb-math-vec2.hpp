@@ -5,9 +5,16 @@
 #include <math.h>
 
 struct IFBMathVec2 {
-    f32 x;
-    f32 y;
+    union {
+        struct {
+            f32 x;
+            f32 y;
+        };
+
+        f32 v[2];
+    };
 };
+
 
 inline void
 ifb_math_vec2_multiply_scalar(
@@ -158,6 +165,5 @@ ifb_math_vec2_normalize(
         count
     );
 }
-
 
 #endif //IFB_MATH_VEC_HPP
