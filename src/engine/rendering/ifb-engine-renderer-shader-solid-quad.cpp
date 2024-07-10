@@ -23,10 +23,10 @@ ifb_engine_renderer_shader_solid_quad_create() {
 
     u32 uniform_count = sizeof(uniform_names) / sizeof(char*);
 
-    ifb_engine_renderer_shader_uniform_push(
-        _solid_quad_shader_handle,
-        uniform_count,
-        uniform_names);
+    // ifb_engine_renderer_shader_uniform_push(
+    //     _solid_quad_shader_handle,
+    //     uniform_count,
+    //     uniform_names);
 
     //compile the shader
     ifb_engine_renderer_shader_compile(_solid_quad_shader_handle);

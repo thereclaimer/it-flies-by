@@ -85,18 +85,20 @@ ifb_engine_renderer_shader_uniform_push(
     IFBEngineRendererShaderRef shader_ref = 
         ifb_engine_renderer_shader_manager.shaders[shader_handle];        
 
-    //allocate space for the tag
+    //allocate space for the tags and locations
     memory uniform_tag_memory = 
         ifb_engine_memory_arena_bytes_push(
             shader_ref.memory.uniform.arena_1kb,
             sizeof(IFBTag) * uniform_count);
-
     ifb_assert(uniform_tag_memory);
+    shader_ref.uniform_table.uniform_name_tags = (IFBTag*)uniform_tag_memory; 
 
-    //set the uniform array if its not already
-    if (!shader_ref.uniform_table.uniform_name_tags) {
-        shader_ref.uniform_table.uniform_name_tags = (IFBTag*)uniform_tag_memory; 
-    }
+    memory uniform_location_memory = 
+        ifb_engine_memory_arena_bytes_push(
+            shader_ref.memory.uniform.arena_1kb,
+            sizeof(GLint)  * uniform_count);
+    ifb_assert(uniform_location_memory);
+    shader_ref.uniform_table.uniform_locations = (GLint*)uniform_location_memory; 
 
     //set the tag values
     for (
