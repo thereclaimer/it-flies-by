@@ -24,7 +24,7 @@
 
 @set cl_src=      src\engine\ifb-engine-src.cpp
 
-@set cl_linker=   /link                                     ^
+@set cl_linker=   /link                                    ^
                   /LIBPATH:vcpkg_installed\x64-windows\lib ^
                   /LIBPATH:bin
 
