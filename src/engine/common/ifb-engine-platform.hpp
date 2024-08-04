@@ -10,8 +10,11 @@ global IFBPlatformApi ifb_platform_api;
 #define ifb_engine_platform_file_write        ifb_platform_api.file_write
 #define ifb_engine_platform_file_open         ifb_platform_api.file_open
 #define ifb_engine_platform_file_close        ifb_platform_api.file_close
-#define ifb_engine_platform_memory_allocate   ifb_platform_api.memory_allocate
-#define ifb_engine_platform_memory_free       ifb_platform_api.memory_free
+#define ifb_engine_platform_memory_reserve    ifb_platform_api.memory_reserve
+#define ifb_engine_platform_memory_release    ifb_platform_api.memory_release
+#define ifb_engine_platform_memory_commit     ifb_platform_api.memory_commit
+#define ifb_engine_platform_memory_decommit   ifb_platform_api.memory_decommit
+#define ifb_engine_platform_memory_page_size  ifb_platform_api.memory_page_size
 #define ifb_engine_platform_ticks             ifb_platform_api.ticks
 #define ifb_engine_platform_delta_time_ms     ifb_platform_api.delta_time_ms
 #define ifb_engine_platform_sleep             ifb_platform_api.sleep
@@ -25,8 +28,11 @@ ifb_engine_platform_validate(
     ifb_assert(platform.file_write);
     ifb_assert(platform.file_open);
     ifb_assert(platform.file_close);
-    ifb_assert(platform.memory_allocate);
-    ifb_assert(platform.memory_free);
+    ifb_assert(platform.memory_reserve);
+    ifb_assert(platform.memory_release);
+    ifb_assert(platform.memory_commit);
+    ifb_assert(platform.memory_decommit);
+    ifb_assert(platform.memory_page_size);
     ifb_assert(platform.ticks);
     ifb_assert(platform.delta_time_ms);
     ifb_assert(platform.sleep);

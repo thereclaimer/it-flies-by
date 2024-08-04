@@ -30,6 +30,12 @@ typedef void*           IFBWin32ImGuiHandle;
 // WIN32
 //--------------------------------
 
+struct IFBWin32MemoryInfo {
+    u64 allocation_granularity;
+    u64 page_size_small;
+    u64 page_size_large;
+};
+
 struct IFBWin32Args {
     HINSTANCE h_instance;
     HINSTANCE h_instance_prev;
@@ -42,6 +48,7 @@ struct IFBWin32 {
     IFBWin32WindowHandle window;
     IFBWin32OpenglHandle opengl;
     IFBWin32ImGuiHandle  imgui;
+    IFBWin32MemoryInfo   memory_info;
     IFBEngineHandle      engine;
     IFBGameHandle        game;
     IFBUserInput         user_input;

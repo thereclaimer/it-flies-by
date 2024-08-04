@@ -3,14 +3,28 @@
 
 #include "ifb-types.hpp"
 
-typedef memory 
-(*func_ifb_platform_memory_allocate)(
-    u64 size);
+typedef memory
+(*func_ifb_platform_memory_reserve)(
+    u64 reservation_size);
 
-typedef void 
-(*func_ifb_platform_memory_free)(
-    handle, 
-    u64);
+typedef void
+(*func_ifb_platform_memory_release)(
+    memory reserved_memory,
+    u64    reserved_size);
+
+typedef memory
+(*func_ifb_platform_memory_commit)(
+    memory reserved_memory,
+    u64    commit_size);
+
+typedef void
+(*func_ifb_platform_memory_decommit)(
+    memory committed_memory,
+    u64    committed_size);
+
+typedef u64
+(*func_ifb_platform_memory_page_size)(
+    void);
 
 typedef  u64 
 (*func_ifb_platform_file_size)(
@@ -55,27 +69,19 @@ typedef void
     u64 time_ms);
 
 struct IFBPlatformApi  {
-    func_ifb_platform_file_size       file_size;
-    func_ifb_platform_file_read       file_read;
-    func_ifb_platform_file_write      file_write;
-    func_ifb_platform_file_open       file_open;
-    func_ifb_platform_file_close      file_close;
-    func_ifb_platform_memory_allocate memory_allocate;
-    func_ifb_platform_memory_free     memory_free;
-    func_ifb_platform_ticks           ticks;
-    func_ifb_platform_delta_time_ms   delta_time_ms;    
-    func_ifb_platform_sleep           sleep;
+    func_ifb_platform_file_size        file_size;
+    func_ifb_platform_file_read        file_read;
+    func_ifb_platform_file_write       file_write;
+    func_ifb_platform_file_open        file_open;
+    func_ifb_platform_file_close       file_close;
+    func_ifb_platform_memory_reserve   memory_reserve;
+    func_ifb_platform_memory_release   memory_release;
+    func_ifb_platform_memory_commit    memory_commit;
+    func_ifb_platform_memory_decommit  memory_decommit;
+    func_ifb_platform_memory_page_size memory_page_size;
+    func_ifb_platform_ticks            ticks;
+    func_ifb_platform_delta_time_ms    delta_time_ms;    
+    func_ifb_platform_sleep            sleep;
 };
-
-#define ifb_platform_api_file_size       ifb_platform_api.file_size
-#define ifb_platform_api_file_read       ifb_platform_api.file_read
-#define ifb_platform_api_file_write      ifb_platform_api.file_write
-#define ifb_platform_api_file_open       ifb_platform_api.file_open
-#define ifb_platform_api_file_close      ifb_platform_api.file_close
-#define ifb_platform_api_memory_allocate ifb_platform_api.memory_allocate
-#define ifb_platform_api_memory_free     ifb_platform_api.memory_free
-#define ifb_platform_api_ticks           ifb_platform_api.ticks
-#define ifb_platform_api_delta_time_ms   ifb_platform_api.delta_time_ms
-#define ifb_platform_api_sleep           ifb_platform_api.sleep
 
 #endif //IFB_PLATFORM_API_HPP

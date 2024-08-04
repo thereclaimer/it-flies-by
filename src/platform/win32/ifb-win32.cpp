@@ -58,6 +58,14 @@ ifb_win32_main(
     ifb_win32.args.cmd_line        = cmd_line;
     ifb_win32.args.cmd_show        = cmd_show;
 
+    //get the system info
+    SYSTEM_INFO system_info;
+    GetSystemInfo(&system_info);
+    IFBWin32MemoryInfo memory_info = {0};
+    memory_info.allocation_granularity = system_info.dwAllocationGranularity;
+    memory_info.page_size_small        = system_info.dwPageSize;
+    memory_info.page_size_large        = GetLargePageMinimum();
+
     //initialize the window and graphics
     ifb_win32_create_window();
     ifb_win32_create_opengl();

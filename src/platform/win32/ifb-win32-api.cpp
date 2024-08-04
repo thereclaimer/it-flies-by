@@ -138,17 +138,55 @@ ifb_win32_api_write_file(
 }
 
 internal memory
-ifb_win32_api_allocate_memory(u64 size) {
+ifb_win32_api_memory_reserve(
+    u64 reservation_size) {
 
-    memory mem = (memory)VirtualAlloc(0,size,MEM_COMMIT,PAGE_READWRITE);
+    memory mem = (memory)VirtualAlloc(0,reservation_size,MEM_RESERVE,PAGE_READWRITE);
 
     return(mem);
 }
 
 internal void
-ifb_win32_api_free_memory(handle memory, u64 size) {
+ifb_win32_api_memory_release(
+    memory reserved_memory,
+    u64    reserved_size) {
 
-    VirtualFree(memory,size,MEM_RELEASE);
+    VirtualFree(
+        reserved_memory,
+        reserved_size,
+        MEM_RELEASE);
+}
+
+internal memory
+ifb_win32_api_memory_commit(
+    memory reserved_memory,
+    u64    commit_size) {
+    
+    memory mem = (memory)VirtualAlloc(reserved_memory,commit_size,MEM_COMMIT,PAGE_READWRITE);
+
+    return(mem);
+}
+
+internal void
+ifb_win32_api_memory_decommit(
+    memory committed_memory,
+    u64    committed_size) {
+
+    VirtualFree(
+        committed_memory,
+        committed_size,
+        MEM_DECOMMIT);
+}
+
+internal u64
+ifb_win32_api_memory_page_size() {
+
+    SYSTEM_INFO system_info;
+    GetSystemInfo(&system_info);
+
+    u64 page_size = system_info.dwPageSize;
+
+    return(page_size);
 }
 
 internal u64
@@ -193,16 +231,19 @@ ifb_win32_api_create_and_initialize() {
 
     IFBPlatformApi win32_api = {0};
 
-    win32_api.file_size       = ifb_win32_api_file_get_file_size_bytes; 
-    win32_api.file_read       = ifb_win32_api_read_file; 
-    win32_api.file_write      = ifb_win32_api_write_file; 
-    win32_api.file_open       = ifb_win32_api_open_file; 
-    win32_api.file_close      = ifb_win32_api_close_file; 
-    win32_api.memory_allocate = ifb_win32_api_allocate_memory; 
-    win32_api.memory_free     = ifb_win32_api_free_memory; 
-    win32_api.ticks           = ifb_win32_api_ticks; 
-    win32_api.delta_time_ms   = ifb_win32_api_delta_time_ms; 
-    win32_api.sleep           = ifb_win32_api_sleep; 
+    win32_api.file_size        = ifb_win32_api_file_get_file_size_bytes; 
+    win32_api.file_read        = ifb_win32_api_read_file; 
+    win32_api.file_write       = ifb_win32_api_write_file; 
+    win32_api.file_open        = ifb_win32_api_open_file; 
+    win32_api.file_close       = ifb_win32_api_close_file; 
+    win32_api.memory_reserve   = ifb_win32_api_memory_reserve;
+    win32_api.memory_release   = ifb_win32_api_memory_release;
+    win32_api.memory_commit    = ifb_win32_api_memory_commit;
+    win32_api.memory_decommit  = ifb_win32_api_memory_decommit;
+    win32_api.memory_page_size = ifb_win32_api_memory_page_size;
+    win32_api.ticks            = ifb_win32_api_ticks; 
+    win32_api.delta_time_ms    = ifb_win32_api_delta_time_ms; 
+    win32_api.sleep            = ifb_win32_api_sleep; 
 
     return(win32_api);
 }

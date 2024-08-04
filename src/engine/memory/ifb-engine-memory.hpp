@@ -6,158 +6,94 @@
 
 #include "ifb-engine-platform.hpp"
 
-#define IFB_ENGINE_MEMORY_REQUIREMENT IFB_MATH_GIGABYTES(4)
+#define ifb_engine_memory_kilobytes(n) n * 1024
+#define ifb_engine_memory_megabytes(n) ifb_engine_memory_kilobytes(n) * 1024
+#define ifb_engine_memory_gigabytes(n) ifb_engine_memory_megabytes(n) * 1024
 
-//---------------------------------
-// TYPES
-//---------------------------------
+#define IFB_ENGINE_MEMORY_REQUIREMENT  ifb_engine_memory_gigabytes(4)
 
-struct  IFBEngineMemory;
-typedef IFBEngineMemory* IFBEngineMemoryPtr;
-typedef IFBEngineMemory& IFBEngineMemoryRef;
+struct IFBEngineMemoryArena        {};
+struct IFBEngineMemoryRegion       {};
+struct IFBEngineMemorySystemRegion {};
+struct IFBEngineMemoryRegion       {};
+struct IFBEngineMemoryArena        {};
 
-struct  IFBEngineMemoryRegion;
-typedef IFBEngineMemoryRegion* IFBEngineMemoryRegionPtr;
-typedef IFBEngineMemoryRegion& IFBEngineMemoryRegionRef;
+/*****************************************************************************************************************************************/
+/* ALIGNMENT                                                                                                                             */
+/*****************************************************************************************************************************************/
 
-struct  IFBEngineMemoryArenaAllocator;
-typedef IFBEngineMemoryArenaAllocator* IFBEngineMemoryArenaAllocatorPtr;
-typedef IFBEngineMemoryArenaAllocator& IFBEngineMemoryArenaAllocatorRef;
+inline u64  ifb_engine_memory_alignment_pow_2            (u64 size, u64 align_to) { return(((size) + (align_to) - 1)&(~((align_to) - 1)));}
+inline u64  ifb_engine_memory_alignment_pow_2_down       (u64 size, u64 align_to) { return((size)&(~((align_to) - 1)));}
+inline u64  ifb_engine_memory_alignment_pow_2_pad        (u64 size, u64 align_to) { return((0-(size)) & ((align_to) - 1));}
+inline bool ifb_engine_memory_alignment_is_pow_2         (u64 size)               { return((size)!=0 && ((size)&((size)-1))==0);}
+inline bool ifb_engine_memory_alignment_is_pow_2_or_zero (u64 size)               { return((((size) - 1)&(size)) == 0);}
 
-struct  IFBEngineMemoryArena;
-typedef IFBEngineMemoryArena* IFBEngineMemoryArenaPtr;
-typedef IFBEngineMemoryArena& IFBEngineMemoryArenaRef;
-
-//---------------------------------
-// MEMORY
-//---------------------------------
-
-struct IFBEngineMemoryBlock {
-    memory memory;
-    u64    memory_size_bytes;
-};
+/*********************************************/
+/* ENGINE MEMORY                             */
+/*********************************************/
 
 struct IFBEngineMemory {
-    IFBEngineMemoryBlock     platform_memory_block;
-    IFBEngineMemoryRegionPtr regions;
+    memory                       start;
+    u64                          total_size;
+    u64                          position;
+    u64                          page_size;
+    IFBEngineMemorySystemRegion* system_regions;
 };
 
-IFBEngineMemoryPtr
-ifb_engine_memory_create_and_initialize();
+internal void ifb_engine_memory_create  (void);
+internal void ifb_engine_memory_destroy (void);
 
-IFBEngineMemoryPtr
-ifb_engine_memory_get();
+/***************************************************/
+/* SYSTEM REGION                                   */
+/***************************************************/
 
-u64
-ifb_engine_memory_space_availabe_bytes();
+struct IFBEngineMemorySystemRegion {
+    IFBTag                      tag;                  
+    u64                         total_size;
+    u64                         position;
+    IFBEngineMemoryReservation* next;
+    IFBEngineMemoryReservation* previous;
+    IFBEngineMemoryRegion*      regions;
+    memory                      start;
+};
 
-//---------------------------------
-// REGION
-//---------------------------------
+internal void 
+ifb_engine_memory_system_region_reserve(
+          IFBEngineMemoryRegion* region,
+    const char*                  tag,
+    const u64                    minimum_total_size,
+    const u64                    minimum_arena_size);
+
+/**********/
+/* REGION */
+/**********/
+
+
+internal void
+ifb_engine_memory_region_reserve(
+    IFBEngineMemorySystemRegion* system_region,
+    IFBEngineMemoryRegion*       region,
+    const char*                  tag,
+    const u64                    minimum_total_size,
+    const u64                    minimum_arena_size);
 
 struct IFBEngineMemoryRegion {
-    IFBTag                           tag;
-    IFBEngineMemoryBlock             block;
-    IFBEngineMemoryRegionPtr         next;
-    IFBEngineMemoryArenaAllocatorPtr arena_allocators;
+    IFBTag                tag;
+    u64                   total_size;
+    u64                   arena_size;
+    IFBEngineMemoryArena* free_arenas;
+    IFBEngineMemoryArena* reserved_arenas;    
 };
 
-IFBEngineMemoryRegionPtr
-ifb_engine_memory_region_create(
-    u64  region_size_bytes,
-    char region_tag[32]);
-
-u64
-ifb_engine_memory_region_total_size_bytes(
-    IFBEngineMemoryRegionPtr region_ptr);
-u64
-ifb_engine_memory_region_total_required_size_bytes(
-    u64 region_size_bytes);
-
-u64
-ifb_engine_memory_region_space_availabe_bytes(
-    IFBEngineMemoryRegionPtr region_ptr);
-
-//---------------------------------
-// ARENA ALLOCATOR
-//---------------------------------
-
-struct IFBEngineMemoryArenaAllocator {
-    IFBTag                           tag;
-    IFBEngineMemoryBlock             block;
-    IFBEngineMemoryRegionPtr         region;
-    IFBEngineMemoryArenaAllocatorPtr next;
-
-    struct {
-        u64                          arena_size_bytes;
-        IFBEngineMemoryArenaPtr      reserved;
-        IFBEngineMemoryArenaPtr      available;
-    } arenas;
-};
-
-IFBEngineMemoryArenaAllocatorPtr
-ifb_engine_memory_arena_allocator_create(
-    IFBEngineMemoryRegionPtr region_ptr,
-    char                     region_tag[32],
-    u64                      arena_size_bytes,
-    u64                      allocator_size_bytes);
-
-u64
-ifb_engine_memory_arena_allocator_total_size_bytes(
-    IFBEngineMemoryArenaAllocatorPtr allocator_ptr);
-
-u64
-ifb_engine_memory_arena_allocator_total_required_size_bytes(
-    u64 allocator_size_bytes);
-
-//---------------------------------
-// ARENA
-//---------------------------------
 
 struct IFBEngineMemoryArena {
-    u64                              bytes_used;
-    IFBEngineMemoryBlock             block;
-    IFBEngineMemoryArenaPtr          next;
-    IFBEngineMemoryArenaPtr          previous;
-    IFBEngineMemoryArenaAllocatorPtr allocator;
+    IFBEngineMemoryRegion* region;
+    IFBEngineMemoryArena*  next;
+    IFBEngineMemoryArena*  previous;
+    u64                    size;
+    u64                    position;
+    memory                 start;
 };
 
-u64
-ifb_engine_memory_arena_total_size_bytes(
-    IFBEngineMemoryArenaPtr arena_ptr);
-
-u64
-ifb_engine_memory_arena_total_required_size_bytes(
-    u64 arena_size_bytes);
-
-IFBEngineMemoryArenaPtr
-ifb_engine_memory_arena_reserve(
-    IFBEngineMemoryArenaAllocatorPtr allocator_ptr);
-
-void
-ifb_engine_memory_arena_release(
-    IFBEngineMemoryArenaPtr arena_ptr);
-
-memory
-ifb_engine_memory_arena_bytes_push(
-    IFBEngineMemoryArenaPtr arena_ptr,
-    u64                     bytes_count);
-
-memory
-ifb_engine_memory_arena_bytes_pop(
-    IFBEngineMemoryArenaPtr arena_ptr,
-    u64                     bytes_count);
-
-void    
-ifb_engine_memory_arena_clear(
-    IFBEngineMemoryArenaPtr arena_ptr);
-
-u64
-ifb_engine_memory_arena_space_available(
-    IFBEngineMemoryArenaPtr arena_ptr);
-
-u64
-ifb_engine_memory_arena_space_used(
-    IFBEngineMemoryArenaPtr arena_ptr);
 
 #endif //IFB_ENGINE_MEMORY_HPP
