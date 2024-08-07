@@ -10,29 +10,11 @@
 //---------------------------------
 
 struct  IFBEngineAssets;
-typedef IFBEngineAssets* IFBEngineAssetsPtr;
-typedef IFBEngineAssets& IFBEngineAssetsRef;
-
 struct  IFBEngineAssetsMemory;
-typedef IFBEngineAssetsMemory* IFBEngineAssetsMemoryPtr;
-typedef IFBEngineAssetsMemory& IFBEngineAssetsMemoryRef;
-
 struct  IFBEngineAssetMemoryBlock;
-typedef IFBEngineAssetMemoryBlock* IFBEngineAssetMemoryBlockPtr;
-typedef IFBEngineAssetMemoryBlock& IFBEngineAssetMemoryBlockRef;
-
-
 struct  IFBEngineAssetTableIndex;
-typedef IFBEngineAssetTableIndex* IFBEngineAssetTableIndexPtr;
-typedef IFBEngineAssetTableIndex& IFBEngineAssetTableIndexRef;
-
 struct  IFBAssetIndexStore;
-typedef IFBAssetIndexStore* IFBAssetIndexStorePtr;
-typedef IFBAssetIndexStore& IFBAssetIndexStoreRef;
-
 struct  IFBEngineAssetTables;
-typedef IFBEngineAssetTables* IFBEngineAssetTablesPtr;
-typedef IFBEngineAssetTables& IFBEngineAssetTablesRef;
 
 typedef s16 IFBEngineAssetType;
 typedef s16 IFBEngineAssetIndexId;
@@ -69,6 +51,18 @@ enum IFBEngineAssetsImage_ {
 typedef s16 IFBEngineAssetsType;
 typedef s16 IFBEngineAssetsShaderId;
 typedef s16 IFBEngineAssetsImageId;
+
+//---------------------------------
+// ASSET MEMORY
+//---------------------------------
+
+struct IFBEngineAssetsMemoryRegions {
+
+};
+
+struct IFBEngineAssetsMemory {
+    IFBEngineMemoryReservation reservation;
+};
 
 //---------------------------------
 // ASSET FILE
@@ -108,7 +102,7 @@ struct IFBEngineAssetFile {
     u64                           file_size_bytes;
     IFBEngineAssetType            file_type;
     u64                           asset_data_start;
-    IFBEngineAssetMemoryBlockPtr  file_data_buffer;
+    IFBEngineAssetMemoryBlock*    file_data_buffer;
     IFBEngineAssetFileIndexBuffer index_buffer;
 };
 
@@ -124,13 +118,11 @@ struct IFBEngineAssetFiles {
     };
 };
 
-typedef IFBEngineAssetFiles* IFBEngineAssetFilesPtr;
-typedef IFBEngineAssetFiles& IFBEngineAssetFilesRef;
 
-IFBEngineAssetFilesPtr
+IFBEngineAssetFiles*
 ifb_engine_asset_files_create_and_initialize();
 
-IFBEngineAssetFileBufferPtr
+IFBEngineAssetFileBuffer*
 ifb_engine_asset_files_index_buffer_allocate_and_read(
     IFBEngineAssetType asset_type);
 
@@ -166,14 +158,14 @@ ifb_engine_asset_files_read(
     memory asset_buffer
 );
 
-IFBEngineAssetMemoryBlockPtr 
+IFBEngineAssetMemoryBlock*
 ifb_engine_assets_files_asset_allocate_and_read(
     IFBEngineAssetsType asset_type,
     u16                 asset_id);
 
 void
 ifb_engine_assets_files_asset_free(
-    IFBEngineAssetMemoryBlockPtr asset_memory_block);
+    IFBEngineAssetMemoryBlock* asset_memory_block);
 
 
 //---------------------------------

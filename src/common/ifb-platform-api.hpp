@@ -26,6 +26,10 @@ typedef u64
 (*func_ifb_platform_memory_page_size)(
     void);
 
+typedef u64
+(*func_ifb_platform_memory_allocation_granularity)(
+    void);
+
 typedef  u64 
 (*func_ifb_platform_file_size)(
     handle file_path,
@@ -69,19 +73,20 @@ typedef void
     u64 time_ms);
 
 struct IFBPlatformApi  {
-    func_ifb_platform_file_size        file_size;
-    func_ifb_platform_file_read        file_read;
-    func_ifb_platform_file_write       file_write;
-    func_ifb_platform_file_open        file_open;
-    func_ifb_platform_file_close       file_close;
-    func_ifb_platform_memory_reserve   memory_reserve;
-    func_ifb_platform_memory_release   memory_release;
-    func_ifb_platform_memory_commit    memory_commit;
-    func_ifb_platform_memory_decommit  memory_decommit;
-    func_ifb_platform_memory_page_size memory_page_size;
-    func_ifb_platform_ticks            ticks;
-    func_ifb_platform_delta_time_ms    delta_time_ms;    
-    func_ifb_platform_sleep            sleep;
+    func_ifb_platform_file_size                     file_size;
+    func_ifb_platform_file_read                     file_read;
+    func_ifb_platform_file_write                    file_write;
+    func_ifb_platform_file_open                     file_open;
+    func_ifb_platform_file_close                    file_close;
+    func_ifb_platform_memory_reserve                memory_reserve;
+    func_ifb_platform_memory_release                memory_release;
+    func_ifb_platform_memory_commit                 memory_commit;
+    func_ifb_platform_memory_decommit               memory_decommit;
+    func_ifb_platform_memory_page_size              memory_page_size;
+    func_ifb_platform_memory_allocation_granularity memory_allocation_granularity;
+    func_ifb_platform_ticks                         ticks;
+    func_ifb_platform_delta_time_ms                 delta_time_ms;    
+    func_ifb_platform_sleep                         sleep;
 };
 
 #endif //IFB_PLATFORM_API_HPP
