@@ -5,26 +5,112 @@
 #include <ifb-math.hpp>
 
 #include "ifb-engine-platform.hpp"
-#include "ifb-engine-stack.hpp"
 
 #define ifb_engine_memory_kilobytes(n) n * 1024
 #define ifb_engine_memory_megabytes(n) ifb_engine_memory_kilobytes(n) * 1024
 #define ifb_engine_memory_gigabytes(n) ifb_engine_memory_megabytes(n) * 1024
 
-struct IFBEngineMemoryArena;
-struct IFBEngineMemoryRegion;
-struct IFBEngineMemoryReservation;
-struct IFBEngineMemoryRegion;
-struct IFBEngineMemoryArena;
+/********************************************************************************************/
+/* CONTEXT                                                                                  */
+/********************************************************************************************/
 
-/************************************************************/
-/* ALIGNMENT                                                */
-/************************************************************/
+namespace ifb_engine_memory {
 
-namespace ifb_engine {
+    external void   context_create              (void);
+    external void   context_destroy             (void);
+    external size_t context_granularity         (void);
+    external size_t context_page_size_small     (void);
+    external size_t context_page_size_large     (void);
+    external size_t context_reservation_count   (void);
+    external size_t context_reserved_size_total (void);
+};
+
+/********************************************************************************************/
+/* RESERVATION                                                                              */
+/********************************************************************************************/
+
+typedef handle IFBEngineMemoryReservation;
+
+enum IFBEngineMemoryPageType_ { 
+     IFBEngineMemoryPageType_Small = 0,
+     IFBEngineMemoryPageType_Large = 1
+};
+
+typedef u32 IFBEngineMemoryPageType;
+
+namespace ifb_engine_memory {
+
+    external IFBEngineMemoryReservation 
+    reserve(
+        const char*                   tag_value,
+        const size_t                  minimum_size,
+        const IFBEngineMemoryPageType page_type);
+    
+    external void   release                    (const IFBEngineMemoryReservation reservation);
+    external size_t reservation_space_total    (const IFBEngineMemoryReservation reservation);
+    external size_t reservation_space_free     (const IFBEngineMemoryReservation reservation);
+    external size_t reservation_space_occupied (const IFBEngineMemoryReservation reservation);
+    external size_t reservation_page_size      (const IFBEngineMemoryReservation reservation);
+    external size_t reservation_page_count     (const IFBEngineMemoryReservation reservation);
+    external size_t reservation_region_count   (const IFBEngineMemoryReservation reservation);
+};
+
+/********************************************************************************************/
+/* REGION                                                                                   */
+/********************************************************************************************/
+
+typedef handle IFBEngineMemoryRegion;
+
+namespace ifb_engine_memory {
+
+    external IFBEngineMemoryRegion
+    region_create(
+        const IFBEngineMemoryReservation reservation,
+        const char*                      tag_value,
+        const size_t                     minimum_size);
+
+    external void   region_destroy        (const IFBEngineMemoryRegion region);
+    external size_t region_space_total    (const IFBEngineMemoryRegion region);
+    external size_t region_space_free     (const IFBEngineMemoryRegion region);
+    external size_t region_space_occupied (const IFBEngineMemoryRegion region);
+    external size_t region_page_size      (const IFBEngineMemoryRegion region);
+    external size_t region_page_count     (const IFBEngineMemoryRegion region);
+    external size_t region_arena_count    (const IFBEngineMemoryRegion region);
+};
+
+/********************************************************************************************/
+/* ARENA                                                                                    */
+/********************************************************************************************/
+
+typedef handle IFBEngineMemoryArena;
+
+namespace ifb_engine_memory {
+
+    external IFBEngineMemoryArena 
+    arena_commit(
+        const IFBEngineMemoryReservation reservation,
+        const size_t                     minimum_size); 
+    
+    external void   arena_decommit       (const IFBEngineMemoryArena arena); 
+    external void   arena_clear          (const IFBEngineMemoryArena arena); 
+    external size_t arena_space_total    (const IFBEngineMemoryArena arena);
+    external size_t arena_space_free     (const IFBEngineMemoryArena arena);
+    external size_t arena_space_occupied (const IFBEngineMemoryArena arena);
+    external size_t arena_page_size      (const IFBEngineMemoryArena arena);
+    external size_t arena_page_count     (const IFBEngineMemoryArena arena);
+
+    external memory arena_push_bytes (const IFBEngineMemoryArena arena, const size_t size);
+    external memory arena_pull_bytes (const IFBEngineMemoryArena arena, const size_t size);
+}
+
+/********************************************************************************************/
+/* ALIGNMENT                                                                                */
+/********************************************************************************************/
+
+namespace ifb_engine_memory {
 
     inline u64  
-    memory_alignment_pow_2(
+    alignment_pow_2(
         const u64 size, 
         const u64 align_to) { 
         
@@ -32,7 +118,7 @@ namespace ifb_engine {
     }
 
     inline u64
-    memory_alignment_pow_2_down(
+    alignment_pow_2_down(
         const u64 size, 
         const u64 align_to) {
         
@@ -48,101 +134,18 @@ namespace ifb_engine {
     }
     
     inline bool
-    memory_alignment_is_pow_2(
+    alignment_is_pow_2(
         u64 size) { 
         
         return((size)!=0 && ((size)&((size)-1))==0);
     }
     
     inline bool
-    memory_alignment_is_pow_2_or_zero(
+    alignment_is_pow_2_or_zero(
         u64 size) {
         
         return((((size) - 1)&(size)) == 0);
     }
-};
-
-/************************************************************/
-/* MEMORY CONTEXT                                           */
-/************************************************************/
-
-struct IFBEngineMemoryContext {
-    u64                          allocation_granularity;
-    u64                          page_size;
-    IFBEngineMemoryReservation*  reservations;
-};
-
-namespace ifb_engine {
-    
-    internal void                    memory_context_create  (void);
-    internal void                    memory_context_destroy (void);
-    internal IFBEngineMemoryContext& memory_context_get     (void);
-};
-
-/************************************************************/
-/* RESERVATION                                              */
-/************************************************************/
-
-struct IFBEngineMemoryReservation {
-    IFBEngineMemoryReservation* next;
-    IFBEngineMemoryRegion*      regions;
-    IFBTag                      tag;  
-    IFBEngineStack              stack;
-};
-
-namespace ifb_engine {
-
-    internal void 
-    memory_reserve(
-              IFBEngineMemoryReservation& reservation,
-        const char*                       tag_value,
-        const u64                         minimum_size);
-};
-
-/************************************************************/
-/* REGION                                                   */
-/************************************************************/
-
-struct IFBEngineMemoryRegion {
-    IFBEngineMemoryReservation* reservation;
-    IFBEngineMemoryRegion*      next;
-    IFBEngineMemoryArena*       arenas;
-    IFBTag                      tag;
-    IFBEngineStack              stack;
-};
-
-namespace ifb_engine {
-
-    internal void
-    memory_region_create(
-              IFBEngineMemoryRegion&      region,
-              IFBEngineMemoryReservation& reservation,
-        const char*                       tag_value,
-        const u64                         minimum_size);
-};
-
-/************************************************************/
-/* ARENA                                                    */
-/************************************************************/
-
-struct IFBEngineMemoryArena {
-    IFBEngineMemoryArena*  next;
-    IFBEngineMemoryRegion* region;
-    IFBEngineStack         stack;
-};
-
-namespace ifb_engine {
-
-    internal void
-    memory_arena_commit(
-              IFBEngineMemoryRegion& region, 
-              IFBEngineMemoryArena&  arena,
-        const u64                    minimum_size);
-    
-    internal memory memory_arena_push_bytes (IFBEngineMemoryArena& arena, const u64 size);
-    internal memory memory_arena_pull_bytes (IFBEngineMemoryArena& arena, const u64 size);
-    internal void   memory_arena_clear      (IFBEngineMemoryArena& arena);
-    internal void   memory_arena_decommit   (IFBEngineMemoryArena& arena);
 };
 
 #endif //IFB_ENGINE_MEMORY_HPP

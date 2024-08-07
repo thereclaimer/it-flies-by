@@ -19,6 +19,9 @@ global IFBPlatformApi ifb_platform_api;
 #define ifb_engine_platform_ticks                          ifb_platform_api.ticks
 #define ifb_engine_platform_delta_time_ms                  ifb_platform_api.delta_time_ms
 #define ifb_engine_platform_sleep                          ifb_platform_api.sleep
+#define ifb_engine_platform_process_id                     ifb_platform_api.process_id
+#define ifb_engine_platform_thread_id                      ifb_platform_api.thread_id
+
 
 inline void
 ifb_engine_platform_validate(
@@ -38,6 +41,8 @@ ifb_engine_platform_validate(
     ifb_assert(platform.ticks);
     ifb_assert(platform.delta_time_ms);
     ifb_assert(platform.sleep);
+    ifb_assert(platform.process_id);
+    ifb_assert(platform.thread_id);
 
     ifb_platform_api = platform;
 }

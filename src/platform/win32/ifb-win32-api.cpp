@@ -237,6 +237,24 @@ ifb_win32_api_sleep(
     Sleep(time_ms);
 }
 
+internal u64 
+ifb_win32_api_process_id(
+    void) {
+
+    u64 process_id = GetCurrentProcessId();
+
+    return(process_id);
+}
+
+internal u64 
+ifb_win32_api_thread_id(
+    void) {
+
+    u64 thread_id = GetCurrentThreadId();
+
+    return(thread_id);
+}
+
 IFBPlatformApi
 ifb_win32_api_create_and_initialize() {
 
@@ -256,6 +274,9 @@ ifb_win32_api_create_and_initialize() {
     win32_api.ticks                         = ifb_win32_api_ticks; 
     win32_api.delta_time_ms                 = ifb_win32_api_delta_time_ms; 
     win32_api.sleep                         = ifb_win32_api_sleep; 
+    win32_api.process_id                    = ifb_win32_api_process_id; 
+    win32_api.thread_id                     = ifb_win32_api_thread_id; 
 
     return(win32_api);
 }
+

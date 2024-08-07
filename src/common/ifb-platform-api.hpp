@@ -72,6 +72,14 @@ typedef void
 (*func_ifb_platform_sleep)(
     u64 time_ms);
 
+typedef u64
+(*func_ifb_platform_process_id)(
+    void);
+
+typedef u64
+(*func_ifb_platform_thread_id)(
+    void);
+
 struct IFBPlatformApi  {
     func_ifb_platform_file_size                     file_size;
     func_ifb_platform_file_read                     file_read;
@@ -87,6 +95,8 @@ struct IFBPlatformApi  {
     func_ifb_platform_ticks                         ticks;
     func_ifb_platform_delta_time_ms                 delta_time_ms;    
     func_ifb_platform_sleep                         sleep;
+    func_ifb_platform_process_id                    process_id;
+    func_ifb_platform_thread_id                     thread_id;
 };
 
 #endif //IFB_PLATFORM_API_HPP

@@ -56,12 +56,28 @@ typedef s16 IFBEngineAssetsImageId;
 // ASSET MEMORY
 //---------------------------------
 
-struct IFBEngineAssetsMemoryRegions {
+#define IFB_ENGINE_ASSET_MEMORY_REGION_SIZE_INDEXES ifb_engine_memory_megabytes(64)
+#define IFB_ENGINE_ASSET_MEMORY_REGION_SIZE_SHADERS ifb_engine_memory_megabytes(64)
+#define IFB_ENGINE_ASSET_MEMORY_REGION_SIZE_IMAGES  ifb_engine_memory_megabytes(64)
 
+struct IFBEngineAssetsMemoryRegions {
+    IFBEngineMemoryRegion file_buffers;
+    IFBEngineMemoryRegion indexes;
+    IFBEngineMemoryRegion images;
 };
 
 struct IFBEngineAssetsMemory {
-    IFBEngineMemoryReservation reservation;
+    IFBEngineMemoryReservation   reservation;
+    IFBEngineAssetsMemoryRegions regions;
+};
+
+namespace ifb_engine_assets {
+
+    memory_reserve();
+
+    memory_allocate_asset();
+
+    memory_release();
 };
 
 //---------------------------------
