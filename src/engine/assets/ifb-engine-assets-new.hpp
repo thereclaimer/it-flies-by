@@ -66,76 +66,52 @@ namespace ifb_engine_assets {
 /* DATA                                                                                     */
 /********************************************************************************************/
 
+typedef handle IFBEngineAssetsMemoryBlock;
+
 struct IFBEngineAssetsData {
-    IFBEngineMemoryArena   arena
-    IFBEngineAssetsType    type;
-    size_t                 total_size;
-    size_t*                offsets;
-    size_t*                sizes;
-    IFBEngineAssetsId*     ids
-    memory                 start;
+    IFBEngineAssetsMemoryBlock block;
+    IFBEngineAssetsType        type;
+    size_t                     total_size;
+    size_t*                    offsets;
+    size_t*                    sizes;
+    IFBEngineAssetsId*         ids
+    memory                     start;
 };
 
 namespace ifb_engine_assets {
 
-    external void data_load(
-        const IFBEngineAssetId     asset_id,
-              IFBEngineAssetsData& asset_data);
+    external IFBEngineAssetsData* 
+    data_load(
+        const size_t               asset_count,
+        const IFBEngineAssetId*    asset_ids);
 
-    external void data_unload(
-        IFBEngineAssetsData& asset_data);
+    external void 
+    data_unload(
+        const IFBEngineAssetsData* asset_data);
 };
 
 /********************************************************************************************/
 /* SHADERS                                                                                  */
 /********************************************************************************************/
 
-enum IFBEngineAssetsShader_ {
-     IFBEngineAssetsShader_TexturedQuadVertexShader   =  0, 
-     IFBEngineAssetsShader_TexturedQuadFragmentShader =  1,
-     IFBEngineAssetsShader_SolidQuadVertexShader      =  2,
-     IFBEngineAssetsShader_SolidQuadFragmentShader    =  3,
-     IFBEngineAssetsShader_SimpleQuadVertexShader     =  4,
-     IFBEngineAssetsShader_SimpleQuadFragmentShader   =  5,
-     IFBEngineAssetsShader_Count                      =  6
-};
-
-typedef s16 IFBEngineAssetsShader;
-
-namespace ifb_engine_assets {
-
-    external void 
-    shader_data_load(
-        const size_t*                      count, 
-        const IFBEngineAssetsShader*       shaders,
-              IFBEngineAssetsData&         data);
-
-    external void
-    shader_data_unload(
-        IFBEngineAssetsData& data);
+enum IFBEngineAssetsShaderIndex_ {
+    IFBEngineAssetsShaderIndex_TexturedQuadVertexShader   =  0, 
+    IFBEngineAssetsShaderIndex_TexturedQuadFragmentShader =  1,
+    IFBEngineAssetsShaderIndex_SolidQuadVertexShader      =  2,
+    IFBEngineAssetsShaderIndex_SolidQuadFragmentShader    =  3,
+    IFBEngineAssetsShaderIndex_SimpleQuadVertexShader     =  4,
+    IFBEngineAssetsShaderIndex_SimpleQuadFragmentShader   =  5,
+    IFBEngineAssetsShaderIndex_Count                      =  6
 };
 
 /********************************************************************************************/
 /* IMAGES                                                                                   */
 /********************************************************************************************/
 
-enum IFBEngineAssetsImage_ {
-     IFBEngineAssetsImage_ConnorCalibaration =  0,
-     IFBEngineAssetsImage_JigCalibratrion    =  1,
-     IFBEngineAssetsImage_Count              =  2
-};
-
-namespace ifb_engine_assets {
-
-    external void 
-    image_data_load(
-        const size_t*                      count, 
-        const IFBEngineAssetsShader*       shaders,
-              IFBEngineAssetsData&         data);
-
-    external void
-    image_data_unload(
-        IFBEngineAssetsData& data);
+enum IFBEngineAssetsImageIndex_ {
+    IFBEngineAssetsImageIndex_ConnorCalibaration =  0,
+    IFBEngineAssetsImageIndex_JigCalibratrion    =  1,
+    IFBEngineAssetsImageIndex_Count              =  2
 };
 
 #endif //IFB_ENGINE_ASSETS_HPP

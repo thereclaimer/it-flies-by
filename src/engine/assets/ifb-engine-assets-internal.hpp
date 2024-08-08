@@ -73,48 +73,51 @@ namespace ifb_engine_assets {
 /* MEMORY                                                                                   */
 /********************************************************************************************/
 
-struct IFBEngineAssetsMemoryRegions {
-    IFBEngineMemoryRegion index;
-    IFBEngineMemoryRegion read_buffer;
-    IFBEngineMemoryRegion data;
+struct IFBEngineAssetsMemoryBlock_Impl {
+    IFBEngineMemoryArena        arena;
+    IFBEngineAssetsMemoryBlock* next;
+    IFBEngineAssetsMemoryBlock* previous;
+    size_t                      size_t;
+    memory                      start;
 };
+
+struct IFBEngineAssetsMemoryBlockAllocator {
+    IFBEngineMemoryRegion            region;
+    size_t                           total_size;
+    size_t                           block_size;
+    IFBEngineAssetsMemoryBlock_Impl* blocks;
+};
+
 
 struct IFBEngineAssetsMemory {
-    IFBEngineMemoryReservation   reservation;
-    IFBEngineAssetsMemoryRegions regions;
+    IFBEngineMemoryReservation          reservation;
+    IFBEngineAssetsMemoryBlockAllocator block_allocator;    
 };  
 
-struct IFBEngineAssetsContext {
-    IFBEngineAssetsMemory memory;
-    IFBEngineAssetsFiles  files;    
-};
 
-struct IFBEngineAssetsMemoryBuffer {
-    IFBEngineMemoryArena arena;
-    size_t               size;
-    memory               start;
-};
 
 namespace ifb_engine_assets {
 
-    internal void memory_reserve();
-    internal void memory_release();
-
-    internal void memory_allocate_read_buffer (IFBEngineAssetsMemoryBuffer&   read_buffer, const size_t size);
-    internal void memory_allocate_data_buffer (IFBEngineAssetsMemoryBuffer&   data_buffer, const size_t size);
-    internal void memory_allocate_index_table (IFBEngineAssetsFileIndexTable& index_table, const size_t index_count); 
-
-    internal void memory_free_read_buffer (IFBEngineAssetsMemoryBuffer&   read_buffer);
-    internal void memory_free_data_buffer (IFBEngineAssetsMemoryBuffer&   data_buffer);
-    internal void memory_free_index_table (IFBEngineAssetsFileIndexTable& index_table); 
+    internal void memory_reserve(void);
+    internal void memory_release(void);
+    
+    internal IFBEngineAssetsMemoryBlock* memory_block_commit   (const size_t size);
+    internal void                        memory_block_decommit (const IFBEngineAssetsMemoryBlock* block); 
 };
 
 /********************************************************************************************/
 /* CONTEXT                                                                                  */
 /********************************************************************************************/
 
+
+struct IFBEngineAssetsContext {
+    IFBEngineAssetsMemory memory;
+    IFBEngineAssetsFiles  files;    
+};
+
 namespace ifb_engine_assets {
-    
+
+    internal IFBEngineAssetsContext& context_get();
 }
 
 #endif //IFB_ENGINE_ASSETS_INTERNAL_HPP

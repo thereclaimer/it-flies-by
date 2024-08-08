@@ -1,343 +1,51 @@
-#pragma once
+#include "ifb-engine-assets-new.hpp"
+#include "ifb-engine-assets-internal.hpp"
 
-#include "ifb-engine-assets.hpp"
-
-global IFBEngineAssetsMemory ifb_engine_asset_memory;
-
-IFBEngineAssetMemoryArenaAllocator
-ifb_engine_assets_memory_allocator_arena_create() {
-
-    IFBEngineAssetMemoryArenaAllocator arena_allocator = {0}; 
-
-    arena_allocator.arena_8KB = 
-        ifb_engine_memory_arena_allocator_create(
-            ifb_engine_asset_memory.region, // region
-            "ASSET BLOCK 8KB",              // tag
-            IFB_MATH_KILOBYTES(8),          // arena size
-            IFB_MATH_MEGABYTES(8));         // allocator size
-    ifb_assert(arena_allocator.arena_8KB);
-    
-    arena_allocator.arena_64KB = 
-        ifb_engine_memory_arena_allocator_create(
-            ifb_engine_asset_memory.region, // region
-            "ASSET BLOCK 64KB",             // tag
-            IFB_MATH_KILOBYTES(64),         // arena size
-            IFB_MATH_MEGABYTES(8));         // allocator size
-    ifb_assert(arena_allocator.arena_64KB);
-    
-    arena_allocator.arena_128KB = 
-        ifb_engine_memory_arena_allocator_create(
-            ifb_engine_asset_memory.region, // region
-            "ASSET BLOCK 128KB",            // tag
-            IFB_MATH_KILOBYTES(128),        // arena size
-            IFB_MATH_MEGABYTES(8));         // allocator size
-    ifb_assert(arena_allocator.arena_128KB);
-    
-    arena_allocator.arena_1MB = 
-        ifb_engine_memory_arena_allocator_create(
-            ifb_engine_asset_memory.region, // region
-            "ASSET BLOCK 1MB",              // tag
-            IFB_MATH_MEGABYTES(1),          // arena size
-            IFB_MATH_MEGABYTES(8));         // allocator size
-    ifb_assert(arena_allocator.arena_1MB);
-    
-    arena_allocator.arena_4MB = 
-        ifb_engine_memory_arena_allocator_create(
-            ifb_engine_asset_memory.region, // region
-            "ASSET BLOCK 4MB",              // tag
-            IFB_MATH_MEGABYTES(4),          // arena size
-            IFB_MATH_MEGABYTES(16));        // allocator size
-    ifb_assert(arena_allocator.arena_4MB);
-
-    return(arena_allocator);
-}
-
-
-
-IFBEngineAssetMemoryBlockAllocator
-ifb_engine_assets_memory_allocator_block_create() {
-
-    IFBEngineAssetMemoryBlockAllocator block_allocator = {0};
-
-
-    return(block_allocator);
-}
-
-IFBEngineAssetMemoryIndexAllocator
-ifb_engine_assets_memory_allocator_index_create() {
-
-    IFBEngineAssetMemoryIndexAllocator index_allocator = {0};
-
-    index_allocator.arena_allocator_8kb = 
-        ifb_engine_memory_arena_allocator_create(
-            ifb_engine_asset_memory.region, // region
-            "ASSET INDEX 8KB",              // tag
-            IFB_MATH_KILOBYTES(8),          // arena size
-            IFB_MATH_KILOBYTES(12));        // allocator size
-
-    ifb_assert(index_allocator.arena_allocator_8kb);
-
-    index_allocator.arena_8kb = ifb_engine_memory_arena_reserve(index_allocator.arena_allocator_8kb);
-
-    ifb_assert(index_allocator.arena_8kb);
-
-    return(index_allocator);
-}
-
-IFBEngineAssetMemoryScratchAllocator
-ifb_engine_assets_memory_allocator_scratch_create() {
-
-    IFBEngineAssetMemoryScratchAllocator scratch_allocator = {0};
-    
-    scratch_allocator.arena_allocator_8mb = 
-        ifb_engine_memory_arena_allocator_create(
-            ifb_engine_asset_memory.region, // region
-            "ASSET SCRATCH 8MB",            // tag
-            IFB_MATH_MEGABYTES(8),          // arena size
-            IFB_MATH_MEGABYTES(12));        // allocator size
-
-    ifb_assert(scratch_allocator.arena_allocator_8mb);
-
-    scratch_allocator.arena_8mb = ifb_engine_memory_arena_reserve(scratch_allocator.arena_allocator_8mb);
-
-    ifb_assert(scratch_allocator.arena_8mb);
-
-    return(scratch_allocator);
-}
-
-IFBEngineAssetsMemoryPtr
-ifb_engine_assets_memory_create_and_initialize() {
-
-    ifb_engine_asset_memory = {0};
-
-    //create the region
-    ifb_engine_asset_memory.region = 
-        ifb_engine_memory_region_create(
-            IFB_ENGINE_ASSET_MEMORY_REGION_SIZE,
-            "ASSET REGION");
-
-    ifb_assert(ifb_engine_asset_memory.region);
-
-    //create the allocators
-    ifb_engine_asset_memory.allocators.arena   = ifb_engine_assets_memory_allocator_arena_create();
-    ifb_engine_asset_memory.allocators.block   = ifb_engine_assets_memory_allocator_block_create();
-    ifb_engine_asset_memory.allocators.index   = ifb_engine_assets_memory_allocator_index_create();
-    ifb_engine_asset_memory.allocators.scratch = ifb_engine_assets_memory_allocator_scratch_create();
-
-    return(&ifb_engine_asset_memory);
-}
-
-internal IFBEngineMemoryArenaPtr
-ifb_engine_assets_memory_arena_reserve(
-    const u64 size_bytes) {
-
-    //get the appropriate arena allocator based on the size
-    IFBEngineAssetMemoryArenaAllocator& arena_allocator_ref = ifb_engine_asset_memory.allocators.arena; 
-    IFBEngineMemoryArenaAllocatorPtr    allocator_ptr;
-
-    if ((size_bytes <= IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_8KB)) {
-        allocator_ptr = arena_allocator_ref.arena_8KB;
-    }
-
-    else if ((size_bytes > IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_8KB) && (size_bytes <= IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_64KB)) {
-        allocator_ptr = arena_allocator_ref.arena_64KB;
-    }
-
-    else if ((size_bytes > IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_64KB) && (size_bytes <= IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_128KB)) {
-        allocator_ptr = arena_allocator_ref.arena_128KB;
-    }
-
-    else if ((size_bytes > IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_128KB) && (size_bytes <= IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_1MB)) {
-        allocator_ptr = arena_allocator_ref.arena_1MB;
-    }
-
-    else if ((size_bytes > IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_1MB) && (size_bytes <= IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_4MB)) {
-        allocator_ptr = arena_allocator_ref.arena_4MB;
-    }
-
-    //this request is too large
-    else {
-        allocator_ptr = NULL; 
-    }
-
-    ifb_assert(allocator_ptr);
-
-    //reserve the arena
-    IFBEngineMemoryArenaPtr asset_arena = ifb_engine_memory_arena_reserve(allocator_ptr);
-    ifb_assert(asset_arena);
-
-    return(asset_arena);
-}
+using namespace ifb_engine_assets;
 
 internal void
-ifb_engine_assets_memory_arena_release(
-    IFBEngineMemoryArenaPtr asset_arena) {
+memory_reserve(void) {
 
-    ifb_assert(asset_arena);
+    //get the memory from the context
+    IFBEngineAssetsContext& context = context_get();
+    IFBEngineAssetsMemory& asset_memory = context.memory;
 
-    ifb_engine_memory_arena_release(asset_arena);
-}
+    //sizes
+    const size_t asset_memory_reservation_size  = ifb_engine_memory_megabytes(64);
+    const size_t asset_memory_region_size_index = ifb_engine_memory_kilobytes(64);
+    const size_t asset_memory_region_size_read  = ifb_engine_memory_megabytes(8);
+    const size_t asset_memory_region_size_data  = ifb_engine_memory_megabytes(8);
 
-internal IFBEngineAssetMemoryBlockPtr
-ifb_engine_assets_memory_block_allocate(
-    const u64 size) {
-
-    IFBEngineAssetMemoryArenaAllocator& arena_allocator_ref = ifb_engine_asset_memory.allocators.arena;
-    IFBEngineAssetMemoryBlockAllocator& block_allocator_ref = ifb_engine_asset_memory.allocators.block;
-
-    IFBEngineMemoryArenaAllocatorPtr allocator  = NULL;
-    IFBEngineAssetMemoryBlockPtr     block_list = NULL; 
-
-    u64 size_actual = sizeof(IFBEngineAssetMemoryBlock) + size;
-
-    if ((size_actual < IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_8KB)) {
-        allocator = arena_allocator_ref.arena_8KB;
-        block_list = block_allocator_ref.blocks_8KB;
-    }
-
-    else if ((size_actual >= IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_8KB) && (size_actual < IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_64KB)) {
-        allocator = arena_allocator_ref.arena_64KB;
-        block_list = block_allocator_ref.blocks_64KB;
-    }
-
-    else if ((size_actual >=IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_64KB) && (size_actual < IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_128KB)) {
-        allocator = arena_allocator_ref.arena_128KB;
-        block_list = block_allocator_ref.blocks_128KB;
-    }
-
-    else if ((size_actual >=IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_128KB) && (size_actual < IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_1MB)) {
-        allocator = arena_allocator_ref.arena_1MB;
-        block_list = block_allocator_ref.blocks_1MB;
-    }
-
-    else if ((size_actual >=IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_1MB) && (size_actual < IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_4MB)) {
-        allocator = arena_allocator_ref.arena_4MB;
-        block_list = block_allocator_ref.blocks_4MB;
-    }
-
-    else if (size_actual >=IFB_ENGINE_ASSET_MEMORY_ARENA_SIZE_4MB) {
-        allocator  = NULL; 
-        block_list = NULL;
-    }
-
-    //make sure we have an allocator
-    ifb_assert(allocator);
-
-    //reserve an arena
-    IFBEngineMemoryArenaPtr asset_arena = ifb_engine_memory_arena_reserve(allocator);
-    ifb_assert(asset_arena);
-
-    //allocate space for the block
-    memory asset_memory = 
-        ifb_engine_memory_arena_bytes_push(
-            asset_arena,
-            size_actual);
-
-    ifb_assert(asset_memory);
-
-    IFBEngineAssetMemoryBlockPtr asset_block = (IFBEngineAssetMemoryBlockPtr)asset_memory;
-
-    //push this new block to the front of this allocators blocks    
-    if (block_list) {
-        block_list->previous = asset_block;
-    }
-
-    asset_block->arena    = asset_arena; 
-    asset_block->memory   = asset_memory + size;
-    asset_block->size     = size;
-    asset_block->next     = block_list;
-    asset_block->previous = NULL;
-
-    block_list = asset_block;
-
-    return(asset_block);
-}
-
-internal void
-ifb_engine_assets_memory_block_free(
-    IFBEngineAssetMemoryBlockPtr block) {
-
-    if (!block) {
-        return;
-    }
+    //make the reservation
+    asset_memory.reservation = 
+        ifb_engine_memory::reserve(
+            "ASSET RESERVATION",
+            asset_memory_reservation_size,
+            IFBEngineMemoryPageType_Small);
     
-    IFBEngineAssetMemoryBlockPtr block_previous = block->previous;
-    IFBEngineAssetMemoryBlockPtr block_next     = block->next;
+    ifb_assert(assets_reservation);
 
-    if (block_previous) {
-        block_previous->next = block_next;
-    }
+    //index region
+    asset_memory.regions.index =
+        ifb_engine_memory::region_create(
+            asset_memory.reservation, 
+            "ASSETS INDEX REGION", 
+            asset_memory_region_size_index);
+    ifb_assert(asset_memory.regions.index);
 
-    if (block_next) {
-        block_next->previous = block_previous;
-    }
+    //read region
+    asset_memory.regions.read =
+        ifb_engine_memory::region_create(
+            asset_memory.reservation,
+            "ASSETS READ REGION",
+            asset_memory_region_size_read);
+    ifb_assert(asset_memory.regions.index);
 
-    ifb_engine_memory_arena_release(block->arena);
-
-    memset(
-        block,
-        0,
-        sizeof(IFBEngineAssetMemoryBlock) + block->size);
-
-    block = NULL;
-}
-
-internal IFBEngineAssetsFileIndexPtr
-ifb_engine_assets_memory_index_buffer_push(
-    u32 index_count) {
-
-    IFBEngineAssetMemoryIndexAllocator& index_allocator_ref = 
-        ifb_engine_asset_memory.allocators.index;
-
-    ifb_assert(index_allocator_ref.arena_8kb);
-
-    u64 index_buffer_size_bytes = sizeof(IFBEngineAssetsFileIndex) * index_count;
-
-    index_allocator_ref.stack_ptr =
-        ifb_engine_memory_arena_bytes_push(
-            index_allocator_ref.arena_8kb,
-            index_buffer_size_bytes);
-
-    ifb_assert(index_allocator_ref.stack_ptr);
-
-    IFBEngineAssetsFileIndexPtr index_buffer = (IFBEngineAssetsFileIndexPtr)index_allocator_ref.stack_ptr;
-
-    return(index_buffer);
-}
-
-
-internal memory 
-ifb_engine_assets_memory_scratch_push(
-    u64 size_bytes) {
-
-    IFBEngineAssetMemoryScratchAllocator& scratch_allocator_ref = ifb_engine_asset_memory.allocators.scratch; 
-    
-    ifb_assert(scratch_allocator_ref.arena_8mb);
-
-    scratch_allocator_ref.stack_ptr = 
-        ifb_engine_memory_arena_bytes_push(
-            scratch_allocator_ref.arena_8mb,
-            size_bytes);
-
-    ifb_assert(scratch_allocator_ref.stack_ptr);
-
-    return(scratch_allocator_ref.stack_ptr);
-}
-
-internal memory 
-ifb_engine_assets_memory_scratch_pop(
-    u64 size_bytes) {
-
-    IFBEngineAssetMemoryScratchAllocator& scratch_allocator_ref = ifb_engine_asset_memory.allocators.scratch; 
-    
-    ifb_assert(scratch_allocator_ref.arena_8mb);
-
-    scratch_allocator_ref.stack_ptr = 
-        ifb_engine_memory_arena_bytes_pop(
-            scratch_allocator_ref.arena_8mb,
-            size_bytes);
-
-    ifb_assert(scratch_allocator_ref.stack_ptr);
-
-    return(scratch_allocator_ref.stack_ptr);
+    //data region    
+    asset_memory.regions.data = 
+        ifb_engine_memory::region_create(
+            asset_memory.reservation,
+            "ASSETS DATA REGION",
+            asset_memory_region_size_data);
+    ifb_assert(asset_memory.regions.index);
 }
