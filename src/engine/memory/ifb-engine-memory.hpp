@@ -70,7 +70,6 @@ namespace ifb_engine_memory {
         const size_t                     minimum_size,
         const size_t                     arena_minimum_size);
 
-    external void   region_destroy        (const IFBEngineMemoryRegion region);
     external size_t region_space_total    (const IFBEngineMemoryRegion region);
     external size_t region_space_free     (const IFBEngineMemoryRegion region);
     external size_t region_space_occupied (const IFBEngineMemoryRegion region);

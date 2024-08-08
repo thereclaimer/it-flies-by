@@ -71,16 +71,20 @@ typedef handle IFBEngineAssetsMemoryBlock;
 struct IFBEngineAssetsData {
     IFBEngineAssetsMemoryBlock block;
     IFBEngineAssetsType        type;
-    size_t                     total_size;
-    size_t*                    offsets;
-    size_t*                    sizes;
-    IFBEngineAssetsId*         ids
+    IFBEngineAssetsId          id
+    size_t                     size;                          6
     memory                     start;
+};
+
+struct IFBEngineAssetsDataArray {
+    IFBEngineAssetsMemoryBlock block;
+    size_t                     count;
+    IFBEngineAssetsData*       data;  
 };
 
 namespace ifb_engine_assets {
 
-    external IFBEngineAssetsData* 
+    external IFBEngineAssetsDataArray* 
     data_load(
         const size_t               asset_count,
         const IFBEngineAssetId*    asset_ids);

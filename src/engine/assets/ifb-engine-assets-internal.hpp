@@ -92,9 +92,7 @@ struct IFBEngineAssetsMemoryBlockAllocator {
 struct IFBEngineAssetsMemory {
     IFBEngineMemoryReservation          reservation;
     IFBEngineAssetsMemoryBlockAllocator block_allocator;    
-};  
-
-
+};
 
 namespace ifb_engine_assets {
 
@@ -108,7 +106,6 @@ namespace ifb_engine_assets {
 /********************************************************************************************/
 /* CONTEXT                                                                                  */
 /********************************************************************************************/
-
 
 struct IFBEngineAssetsContext {
     IFBEngineAssetsMemory memory;

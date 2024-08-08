@@ -4,7 +4,11 @@
 #include "ifb-types.hpp"
 
 typedef memory
-(*func_ifb_platform_memory_reserve)(
+(*func_ifb_platform_memory_reserve_small_pages)(
+    u64 reservation_size);
+
+typedef memory
+(*func_ifb_platform_memory_reserve_large_pages)(
     u64 reservation_size);
 
 typedef void
@@ -23,7 +27,12 @@ typedef void
     u64    committed_size);
 
 typedef u64
-(*func_ifb_platform_memory_page_size)(
+(*func_ifb_platform_memory_page_size_small)(
+    void);
+
+
+typedef u64
+(*func_ifb_platform_memory_large_page_size)(
     void);
 
 typedef u64
@@ -86,11 +95,13 @@ struct IFBPlatformApi  {
     func_ifb_platform_file_write                    file_write;
     func_ifb_platform_file_open                     file_open;
     func_ifb_platform_file_close                    file_close;
-    func_ifb_platform_memory_reserve                memory_reserve;
+    func_ifb_platform_memory_reserve_small_pages    memory_reserve_small_pages;
+    func_ifb_platform_memory_reserve_large_pages    memory_reserve_large_pages;
     func_ifb_platform_memory_release                memory_release;
     func_ifb_platform_memory_commit                 memory_commit;
     func_ifb_platform_memory_decommit               memory_decommit;
-    func_ifb_platform_memory_page_size              memory_page_size;
+    func_ifb_platform_memory_page_size_small        memory_page_size_small;
+    func_ifb_platform_memory_large_page_size        memory_page_size_large;
     func_ifb_platform_memory_allocation_granularity memory_allocation_granularity;
     func_ifb_platform_ticks                         ticks;
     func_ifb_platform_delta_time_ms                 delta_time_ms;    

@@ -10,11 +10,6 @@
 //context
 struct IFBEngineMemoryContext;
 
-//tables
-struct IFBEngineMemoryReservationTable;
-struct IFBEngineMemoryRegionTable;
-struct IFBEngineMemoryArenaTable;
-
 //implementations
 struct IFBEngineMemoryReservation_Impl;
 struct IFBEngineMemoryRegion_Impl;
@@ -25,10 +20,13 @@ struct IFBEngineMemoryArena_Impl;
 /********************************************************************************************/
 
 struct IFBEngineMemoryContext {
-    size_t                          allocation_granularity;
-    size_t                          page_size_small;
-    size_t                          page_size_large;
-    IFBEngineMemoryReservationTable reservation_table;
+    size_t                           allocation_granularity;
+    size_t                           page_size_small;
+    size_t                           page_size_large;
+    memory                           initial_reservation;
+    memory                           initial_commit;
+    IFBEngineMemoryReservation_Impl* reservations_free;
+    IFBEngineMemoryReservation_Impl* reservations_used;
 };
 
 namespace ifb_engine_memory {
@@ -40,80 +38,52 @@ namespace ifb_engine_memory {
 /* RESERVATION                                                                              */
 /********************************************************************************************/
 
-#define IFB_ENGINE_MEMORY_RESERVATION_TABLE_SIZE ifb_engine_memory_megabytes(1)
-
-struct IFBEngineMemoryReservationTable {
-    size_t                           count_total;
-    size_t                           count_used;
-    size_t                           pages_used;
-    size_t                           pages_available;
-    IFBEngineMemoryReservation_Impl* reservations;
-};
-
 struct IFBEngineMemoryReservation_Impl {
-    IFBTag                      tag;
-    IFBEngineMemoryPageType     page_type;
-    u64                         owner_process;
-    u64                         owner_thread;
-    size_t                      total_size;
-    size_t                      page_size;
-    size_t                      count_regions;
-    memory                      start;
-    IFBEngineMemoryRegionTable  region_table;
-};
-
-namespace ifb_engine_memory {
-
-    internal void                             reservation_table_allocate (IFBEngineMemoryReservationTable& reservation_table);
-    internal IFBEngineMemoryReservation_Impl* reservation_table_insert   (IFBEngineMemoryReservationTable& reservation_table);
+    IFBEngineMemoryReservation_Impl* next;
+    IFBEngineMemoryReservation_Impl* previous;
+    IFBEngineMemoryRegion_Impl*      free_regions;
+    IFBEngineMemoryRegion_Impl*      used_regions;
+    memory                           start;
+    IFBTag                           tag;
+    IFBEngineMemoryPageType          paage_type;
+    u64                              owner_process;
+    u64                              owner_thread;
+    size_t                           reservation_size;
+    size_t                           region_list_size;
+    size_t                           total_size;
+    size_t                           page_size;
 };
 
 /********************************************************************************************/
 /* REGION                                                                                   */
 /********************************************************************************************/
 
-#define IFB_ENGINE_MEMORY_REGION_TABLE_SIZE ifb_engine_memory_megabytes(1)
-
-struct IFBEngineMemoryRegionTable {
-    size_t                      count_total;
-    size_t                      count_used;
-    IFBEngineMemoryRegion_Impl* regions;
-};
-
 struct IFBEngineMemoryRegion_Impl {
     IFBEngineMemoryReservation_Impl* reservation;
-    IFBTag                           tag;
-    size_t                           total_size;
+    IFBEngineMemoryRegion_Impl*      next;
+    IFBEngineMemoryRegion_Impl*      previous;
+    IFBEngineMemoryArena_Impl*       committed_arenas; 
+    IFBEngineMemoryArena_Impl*       uncommitted_arenas; 
     memory                           start;
-    IFBEngineMemoryArenaTable        arena_table; 
+    size_t                           total_size;
+    size_t                           region_size;
+    size_t                           arena_list_size;
+    size_t                           arena_count;
+    IFBTag                           tag;
 };
-
-namespace ifb_engine_memory {
-    internal void                        region_table_allocate (IFBEngineMemoryRegionTable& region_table);
-    internal IFBEngineMemoryRegion_Impl* region_table_insert   (IFBEngineMemoryRegionTable& region_table);
-};
-
 
 /********************************************************************************************/
 /* ARENA                                                                                    */
 /********************************************************************************************/
 
-struct IFBEngineMemoryArenaTable {
-    size_t                     count_total;
-    size_t                     count_used;
-    IFBEngineMemoryArena_Impl* arenas;
-};
-
 struct IFBEngineMemoryArena_Impl {
-    IFBEngineMemoryRegion_Impl* region;    
-    size_t                      total_size; 
+    IFBEngineMemoryRegion_Impl* region;
+    IFBEngineMemoryArena_Impl*  next;
+    IFBEngineMemoryArena_Impl*  previous;
     memory                      start;
-    memory                      position;
-};
-
-namespace ifb_engine_memory {
-    internal void                       arena_table_allocate (IFBEngineMemoryRegionTable& region_table);
-    internal IFBEngineMemoryArena_Impl* arena_table_insert   (IFBEngineMemoryRegionTable& region_table);
+    memory                      commit;
+    size_t                      total_size; 
+    size_t                      position;
 };
 
 #endif //IFB_ENGINE_MEMORY_INTERNAL_HPP

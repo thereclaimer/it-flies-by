@@ -1,5 +1,3 @@
-#pragma once 
-
 #pragma once
 
 #include "ifb-win32.hpp"
@@ -138,10 +136,30 @@ ifb_win32_api_write_file(
 }
 
 internal memory
-ifb_win32_api_memory_reserve(
+ifb_win32_api_memory_reserve_small_pages(
     u64 reservation_size) {
 
-    memory mem = (memory)VirtualAlloc(0,reservation_size,MEM_RESERVE,PAGE_READONLY);
+    memory mem =
+        (memory)VirtualAlloc(
+            0,
+            reservation_size,
+            MEM_RESERVE,
+            PAGE_NOACCESS);
+
+    return(mem);
+}
+
+
+internal memory
+ifb_win32_api_memory_reserve_large_pages(
+    u64 reservation_size) {
+
+    memory mem = 
+        (memory)VirtualAlloc(
+            0,
+            reservation_size, 
+            MEM_RESERVE | MEM_COMMIT,
+            PAGE_READWRITE);
 
     return(mem);
 }
@@ -179,7 +197,7 @@ ifb_win32_api_memory_decommit(
 }
 
 internal u64
-ifb_win32_api_memory_page_size() {
+ifb_win32_api_memory_page_size_small() {
 
     SYSTEM_INFO system_info;
     GetSystemInfo(&system_info);
@@ -187,6 +205,14 @@ ifb_win32_api_memory_page_size() {
     u64 page_size = system_info.dwPageSize;
 
     return(page_size);
+}
+
+internal u64
+ifb_win32_api_memory_page_size_large() {
+
+    u64 large_page_size = GetLargePageMinimum();
+
+    return(large_page_size)
 }
 
 internal u64
@@ -265,17 +291,19 @@ ifb_win32_api_create_and_initialize() {
     win32_api.file_write                    = ifb_win32_api_write_file; 
     win32_api.file_open                     = ifb_win32_api_open_file; 
     win32_api.file_close                    = ifb_win32_api_close_file; 
-    win32_api.memory_reserve                = ifb_win32_api_memory_reserve;
+    win32_api.memory_reserve_small_pages    = ifb_win32_api_memory_reserve_small_pages;
+    win32_api.memory_reserve_large_pages    = ifb_win32_api_memory_reserve_large_pages;
     win32_api.memory_release                = ifb_win32_api_memory_release;
     win32_api.memory_commit                 = ifb_win32_api_memory_commit;
     win32_api.memory_decommit               = ifb_win32_api_memory_decommit;
-    win32_api.memory_page_size              = ifb_win32_api_memory_page_size;
+    win32_api.memory_page_size_small        = ifb_win32_api_memory_page_size_small;
+    win32_api.memory_page_size_large        = ifb_win32_api_memory_page_size_large;
     win32_api.memory_allocation_granularity = ifb_win32_api_memory_allocation_granularity;
     win32_api.ticks                         = ifb_win32_api_ticks; 
     win32_api.delta_time_ms                 = ifb_win32_api_delta_time_ms; 
     win32_api.sleep                         = ifb_win32_api_sleep; 
-    win32_api.process_id                    = ifb_win32_api_process_id; 
-    win32_api.thread_id                     = ifb_win32_api_thread_id; 
+    win32_api.process_id                    = ; 
+    win32_api.thread_id                     = ; 
 
     return(win32_api);
 }

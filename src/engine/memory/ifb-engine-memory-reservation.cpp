@@ -5,10 +5,6 @@
 
 using namespace ifb_engine_memory;
 
-/********************************************************************************************/
-/* EXTERNAL                                                                                 */
-/********************************************************************************************/
-
 external IFBEngineMemoryReservation 
 reserve(
     const char*                   tag_value,
@@ -17,132 +13,211 @@ reserve(
 
     IFBEngineMemoryContext& context = context_get();
 
-    //insert a new reservation
-    IFBEngineMemoryReservationTable& reservation_table = context.reservation_table;
-    IFBEngineMemoryReservation_Impl* reservation       = reservation_table_insert(reservation_table);
-    ifb_assert(reservation);
-
-    //align the size to the allocation granularity
-    size_t reservation_size = alignment_pow_2(minimum_size, context.allocation_granularity);
+    ifb_assert(context.reservations_free);
 
     //get the page size
-    //TODO: large pages
-    size_t page_size        = context.page_size_small;
+    const size_t page_size = 
+        page_type == IFBEngineMemoryPageType_Small
+        ? context.page_size_small
+        : context.page_size_large;
 
-    //reserve system memory
-    memory reserved_memory = ifb_engine_platform_memory_reserve(reservation_size);
+    //align the reservation size to the allocation granularity
+    const size_t reservation_size = alignment_pow_2(minimum_size, context.allocation_granularity);
+    
+    //we will reserve this much for the region tracking
+    const size_t region_list_size = context.allocation_granularity;
+
+    //both together is the total size
+    const size_t total_reservation_size = reservation_size + region_list_size; 
+
+    //make the reservation
+    const memory reserved_memory = 
+        page_type == IFBEngineMemoryPageType_Small
+        ? ifb_engine_platform_memory_reserve_small_pages(total_reservation_size)        
+        : ifb_engine_platform_memory_reserve_large_pages(total_reservation_size);        
     ifb_assert(reserved_memory);
 
-    //initialize the reservation
-    reservation->tag           = ifb_tag(tag_value);
-    reservation->page_type     = page_type;
-    reservation->owner_process = ifb_engine_platform_process_id();
-    reservation->owner_thread  = ifb_engine_platform_thread_id();
-    reservation->total_size    = reservation_size;
-    reservation->page_size     = page_size;
-    reservation->count_regions = 0;
-    reservation->start         = reserved_memory;
-    region_table_allocate(reservation->region_table);
+    //commit the region list memory
+    const memory region_list_start = reserved_memory + reservation_size;
+    const memory region_list_memory =
+        ifb_engine_platform_memory_commit(
+            region_list_start,
+            region_list_size); 
+    ifb_assert(region_list_memory);
+
+    //get the next free reservation node and update
+    IFBEngineMemoryReservation_Impl* reservation_node = context.reservations_free;
+    
+    //update the free list
+    context.reservations_free = reservation_node->next;
+    
+    //update the current reservation node
+    reservation_node->previous = NULL;
+    reservation_node->next     = context.reservations_used;
+    
+    //update the used list
+    context.reservations_used = reservation_node; 
+
+    //set the free region pointers up
+    const size_t region_node_size = sizeof(IFBEngineMemoryRegion_Impl);
+    reservation_node->free_regions = (IFBEngineMemoryRegion_Impl*)region_list_memory;
+    IFBEngineMemoryRegion_Impl* previous = reservation_node->free_regions;
+    IFBEngineMemoryRegion_Impl* current  = NULL;
+    previous->previous = NULL;
+
+    //initialize the free region list
+    for (
+        size_t offset = 0;
+        offset < region_list_size;
+        offset += region_node_size) {
+
+        previous->next = (IFBEngineMemoryRegion_Impl*)((memory)previous + region_node_size);
+        current        = previous->next;
+        
+        current->reservation = reservation_node;
+        current->next        = NULL;
+        current->previous    = previous;
+        current->arenas      = NULL;
+        current->start       = NULL;
+        current->total_size  = 0;
+        current->tag         = {0};
+
+        previous = current;
+    }
+
+    //update everything else
+    reservation_node->used_regions     = NULL; 
+    reservation_node->start            = reserved_memory;
+    reservation_node->tag              = ifb_tag(tag_value);
+    reservation_node->page_type        = page_type;
+    reservation_node->owner_process    = ifb_engine_platform_process_id();
+    reservation_node->owner_thread     = ifb_engine_platform_thread_id();
+    reservation_node->reservation_size = reservation_size; 
+    reservation_node->region_list_size = region_list_size;
+    reservation_node->total_size       = total_reservation_size;
+    reservation_node->page_size        = page_size;  
 }
 
 external void
 release(
     const IFBEngineMemoryReservation reservation) {
-
     
+    IFBEngineMemoryReservation_Impl* reservation_impl = (IFBEngineMemoryReservation_Impl*)reservation; 
+    ifb_assert(reservation_impl && reservation_impl->start);
+
+    //release the memory
+    ifb_engine_platform_memory_release(
+        reservation_impl->start,
+        reservation_impl->total_size);
+
+    //put this reservation back in the free list
+    IFBEngineMemoryContext& context = context_get();
+    reservation_impl->previous = reservation_impl->next;
+    reservation_impl->next     = context.reservations_free;
+    context.reservations_free->previous = reservation_impl;
+    context.reservations_free = reservation_impl;
+
+    //de-initialize our other stuff
+    reservation_node->used_regions     = NULL; 
+    reservation_node->start            = NULL;
+    reservation_node->tag              = {0};
+    reservation_node->page_type        = 0;
+    reservation_node->owner_process    = 0; 
+    reservation_node->owner_thread     = 0;
+    reservation_node->reservation_size = 0; 
+    reservation_node->region_list_size = 0;
+    reservation_node->total_size       = 0;
+    reservation_node->page_size        = 0;  
 }
 
 external size_t
 reservation_space_total(
     const IFBEngineMemoryReservation reservation) {
 
+    IFBEngineMemoryReservation_Impl* reservation_impl = (IFBEngineMemoryReservation_Impl*)reservation; 
+    ifb_assert(reservation_impl && reservation_impl->start);
+
+    return(reservation_impl->reservation_size);
 }
 
 external size_t
 reservation_space_free(
     const IFBEngineMemoryReservation reservation) {
 
+    IFBEngineMemoryReservation_Impl* reservation_impl = (IFBEngineMemoryReservation_Impl*)reservation; 
+    ifb_assert(reservation_impl && reservation_impl->start);
+
+    size_t space_free = reservation_impl->reservation_size;
+
+    for (
+        IFBEngineMemoryRegion_Impl* region = reservation_impl->used_regions;
+        region != NULL && region->next != NULL;
+        region = region->next) {
+
+        space_free -= region->total_size;
+    }
+
+    return(space_free);
 }
 
 external size_t
 reservation_space_occupied(
     const IFBEngineMemoryReservation reservation) {
 
+    IFBEngineMemoryReservation_Impl* reservation_impl = (IFBEngineMemoryReservation_Impl*)reservation; 
+    ifb_assert(reservation_impl && reservation_impl->start);
+
+    size_t space_occupied = 0;
+
+    for (
+        IFBEngineMemoryRegion_Impl* region = reservation_impl->used_regions;
+        region != NULL && region->next != NULL;
+        region = region->next) {
+
+        space_occupied += region->total_size;
+    }
+
+    return(space_occupied);
 }
 
 external size_t
 reservation_page_size(
     const IFBEngineMemoryReservation reservation) {
 
+    IFBEngineMemoryReservation_Impl* reservation_impl = (IFBEngineMemoryReservation_Impl*)reservation; 
+    ifb_assert(reservation_impl && reservation_impl->start);
+
+    return(reservation_impl->page_size);
 }
 
 external size_t
 reservation_page_count(
     const IFBEngineMemoryReservation reservation) {
 
+    IFBEngineMemoryReservation_Impl* reservation_impl = (IFBEngineMemoryReservation_Impl*)reservation; 
+    ifb_assert(reservation_impl && reservation_impl->start);
+
+    const size_t page_count = reservation_impl->reservation_size / reservation_impl->page_size;
+
+    return(page_count);
 }
 
 external size_t
 reservation_region_count(
     const IFBEngineMemoryReservation reservation) {
 
-}
+    IFBEngineMemoryReservation_Impl* reservation_impl = (IFBEngineMemoryReservation_Impl*)reservation; 
+    ifb_assert(reservation_impl && reservation_impl->start);
 
-/********************************************************************************************/
-/* INTERNAL                                                                                 */
-/********************************************************************************************/
+    size_t region_count = 0;
 
-internal void
-reservation_table_allocate(
-    IFBEngineMemoryReservationTable& reservation_table) {
+    for (
+        IFBEngineMemoryRegion_Impl* region = reservation_impl->used_regions;
+        region != NULL && region->next != NULL;
+        region = region->next) {
 
-    const size_t table_size      = IFB_ENGINE_MEMORY_RESERVATION_TABLE_SIZE;
-    const size_t small_page_size = context_page_size_small();
-    const size_t pages_available = table_size / small_page_size;   
+        ++region_count;
+    }
 
-    reservation_table.reservations = 
-        (IFBEngineMemoryReservation_Impl*)ifb_engine_platform_memory_reserve(table_size);
-
-    ifb_assert(reservation_table.reservations);
-
-    reservation_table.count_total     = 0;
-    reservation_table.count_used      = 0;
-    reservation_table.pages_used      = 0;
-    reservation_table.pages_available = pages_available;
-}
-
-internal IFBEngineMemoryReservation_Impl*
-reservation_table_insert(
-    IFBEngineMemoryReservationTable& reservation_table) {
-
-    const size_t reservation_size = sizeof(IFBEngineMemoryReservation_Impl);
-
-    //commit another page if we have to
-    if (reservation_table.count_used == reservation_table.count_total) {
-
-        ifb_assert(reservation_table.pages_used < reservation_table.pages_available);
-        
-        size_t small_page_size       = context_page_size_small();
-        size_t reservations_per_page = small_page_size / reservation_size;
-        size_t committed_size        = small_page_size * reservation_table.pages_used;
-
-        memory reservation_table_memory = (memory)reservation_table.reservations;
-        memory offset                   = reservation_table_memory + committed_size;   
-    
-        memory committed_memory = 
-            ifb_engine_platform_memory_commit(
-                offset,
-                small_page_size);
-
-        ifb_assert(committed_memory == offset);
-
-        ++reservation_table.pages_used;
-        reservation_table.count_total += reservations_per_page;
-    } 
-
-    //get the next pointer in the table and increase the reservations used
-    size_t index = reservation_table.count_used;
-    IFBEngineMemoryReservation_Impl* reservation_pointer = &reservation_table.reservations[index];
-    ++reservation_table.count_used;
-    return(reservation_pointer);
+    return(region_count);
 }
