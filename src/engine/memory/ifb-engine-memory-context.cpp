@@ -3,95 +3,176 @@
 #include "ifb-engine-memory.hpp"
 #include "ifb-engine-memory-internal.hpp"
 
-using namespace ifb_engine_memory; 
-
 global IFBEngineMemoryContext memory_context;
 
+/********************************************************************************************/
+/* EXTERNAL                                                                                 */
+/********************************************************************************************/
+
 external void
-context_create(
+ifb_engine_memory::context_create(
     void) {
 
-    //initialize the structure
     memory_context = {0};
     memory_context.allocation_granularity = ifb_engine_platform_memory_allocation_granularity();
-    memory_context.page_size_small        = ifb_engine_platform_memory_page_size();
-    memory_context.reservations_used      = NULL;
+    memory_context.page_size_small        = ifb_engine_platform_memory_page_size_small();
+    memory_context.page_size_large        = ifb_engine_platform_memory_page_size_large();
+    memory_context.owner_process_id       = ifb_engine_platform_process_id();
+    memory_context.reservations           = NULL;
+}
 
-    //this is our memory for the resevation tracking
-    memory_context.initial_reservation = 
-        ifb_engine_platform_memory_reserve_small_pages(memory_context.allocation_granularity);
-    ifb_assert(memory_context.initial_reservation);
+external void
+ifb_engine_memory::context_destroy(
+    void) {
 
-    //commit the resevation tracking memory
-    memory_context.initial_commit = 
-        ifb_engine_platform_memory_commit(
-            memory_context.initial_reservation,
-            memory_context.allocation_granularity);
-    ifb_assert(memory_context.initial_commit);
-
-    //set the pointers up
-    const size_t reservation_node_size = sizeof(IFBEngineMemoryReservation_Impl);
-    memory_context.reservations_free = (IFBEngineMemoryReservation_Impl*)memory_context.initial_commit;
-    IFBEngineMemoryReservation_Impl* previous = memory_context.reservations_free;
-    IFBEngineMemoryReservation_Impl* current  = NULL;
-    previous->previous = NULL;
-
-    //initialize the free list of reservations
     for (
-        size_t offset = 0;
-        offset < memory_context.allocation_granularity;
-        offset += reservation_node_size) {
+        IFBEngineMemoryReservation_Impl* reservation = memory_context.reservations;
+        reservation != NULL;
+        reservation = reservation->next) {
 
-        previous->next = (IFBEngineMemoryReservation_Impl*)((memory)previous + reservation_node_size);
-        current        = previous->next;
+        ifb_engine_memory::release_memory(reservation);
+    }
 
-        current->next             = NULL;
-        current->previous         = previous;
-        current->regions          = NULL;
-        current->start            = NULL;
-        current->tag              = {0};
-        current->page_type        = 0;
-        current->owner_process    = 0;
-        current->owner_thread     = 0;
-        current->reservation_size = 0 
-        current->region_list_size = 0;
-        current->total_size       = 0;
-        current->page_size        = 0;  
+    memory_context = {0};
+}
+
+external const size_t
+ifb_engine_memory::context_granularity(
+    void) {
+
+    return(memory_context.allocation_granularity);
+}
+
+external const size_t
+ifb_engine_memory::context_page_size_small(
+    void) {
+
+    return(memory_context.page_size_small);
+}
+
+external const size_t
+ifb_engine_memory::context_page_size_large(
+    void) {
+
+    return(memory_context.page_size_large);
+}
+
+external const size_t
+ifb_engine_memory::context_reservation_count(
+    void) {
+
+    size_t reservation_count = 0;
+
+    for (
+        IFBEngineMemoryReservation_Impl* reservation = memory_context.reservations;
+        reservation != NULL;
+        reservation = reservation->next) {
+
+        ++reservation_count;       
     }
 }
 
-external void
-context_destroy(
+external const size_t
+ifb_engine_memory::context_reserved_size_total(
     void) {
 
+    size_t reserved_size_total = 0;
+
+    for (
+        IFBEngineMemoryReservation_Impl* reservation = memory_context.reservations;
+        reservation != NULL;
+        reservation = reservation->next) {
+
+        reserved_size_total += ifb_engine_memory::reservation_space_total(reservation);
+    }
+
+    return(reserved_size_total);
 }
 
-external size_t
-context_granularity(
-    void) {
+external const size_t
+ifb_engine_memory::context_align_to_small_page(
+    const size_t size) {
 
+    size_t alignment = 
+        ifb_engine_memory::alignment_pow_2(
+            size,
+            memory_context.page_size_small);
+
+    return(alignment);
 }
 
-external size_t
-context_page_size_small(
-    void) {
+external const size_t
+ifb_engine_memory::context_align_to_large_page(
+    const size_t size) {
 
+    size_t alignment = 
+        ifb_engine_memory::alignment_pow_2(
+            size,
+            memory_context.page_size_large);
+
+    return(alignment);
 }
 
-external size_t
-context_page_size_large(
-    void) {
+external const size_t
+ifb_engine_memory::context_align_to_allocation_granularity(
+    const size_t size) {
+        
+    size_t alignment = 
+        ifb_engine_memory::alignment_pow_2(
+            size,
+            memory_context.allocation_granularity);
 
+    return(alignment);
 }
 
-external size_t
-context_reservation_count(
-    void) {
+external const size_t
+ifb_engine_memory::context_page_size(
+    const IFBEngineMemoryPageType page_type) {
 
+    size_t page_size = 
+        page_type == IFBEngineMemoryPageType_Small
+        ? memory_context.page_size_small
+        : memory_context.page_size_large;
+
+    return(page_size);
 }
 
-external size_t
-context_reserved_size_total(
+/********************************************************************************************/
+/* INTERNAL                                                                                 */
+/********************************************************************************************/
+
+internal IFBEngineMemoryContext&
+context_get(
     void) {
 
+    return(memory_context);
+}
+
+internal void
+context_add_reservation(
+    IFBEngineMemoryReservation_Impl* reservation) {
+
+    ifb_assert(reservation);
+
+    reservation->next = memory_context.reservations;
+    memory_context.reservations->previous = reservation;
+    memory_context.reservations = reservation;
+}
+
+internal void
+context_remove_reservation(
+    IFBEngineMemoryReservation_Impl* reservation) {
+
+    ifb_assert(reservation);
+
+    if (reservation->previous) {
+        reservation->previous->next = reservation->next;
+    }
+
+    if (reservation->next) {
+        reservation->next->previous = reservation->previous;
+    }
+
+    reservation->previous = NULL;
+    reservation->next     = NULL;
 }

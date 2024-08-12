@@ -3,10 +3,8 @@
 #include "ifb-engine-memory.hpp"
 #include "ifb-engine-memory-internal.hpp"
 
-using namespace ifb_engine_memory;
-
 external IFBEngineMemoryRegion
-region_create(
+ifb_engine_memory::region_create(
     const IFBEngineMemoryReservation reservation,
     const char*                      tag_value,
     const size_t                     minimum_size,
@@ -15,84 +13,78 @@ region_create(
     IFBEngineMemoryReservation_Impl* reservation_impl = (IFBEngineMemoryReservation_Impl*)reservation;
     ifb_assert(reservation_impl);
 
-    //calculate all the sizes we are working with
-    const size_t page_size         = reservation_impl->page_size;
-    const size_t arena_size        = alignment_pow_2(arena_minimum_size,page_size);
-    const size_t region_size       = alignment_pow_2(minimum_size,page_size);
-    const size_t arena_count       = region_size / arena_size; 
-    const size_t arena_node_size   = sizeof(IFBEngineMemoryArena_Impl);
-    const size_t arena_list_size   = arena_node_size * arena_count;
-    const size_t total_region_size = region_size + arena_list_size;   
-    const size_t free_space        = reservation_space_free();
-    const size_t occupied_space    = reservation_space_occupied();
+    //get the start and size of the region
+    const memory region_start = ifb_engine_memory::reservation_position(reservation);
+    const size_t region_size  = ifb_engine_memory::reservation_align_to_page_size(reservation,minimum_size);
 
-    //confirm we can fit the region
-    ifb_assert(free_space >= total_region_size);
+    //get the arena and arena list size
+    const size_t arena_size       = ifb_engine_memory::reservation_align_to_page_size(reservation,arena_minimum_size); 
+    const size_t page_size        = ifb_engine_memory::reservation_page_size(reservation);
+    const size_t arena_count      = region_size / arena_size;
+    const size_t arena_list_size  = sizeof(IFBEngineMemoryArena_Impl) * arena_count;
 
-    //get the next region node
-    ifb_assert(reservation_impl->free_regions);
-    IFBEngineMemoryRegion_Impl* region = reservation_impl->free_regions;
+    //calculate our memory used for the region pointer and arena list
+    const memory region_memory_offset = region_start + region_size;
 
-    //update the free list
-    reservation_impl->free_regions = region->next;
+    //the size is the list size plus one page for the pointer itself
+    const size_t region_memory_size = arena_list_size + page_size;
 
-    //update the new region
-    region->previous = NULL;
-    region->next     = reservation_impl->used_regions;
-
-    //add the new region to the used list
-    reservation_impl->used_regions = region;
-
-    //get the start of this region
-    const memory region_start = reservation_impl->start + occupied_space; 
-
-    //commit the memory for the arena list
-    memory arena_list_memory_start = region_start + region_size;
-    memory arena_list_memory = 
+    //commit the memory for tracking
+    IFBEngineMemoryRegion_Impl* region_impl =
         ifb_engine_platform_memory_commit(
-            arena_list_memory_start,
-            arena_list_size);
-    ifb_assert(arena_list_memory);
+            region_memory_offset,
+            region_memory_size);
+    ifb_assert(region_impl);
 
-    //update the arena list pointers
-    region->uncommitted_arenas = (IFBEngineMemoryArena_Impl*)arena_list_memory; 
-    IFBEngineMemoryArena_Impl* previous = region->uncommitted_arenas; 
-    IFBEngineMemoryArena_Impl* current  = NULL;
-    previous->previous = NULL;
-
+    //initialize the list
+    memory arena_list_memory = ((memory)region_impl) + page_size; 
+    IFBEngineMemoryArena_Impl* arena_list = (IFBEngineMemoryArena_Impl*)arena_list_memory; 
     for (
-        size_t offset = 0;
-        offset < arena_list_size;
-        offset += arena_node_size) {
+        size_t arena_index = 0;
+        arena_index < arena_count;
+        ++arena_index) {
 
-        previous->next  = (IFBEngineMemoryArena_Impl*)((memory)previous + arena_node_size);
-        current         = previous;
+        IFBEngineMemoryArena_Impl* current_arena  = &arena_list[arena_index];
+        IFBEngineMemoryArena_Impl* previous_arena = arena_index == 0 ? NULL : &arena_list[arena_index - 1];
 
-        current->region     = region;
-        current->next       = NULL;
-        current->previous   = previous;
-        current->start      = region_start + offset;
-        current->commit     = NULL;
-        current->total_size = arena_size;
-        current->position   = 0;
+        if (previous) {
+            previous_arena->next = current;
+        }
 
-        previous = current;
+        memory reserved_memory_start = region_start + (arena_size * arena_index);
+
+        current_arena->region                 = region_impl;
+        current_arena->next                   = NULL;
+        current_arena->previous               = previous_arena;
+        current_arena->reserved_memory_start  = reserved_memory_start; 
+        current_arena->committed_memory_start = NULL;
+        current_arena->commit                 = NULL;
+        current_arena->size                   = 0;
+        current_arena->position               = 0;
     }
 
-    //everything else
-    region->committed_arenas   = NULL;
-    region->reservation        = reservation_impl;
-    region->committed_arenas   = NULL;
-    region->start              = region_start;
-    region->total_size         = total_region_size;
-    region->region_size        = region_size;
-    region->arena_list_size    = arena_list_size;
-    region->arena_count        = arena_count;
-    region->tag                = ifb_tag(tag_value);
+    //initialize the structure
+    region_impl->reservation        = reservation;
+    region_impl->next               = NULL;
+    region_impl->previous           = NULL;
+    region_impl->committed_arenas   = NULL;
+    region_impl->uncommitted_arenas = arena_list;
+    region_impl->start              = region_start;
+    region_impl->total_size         = region_size + region_memory_size;
+    region_impl->region_size        = region_size;
+    region_impl->arena_list_size    = arena_list_size;
+    region_impl->arena_count        = arena_count;
+    region_impl->tag                = ifb_tag(tag_value);
+
+    //add the region to the list
+    ifb_engine_memory::reservation_add_region(region_impl);
+
+    //return the region
+    return(region_impl);
 }
 
 external size_t
-region_space_total(
+ifb_engine_memory::region_space_total(
     const IFBEngineMemoryRegion region) {
 
     IFBEngineMemoryRegion_Impl* region_impl = (IFBEngineMemoryRegion_Impl*)region;
@@ -102,7 +94,7 @@ region_space_total(
 }
 
 external size_t
-region_space_free(
+ifb_engine_memory::region_space_free(
     const IFBEngineMemoryRegion region) {
 
     IFBEngineMemoryRegion_Impl* region_impl = (IFBEngineMemoryRegion_Impl*)region;
@@ -122,7 +114,7 @@ region_space_free(
 }
 
 external size_t
-region_space_occupied(
+ifb_engine_memory::region_space_occupied(
     const IFBEngineMemoryRegion region) {
 
     IFBEngineMemoryRegion_Impl* region_impl = (IFBEngineMemoryRegion_Impl*)region;
@@ -142,7 +134,7 @@ region_space_occupied(
 }
 
 external size_t
-region_page_size(
+ifb_engine_memory::region_page_size(
     const IFBEngineMemoryRegion region) {
 
     IFBEngineMemoryRegion_Impl* region_impl = (IFBEngineMemoryRegion_Impl*)region;
@@ -152,7 +144,7 @@ region_page_size(
 }
 
 external size_t
-region_page_count(
+ifb_engine_memory::region_page_count(
     const IFBEngineMemoryRegion region) {
 
     IFBEngineMemoryRegion_Impl* region_impl = (IFBEngineMemoryRegion_Impl*)region;
@@ -165,7 +157,7 @@ region_page_count(
 }
 
 external size_t
-region_arena_count(
+ifb_engine_memory::region_arena_count(
     const IFBEngineMemoryRegion region) {
 
     IFBEngineMemoryRegion_Impl* region_impl = (IFBEngineMemoryRegion_Impl*)region;

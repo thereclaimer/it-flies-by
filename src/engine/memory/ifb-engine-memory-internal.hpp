@@ -23,15 +23,15 @@ struct IFBEngineMemoryContext {
     size_t                           allocation_granularity;
     size_t                           page_size_small;
     size_t                           page_size_large;
-    memory                           initial_reservation;
-    memory                           initial_commit;
-    IFBEngineMemoryReservation_Impl* reservations_free;
-    IFBEngineMemoryReservation_Impl* reservations_used;
+    u64                              owner_process_id;
+    IFBEngineMemoryReservation_Impl* reservations;
 };
 
 namespace ifb_engine_memory {
 
-    internal IFBEngineMemoryContext& context_get();
+    internal IFBEngineMemoryContext& context_get                (void);
+    internal void                    context_add_reservation    (IFBEngineMemoryReservation_Impl* reservation);
+    internal void                    context_remove_reservation (IFBEngineMemoryReservation_Impl* reservation);
 };
 
 /********************************************************************************************/
@@ -41,17 +41,24 @@ namespace ifb_engine_memory {
 struct IFBEngineMemoryReservation_Impl {
     IFBEngineMemoryReservation_Impl* next;
     IFBEngineMemoryReservation_Impl* previous;
-    IFBEngineMemoryRegion_Impl*      free_regions;
-    IFBEngineMemoryRegion_Impl*      used_regions;
+    IFBEngineMemoryRegion_Impl*      regions;
     memory                           start;
     IFBTag                           tag;
-    IFBEngineMemoryPageType          paage_type;
-    u64                              owner_process;
+    IFBEngineMemoryPageType          page_type;
     u64                              owner_thread;
     size_t                           reservation_size;
-    size_t                           region_list_size;
     size_t                           total_size;
     size_t                           page_size;
+};
+
+namespace ifb_engine_memory {
+
+    internal const memory reservation_position   (const IFBEngineMemoryReservation_Impl* reservation);
+    
+    internal void
+    reservation_add_region(
+        const IFBEngineMemoryReservation_Impl* reservation,
+        const IFBEngineMemoryRegion_Impl*      region);
 };
 
 /********************************************************************************************/
@@ -80,9 +87,9 @@ struct IFBEngineMemoryArena_Impl {
     IFBEngineMemoryRegion_Impl* region;
     IFBEngineMemoryArena_Impl*  next;
     IFBEngineMemoryArena_Impl*  previous;
-    memory                      start;
-    memory                      commit;
-    size_t                      total_size; 
+    memory                      reserved_memory_start;
+    memory                      committed_memory_start;
+    size_t                      size; 
     size_t                      position;
 };
 

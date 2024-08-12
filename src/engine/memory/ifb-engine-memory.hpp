@@ -14,15 +14,26 @@
 /* CONTEXT                                                                                  */
 /********************************************************************************************/
 
+enum IFBEngineMemoryPageType_ { 
+     IFBEngineMemoryPageType_Small = 0,
+     IFBEngineMemoryPageType_Large = 1
+};
+typedef u32 IFBEngineMemoryPageType;
+
 namespace ifb_engine_memory {
 
-    external void   context_create              (void);
-    external void   context_destroy             (void);
-    external size_t context_granularity         (void);
-    external size_t context_page_size_small     (void);
-    external size_t context_page_size_large     (void);
-    external size_t context_reservation_count   (void);
-    external size_t context_reserved_size_total (void);
+    external       void   context_create                          (void);
+    external       void   context_destroy                         (void);
+    external const size_t context_granularity                     (void);
+    external const size_t context_page_size_small                 (void);
+    external const size_t context_page_size_large                 (void);
+    external const size_t context_reservation_count               (void);
+    external const size_t context_reserved_size_total             (void);
+    external const size_t context_align_to_small_page             (const size_t size);
+    external const size_t context_align_to_large_page             (const size_t size);
+    external const size_t context_align_to_allocation_granularity (const size_t size);
+    external const size_t context_page_size                       (const IFBEngineMemoryPageType page_type);
+    external const size_t context_align_to_page                   (const IFBEngineMemoryPageType page_type, const size_t size);
 };
 
 /********************************************************************************************/
@@ -31,28 +42,28 @@ namespace ifb_engine_memory {
 
 typedef handle IFBEngineMemoryReservation;
 
-enum IFBEngineMemoryPageType_ { 
-     IFBEngineMemoryPageType_Small = 0,
-     IFBEngineMemoryPageType_Large = 1
-};
 
-typedef u32 IFBEngineMemoryPageType;
 
 namespace ifb_engine_memory {
 
-    external IFBEngineMemoryReservation 
-    reserve(
+    external const IFBEngineMemoryReservation 
+    reserve_memory(
         const char*                   tag_value,
         const size_t                  minimum_size,
         const IFBEngineMemoryPageType page_type);
     
-    external void   release                    (const IFBEngineMemoryReservation reservation);
-    external size_t reservation_space_total    (const IFBEngineMemoryReservation reservation);
-    external size_t reservation_space_free     (const IFBEngineMemoryReservation reservation);
-    external size_t reservation_space_occupied (const IFBEngineMemoryReservation reservation);
-    external size_t reservation_page_size      (const IFBEngineMemoryReservation reservation);
-    external size_t reservation_page_count     (const IFBEngineMemoryReservation reservation);
-    external size_t reservation_region_count   (const IFBEngineMemoryReservation reservation);
+    external       void   release_memory                 (const IFBEngineMemoryReservation reservation);
+    external const size_t reservation_space_total        (const IFBEngineMemoryReservation reservation);
+    external const size_t reservation_space_free         (const IFBEngineMemoryReservation reservation);
+    external const size_t reservation_space_occupied     (const IFBEngineMemoryReservation reservation);
+    external const size_t reservation_page_size          (const IFBEngineMemoryReservation reservation);
+    external const size_t reservation_page_count         (const IFBEngineMemoryReservation reservation);
+    external const size_t reservation_region_count       (const IFBEngineMemoryReservation reservation);
+
+    external const size_t 
+    reservation_align_to_page_size (
+        const IFBEngineMemoryReservation reservation,
+        const size_t                     size);
 };
 
 /********************************************************************************************/
@@ -63,19 +74,19 @@ typedef handle IFBEngineMemoryRegion;
 
 namespace ifb_engine_memory {
 
-    external IFBEngineMemoryRegion
+    external const IFBEngineMemoryRegion
     region_create(
         const IFBEngineMemoryReservation reservation,
         const char*                      tag_value,
         const size_t                     minimum_size,
         const size_t                     arena_minimum_size);
 
-    external size_t region_space_total    (const IFBEngineMemoryRegion region);
-    external size_t region_space_free     (const IFBEngineMemoryRegion region);
-    external size_t region_space_occupied (const IFBEngineMemoryRegion region);
-    external size_t region_page_size      (const IFBEngineMemoryRegion region);
-    external size_t region_page_count     (const IFBEngineMemoryRegion region);
-    external size_t region_arena_count    (const IFBEngineMemoryRegion region);
+    external const size_t region_space_total    (const IFBEngineMemoryRegion region);
+    external const size_t region_space_free     (const IFBEngineMemoryRegion region);
+    external const size_t region_space_occupied (const IFBEngineMemoryRegion region);
+    external const size_t region_page_size      (const IFBEngineMemoryRegion region);
+    external const size_t region_page_count     (const IFBEngineMemoryRegion region);
+    external const size_t region_arena_count    (const IFBEngineMemoryRegion region);
 };
 
 /********************************************************************************************/
