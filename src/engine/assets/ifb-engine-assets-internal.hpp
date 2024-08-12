@@ -20,6 +20,8 @@ struct IFBEngineAssetsFileIndexTable;
 //memory
 struct IFBEngineAssetsMemory;
 struct IFBEngineAssetsMemoryRegions;
+struct IFBEngineAssetsMemoryBlock_Impl;
+struct IFBEngineAssetsMemoryBlockAllocator;
 
 /********************************************************************************************/
 /* FILE                                                                                     */
@@ -33,22 +35,16 @@ struct IFBEngineAssetsFileIndex {
 };
 
 struct IFBEngineAssetsFileIndexTable {
-    IFBEngineMemoryArena      arena;
-    size_t                    index_count;
-    IFBEngineAssetsFileIndex* indexes;    
+    IFBEngineAssetsMemoryBlock_Impl* block;
+    size_t                           index_count;
+    IFBEngineAssetsFileIndex*        indexes;    
 };
 
-struct IFBEngineAssetsFileReadBuffer {
-    IFBEngineMemoryArena arena;
-    memory               start;
-    size_t               size;
-};
 
 struct IFBEngineAssetsFile {
-    IFBEngineAssetsType           type;
-    handle                        file_handle;
-    IFBEngineAssetsFileIndexTable index_table;
-    IFBEngineAssetsFileReadBuffer read_buffer
+    IFBEngineAssetsType              type;
+    handle                           file_handle;
+    IFBEngineAssetsFileIndexTable    index_table;
 };
 
 struct IFBEngineAssetsFileTable {
@@ -64,7 +60,7 @@ struct IFBEngineAssetsFileTable {
 
 namespace ifb_engine_assets {
 
-    internal void file_table_create ();
+    internal void file_table_create (void);
     internal void file_open         (const IFBEngineAssetsType type);
     internal void file_close        (const IFBEngineAssetsType type);
 };
@@ -74,11 +70,11 @@ namespace ifb_engine_assets {
 /********************************************************************************************/
 
 struct IFBEngineAssetsMemoryBlock_Impl {
-    IFBEngineMemoryArena        arena;
-    IFBEngineAssetsMemoryBlock* next;
-    IFBEngineAssetsMemoryBlock* previous;
-    size_t                      size_t;
-    memory                      start;
+    IFBEngineMemoryArena             arena;
+    IFBEngineAssetsMemoryBlock_Impl* next;
+    IFBEngineAssetsMemoryBlock_Impl* previous;
+    size_t                           size;
+    memory                           start;
 };
 
 struct IFBEngineAssetsMemoryBlockAllocator {
@@ -99,8 +95,8 @@ namespace ifb_engine_assets {
     internal void memory_reserve(void);
     internal void memory_release(void);
     
-    internal IFBEngineAssetsMemoryBlock* memory_block_commit   (const size_t size);
-    internal void                        memory_block_decommit (const IFBEngineAssetsMemoryBlock* block); 
+    internal const IFBEngineAssetsMemoryBlock* memory_block_commit   (const size_t size);
+    internal       void                        memory_block_decommit (const IFBEngineAssetsMemoryBlock* block); 
 };
 
 /********************************************************************************************/
@@ -108,8 +104,8 @@ namespace ifb_engine_assets {
 /********************************************************************************************/
 
 struct IFBEngineAssetsContext {
-    IFBEngineAssetsMemory memory;
-    IFBEngineAssetsFiles  files;    
+    IFBEngineAssetsMemory    memory;
+    IFBEngineAssetsFileTable file_table;    
 };
 
 namespace ifb_engine_assets {

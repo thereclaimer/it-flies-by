@@ -71,8 +71,8 @@ typedef handle IFBEngineAssetsMemoryBlock;
 struct IFBEngineAssetsData {
     IFBEngineAssetsMemoryBlock block;
     IFBEngineAssetsType        type;
-    IFBEngineAssetsId          id
-    size_t                     size;                          6
+    IFBEngineAssetsId          id;
+    size_t                     size;
     memory                     start;
 };
 
