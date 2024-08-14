@@ -72,15 +72,15 @@ ifb_engine_assets::memory_release(
 }
 
 internal const IFBEngineMemoryArena
-ifb_engine_assets::memory_arena_index_commit(
+ifb_engine_assets::memory_arena_file_commit(
     void) {
 
-    const IFBEngineMemoryArena index_arena = 
-        ifb_engine_memory::arena_commit(asset_memory.regions.index);
+    const IFBEngineMemoryArena file_arena = 
+        ifb_engine_memory::arena_commit(asset_memory.regions.file);
 
-    ifb_assert(index_arena);
+    ifb_assert(file_arena);
 
-    return(index_arena);
+    return(file_arena);
 }
 
 internal const IFBEngineMemoryArena 

@@ -13,10 +13,9 @@
 //--------------------------------
 // assets
 //--------------------------------
-#include "ifb-engine-assets.cpp"
-#include "ifb-engine-assets-memory.cpp"
+#include "ifb-engine-assets-data.cpp"
 #include "ifb-engine-assets-file.cpp"
-#include "ifb-engine-assets-data-table.cpp"
+#include "ifb-engine-assets-memory.cpp"
 
 //--------------------------------
 // RENDERER
