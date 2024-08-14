@@ -51,7 +51,6 @@ namespace ifb_engine_assets {
     external size_t file_assets_count (const IFBEngineAssetsType type);
 }
 
-
 /********************************************************************************************/
 /* CONTEXT                                                                                  */
 /********************************************************************************************/
@@ -63,36 +62,32 @@ namespace ifb_engine_assets {
 };
 
 /********************************************************************************************/
-/* DATA                                                                                     */
+/* REQUEST                                                                                  */
 /********************************************************************************************/
 
-typedef handle IFBEngineAssetsMemoryBlock;
-
-struct IFBEngineAssetsData {
-    IFBEngineAssetsMemoryBlock block;
-    IFBEngineAssetsType        type;
-    IFBEngineAssetsId          id;
-    size_t                     size;
-    memory                     start;
-};
-
-struct IFBEngineAssetsDataArray {
-    IFBEngineAssetsMemoryBlock block;
-    size_t                     count;
-    IFBEngineAssetsData*       data;  
-};
+typedef handle IFBEngineAssetsRequest;
+typedef handle IFBEngineAssetsData;
 
 namespace ifb_engine_assets {
 
-    external IFBEngineAssetsDataArray* 
-    data_load(
-        const size_t               asset_count,
-        const IFBEngineAssetId*    asset_ids);
-
-    external void 
-    data_unload(
-        const IFBEngineAssetsData* asset_data);
+    external const IFBEngineAssetsRequest request_create          (const size_t asset_count);
+    external const bool                   request_push_id         (const IFBEngineAssetId asset_id);
+    external const bool                   request_process         (const IFBEngineAssetsRequest request);
+    external const IFBEngineAssetsData    request_asset_data_list (const IFBEngineAssetsRequest request);
+    external       void                   request_destroy         (const IFBEngineAssetsRequest request);
 };
+
+/********************************************************************************************/
+/* DATA                                                                                     */
+/********************************************************************************************/
+
+namespace ifb_engine_assets {
+
+    external const IFBEngineAssetsData data_next     (const IFBEngineAssetsData data);
+    external const size_t              data_size     (const IFBEngineAssetsData data);
+    external const memory              data_start    (const IFBEngineAssetsData data); 
+    external const IFBEngineAssetId    data_asset_id (const IFBEngineAssetsData data); 
+}
 
 /********************************************************************************************/
 /* SHADERS                                                                                  */

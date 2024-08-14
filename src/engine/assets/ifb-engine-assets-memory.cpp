@@ -1,99 +1,115 @@
+#pragma once
+
 #include "ifb-engine-assets-new.hpp"
 #include "ifb-engine-assets-internal.hpp"
 
-internal void
+global IFBEngineAssetsMemory asset_memory;
+
+internal void 
 ifb_engine_assets::memory_reserve(
     void) {
 
-    //get the memory from the context
-    IFBEngineAssetsContext& context      = context_get();
-    IFBEngineAssetsMemory&  asset_memory = context.memory;
+    asset_memory = {0};
 
-    const size_t asset_memory_size    = ifb_engine_memory_megabytes(64);
-    const size_t asset_allocator_size = ifb_engine_memory_megabytes(64);
-    const size_t asset_arena_size     = ifb_engine_memory_kilobytes(64);
+    //sizes
+    const size_t asset_reservation_size    = ifb_engine_memory_gigabytes(1);
+
+    const size_t asset_region_size_file    = ifb_engine_memory_kilobytes(64);
+    const size_t asset_region_size_request = ifb_engine_memory_kilobytes(64);
+    const size_t asset_region_size_data    = ifb_engine_memory_megabytes(512);
+
+    const size_t asset_arena_size_file    = ifb_engine_memory_kilobytes(4);
+    const size_t asset_arena_size_request = ifb_engine_memory_kilobytes(4);
+    const size_t asset_arena_size_data    = ifb_engine_memory_kilobytes(64);
 
     //make the reservation
-    asset_memory.reservation = 
+    const IFBEngineMemoryReservation asset_reservation = 
         ifb_engine_memory::reserve_memory(
             "ASSETS",
-            asset_memory_size,
+            asset_reservation_size,
             IFBEngineMemoryPageType_Small);
-    ifb_assert(asset_memory.reservation);
+    ifb_assert(asset_reservation);
 
-    //create the region for the allocator
-    asset_memory.block_allocator.block_size = asset_arena_size;
-    asset_memory.block_allocator.blocks     = NULL;
-    asset_memory.block_allocator.total_size =  asset_allocator_size;
-    asset_memory.block_allocator.region     = 
+
+    //create the regions
+    const IFBEngineMemoryRegion asset_region_file = 
         ifb_engine_memory::region_create(
-            asset_memory.reservation,
-            "ASSET BLOCK ALLOCATOR",
-            asset_allocator_size,
-            asset_arena_size);
-    ifb_assert(asset_memory.block_allocator.region);
-}
+            asset_reservation,
+            "ASSET FILES",
+            asset_region_size_file,
+            asset_arena_size_file);
+    ifb_assert(asset_region_file);
 
-internal void
-ifb_engine_assets::memory_release(
-    void) {
+    const IFBEngineMemoryRegion asset_region_request = 
+        ifb_engine_memory::region_create(
+            asset_reservation,
+            "ASSET REQUESTS",
+            asset_region_size_request,
+            asset_arena_size_request);
+    ifb_assert(asset_region_request);
 
-    IFBEngineAssetsContext& context = context_get();
-    ifb_engine_memory::release_memory(context.memory.reservation);
-}
+    const IFBEngineMemoryRegion asset_region_data = 
+        ifb_engine_memory::region_create(
+            asset_reservation,
+            "ASSET DATA",
+            asset_region_size_data,
+            asset_arena_size_data);
+    ifb_assert(asset_region_data);
 
-  
-internal const IFBEngineAssetsMemoryBlock* 
-ifb_engine_assets::memory_block_commit(
-    const size_t size) {
-
-    IFBEngineAssetsContext& context                       = context_get();
-    IFBEngineAssetsMemoryBlockAllocator&  block_allocator = context.memory.block_allocator;
-
-    ifb_assert(size <= block_allocator.block_size);
-
-    //get an arena
-    IFBEngineMemoryArena arena = ifb_engine_memory::arena_commit(block_allocator.region);
-    ifb_assert(arena);
-
-    //reserve the block
-    IFBEngineAssetsMemoryBlock_Impl* memory_block = 
-        (IFBEngineAssetsMemoryBlock_Impl*)ifb_engine_memory::arena_push_bytes(
-            sizeof(IFBEngineAssetsMemoryBlock));
-    
-    //reserve space for the asset
-    memory asset_memory = ifb_engine_memory::arena_push_bytes(size);
-
-    //initialize the block and return
-    memory_block->arena    = arena;
-    memory_block->size     = size;
-    memory_block->next     = block_allocator.blocks;
-    memory_block->previous = NULL;
-    block_allocator.blocks->previous = memory_block;
-    block_allocator.blocks = memory_block;
-
-    return(memory_block);    
+    //initialize the struct
+    asset_memory.reservation     = asset_reservation;
+    asset_memory.regions.file    = asset_region_file;
+    asset_memory.regions.request = asset_region_request;
+    asset_memory.regions.data    = asset_region_data;
 }
 
 internal void 
-ifb_engine_assets::memory_block_decommit (
-    const IFBEngineAssetsMemoryBlock* block) {
+ifb_engine_assets::memory_release(
+    void) {
 
-    IFBEngineAssetsMemoryBlock_Impl* block_impl = (IFBEngineAssetsMemoryBlock_Impl*)block;
+    ifb_engine_memory::release_memory(asset_memory.reservation);
+    asset_memory = {0}; 
+}
 
-    ifb_assert(block_impl && block_impl->arena);
+internal const IFBEngineMemoryArena
+ifb_engine_assets::memory_arena_index_commit(
+    void) {
 
-    //update the list
-    IFBEngineAssetsMemoryBlock_Impl* previous = block_impl->previous;
-    IFBEngineAssetsMemoryBlock_Impl* next     = block_impl->next;
+    const IFBEngineMemoryArena index_arena = 
+        ifb_engine_memory::arena_commit(asset_memory.regions.index);
 
-    if (previous) {
-        previous->next = next;
-    }
-    if (next) {
-        next->previous = previous;
-    }
+    ifb_assert(index_arena);
 
-    //decommit the arena
-    ifb_engine_memory::arena_decommit(block_impl->arena);
-} 
+    return(index_arena);
+}
+
+internal const IFBEngineMemoryArena 
+ifb_engine_assets::memory_arena_request_commit(
+    void) {
+
+    const IFBEngineMemoryArena request_arena = 
+        ifb_engine_memory::arena_commit(asset_memory.regions.request);
+
+    ifb_assert(request_arena);
+
+    return(request_arena);
+}
+
+internal const IFBEngineMemoryArena 
+ifb_engine_assets::memory_arena_data_commit(
+    void) {
+
+    const IFBEngineMemoryArena data_arena = 
+        ifb_engine_memory::arena_commit(asset_memory.regions.data);
+
+    ifb_assert(data_arena);
+
+    return(data_arena);
+}
+
+internal void 
+ifb_engine_assets::memory_arena_decommit(
+    const IFBEngineMemoryArena arena) {
+
+    ifb_engine_memory::arena_decommit(arena);
+}

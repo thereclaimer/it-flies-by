@@ -71,15 +71,6 @@ struct IFBEngineAssetsMemory {
     IFBEngineAssetsMemoryRegions regions;
 };
 
-namespace ifb_engine_assets {
-
-    memory_reserve();
-
-    memory_allocate_asset();
-
-    memory_release();
-};
-
 //---------------------------------
 // ASSET FILE
 //---------------------------------
