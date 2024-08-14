@@ -3,7 +3,7 @@
 #include "ifb-engine-memory.hpp"
 #include "ifb-engine-memory-internal.hpp"
 
-external IFBEngineMemoryRegion
+external const IFBEngineMemoryRegion
 ifb_engine_memory::region_create(
     const IFBEngineMemoryReservation reservation,
     const char*                      tag_value,
@@ -14,7 +14,7 @@ ifb_engine_memory::region_create(
     ifb_assert(reservation_impl);
 
     //get the start and size of the region
-    const memory region_start = ifb_engine_memory::reservation_position(reservation);
+    const memory region_start = ifb_engine_memory::reservation_position(reservation_impl);
     const size_t region_size  = ifb_engine_memory::reservation_align_to_page_size(reservation,minimum_size);
 
     //get the arena and arena list size
@@ -31,7 +31,7 @@ ifb_engine_memory::region_create(
 
     //commit the memory for tracking
     IFBEngineMemoryRegion_Impl* region_impl =
-        ifb_engine_platform_memory_commit(
+        (IFBEngineMemoryRegion_Impl*)ifb_engine_platform_memory_commit(
             region_memory_offset,
             region_memory_size);
     ifb_assert(region_impl);
@@ -47,8 +47,8 @@ ifb_engine_memory::region_create(
         IFBEngineMemoryArena_Impl* current_arena  = &arena_list[arena_index];
         IFBEngineMemoryArena_Impl* previous_arena = arena_index == 0 ? NULL : &arena_list[arena_index - 1];
 
-        if (previous) {
-            previous_arena->next = current;
+        if (previous_arena) {
+            previous_arena->next = current_arena;
         }
 
         memory reserved_memory_start = region_start + (arena_size * arena_index);
@@ -58,32 +58,33 @@ ifb_engine_memory::region_create(
         current_arena->previous               = previous_arena;
         current_arena->reserved_memory_start  = reserved_memory_start; 
         current_arena->committed_memory_start = NULL;
-        current_arena->commit                 = NULL;
         current_arena->size                   = 0;
         current_arena->position               = 0;
     }
 
     //initialize the structure
-    region_impl->reservation        = reservation;
+    region_impl->reservation        = reservation_impl;
     region_impl->next               = NULL;
     region_impl->previous           = NULL;
     region_impl->committed_arenas   = NULL;
     region_impl->uncommitted_arenas = arena_list;
     region_impl->start              = region_start;
     region_impl->total_size         = region_size + region_memory_size;
-    region_impl->region_size        = region_size;
+    region_impl->useable_size       = region_size;
     region_impl->arena_list_size    = arena_list_size;
     region_impl->arena_count        = arena_count;
     region_impl->tag                = ifb_tag(tag_value);
 
     //add the region to the list
-    ifb_engine_memory::reservation_add_region(region_impl);
+    ifb_engine_memory::reservation_add_region(
+        reservation_impl,
+        region_impl);
 
     //return the region
     return(region_impl);
 }
 
-external size_t
+external const size_t
 ifb_engine_memory::region_space_total(
     const IFBEngineMemoryRegion region) {
 
@@ -93,27 +94,37 @@ ifb_engine_memory::region_space_total(
     return(region_impl->total_size);
 }
 
-external size_t
+external const size_t 
+region_space_useable (
+    const IFBEngineMemoryRegion region) {
+
+    IFBEngineMemoryRegion_Impl* region_impl = (IFBEngineMemoryRegion_Impl*)region;
+    ifb_assert(region_impl);
+
+    return(region_impl->useable_size);
+}
+
+external const size_t
 ifb_engine_memory::region_space_free(
     const IFBEngineMemoryRegion region) {
 
     IFBEngineMemoryRegion_Impl* region_impl = (IFBEngineMemoryRegion_Impl*)region;
     ifb_assert(region_impl);
 
-    size_t space_free = region_impl->region_size;
+    size_t space_free = region_impl->useable_size;
 
     for (
         IFBEngineMemoryArena_Impl* arena = region_impl->committed_arenas;
         arena != NULL && arena->next != NULL;
         arena = arena->next) {
 
-        space_free -= arena->total_size;
+        space_free -= arena->size;
     }
 
     return(space_free);        
 }
 
-external size_t
+external const size_t
 ifb_engine_memory::region_space_occupied(
     const IFBEngineMemoryRegion region) {
 
@@ -127,13 +138,13 @@ ifb_engine_memory::region_space_occupied(
         arena != NULL && arena->next != NULL;
         arena = arena->next) {
 
-        space_occupied += arena->total_size;
+        space_occupied += arena->size;
     }
 
     return(space_occupied);
 }
 
-external size_t
+external const size_t
 ifb_engine_memory::region_page_size(
     const IFBEngineMemoryRegion region) {
 
@@ -143,7 +154,7 @@ ifb_engine_memory::region_page_size(
     return(region_impl->reservation->page_size);
 }
 
-external size_t
+external const size_t
 ifb_engine_memory::region_page_count(
     const IFBEngineMemoryRegion region) {
 
@@ -151,12 +162,12 @@ ifb_engine_memory::region_page_count(
     ifb_assert(region_impl);
 
     const size_t page_size  = region_impl->reservation->page_size;
-    const size_t page_count = region_impl->region_size / page_size; 
+    const size_t page_count = region_impl->useable_size / page_size; 
 
     return(page_count);
 }
 
-external size_t
+external const size_t
 ifb_engine_memory::region_arena_count(
     const IFBEngineMemoryRegion region) {
 

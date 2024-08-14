@@ -11,6 +11,14 @@
 #define ifb_engine_memory_gigabytes(n) ifb_engine_memory_megabytes(n) * 1024
 
 /********************************************************************************************/
+/* FORWARD DECLARATIONS                                                                     */
+/********************************************************************************************/
+
+typedef handle IFBEngineMemoryReservation;
+typedef handle IFBEngineMemoryRegion;
+typedef handle IFBEngineMemoryArena;
+
+/********************************************************************************************/
 /* CONTEXT                                                                                  */
 /********************************************************************************************/
 
@@ -40,10 +48,6 @@ namespace ifb_engine_memory {
 /* RESERVATION                                                                              */
 /********************************************************************************************/
 
-typedef handle IFBEngineMemoryReservation;
-
-
-
 namespace ifb_engine_memory {
 
     external const IFBEngineMemoryReservation 
@@ -52,13 +56,15 @@ namespace ifb_engine_memory {
         const size_t                  minimum_size,
         const IFBEngineMemoryPageType page_type);
     
-    external       void   release_memory                 (const IFBEngineMemoryReservation reservation);
-    external const size_t reservation_space_total        (const IFBEngineMemoryReservation reservation);
-    external const size_t reservation_space_free         (const IFBEngineMemoryReservation reservation);
-    external const size_t reservation_space_occupied     (const IFBEngineMemoryReservation reservation);
-    external const size_t reservation_page_size          (const IFBEngineMemoryReservation reservation);
-    external const size_t reservation_page_count         (const IFBEngineMemoryReservation reservation);
-    external const size_t reservation_region_count       (const IFBEngineMemoryReservation reservation);
+    external       void                  release_memory             (const IFBEngineMemoryReservation reservation);
+    external const size_t                reservation_space_total    (const IFBEngineMemoryReservation reservation);
+    external const size_t                reservation_space_useable  (const IFBEngineMemoryReservation reservation);
+    external const size_t                reservation_space_free     (const IFBEngineMemoryReservation reservation);
+    external const size_t                reservation_space_occupied (const IFBEngineMemoryReservation reservation);
+    external const size_t                reservation_page_size      (const IFBEngineMemoryReservation reservation);
+    external const size_t                reservation_page_count     (const IFBEngineMemoryReservation reservation);
+    external const size_t                reservation_region_count   (const IFBEngineMemoryReservation reservation);
+    external const IFBEngineMemoryRegion reservation_region_list    (const IFBEngineMemoryReservation reservation);
 
     external const size_t 
     reservation_align_to_page_size (
@@ -70,8 +76,6 @@ namespace ifb_engine_memory {
 /* REGION                                                                                   */
 /********************************************************************************************/
 
-typedef handle IFBEngineMemoryRegion;
-
 namespace ifb_engine_memory {
 
     external const IFBEngineMemoryRegion
@@ -82,6 +86,7 @@ namespace ifb_engine_memory {
         const size_t                     arena_minimum_size);
 
     external const size_t region_space_total    (const IFBEngineMemoryRegion region);
+    external const size_t region_space_useable  (const IFBEngineMemoryRegion region);
     external const size_t region_space_free     (const IFBEngineMemoryRegion region);
     external const size_t region_space_occupied (const IFBEngineMemoryRegion region);
     external const size_t region_page_size      (const IFBEngineMemoryRegion region);
@@ -93,21 +98,20 @@ namespace ifb_engine_memory {
 /* ARENA                                                                                    */
 /********************************************************************************************/
 
-typedef handle IFBEngineMemoryArena;
-
 namespace ifb_engine_memory {
 
-    external IFBEngineMemoryArena arena_commit         (const IFBEngineMemoryRegion region); 
-    external void                 arena_decommit       (const IFBEngineMemoryArena arena); 
-    external void                 arena_clear          (const IFBEngineMemoryArena arena); 
-    external size_t               arena_space_total    (const IFBEngineMemoryArena arena);
-    external size_t               arena_space_free     (const IFBEngineMemoryArena arena);
-    external size_t               arena_space_occupied (const IFBEngineMemoryArena arena);
-    external size_t               arena_page_size      (const IFBEngineMemoryArena arena);
-    external size_t               arena_page_count     (const IFBEngineMemoryArena arena);
+    external const IFBEngineMemoryArena arena_commit         (const IFBEngineMemoryRegion region); 
+    external const size_t               arena_space_total    (const IFBEngineMemoryArena  arena);
+    external const size_t               arena_space_free     (const IFBEngineMemoryArena  arena);
+    external const size_t               arena_space_occupied (const IFBEngineMemoryArena  arena);
+    external const size_t               arena_page_size      (const IFBEngineMemoryArena  arena);
+    external const size_t               arena_page_count     (const IFBEngineMemoryArena  arena);
 
-    external memory arena_push_bytes (const IFBEngineMemoryArena arena, const size_t size);
-    external memory arena_pull_bytes (const IFBEngineMemoryArena arena, const size_t size);
+    external void arena_decommit (const IFBEngineMemoryArena arena); 
+    external void arena_clear    (const IFBEngineMemoryArena arena); 
+    
+    external const memory arena_push_bytes (const IFBEngineMemoryArena arena, const size_t size);
+    external const memory arena_pull_bytes (const IFBEngineMemoryArena arena, const size_t size);
 }
 
 /********************************************************************************************/

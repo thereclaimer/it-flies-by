@@ -91,7 +91,6 @@ ifb_win32_api_read_file(
     ifb_assert(allocated_buffer);
 
     OVERLAPPED overlapped = {0};
-
     overlapped.Offset = offset;
 
     u64 adjusted_size   = terminate ? allocated_buffer_size - 1 : allocated_buffer_size;

@@ -46,7 +46,7 @@ struct IFBEngineMemoryReservation_Impl {
     IFBTag                           tag;
     IFBEngineMemoryPageType          page_type;
     u64                              owner_thread;
-    size_t                           reservation_size;
+    size_t                           useable_size;
     size_t                           total_size;
     size_t                           page_size;
 };
@@ -73,7 +73,7 @@ struct IFBEngineMemoryRegion_Impl {
     IFBEngineMemoryArena_Impl*       uncommitted_arenas; 
     memory                           start;
     size_t                           total_size;
-    size_t                           region_size;
+    size_t                           useable_size;
     size_t                           arena_list_size;
     size_t                           arena_count;
     IFBTag                           tag;

@@ -33,12 +33,12 @@ external void
 ifb_engine_memory::arena_decommit(
     const IFBEngineMemoryArena arena) {
 
-    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*);
+    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*)arena;
     ifb_assert(arena_impl && arena_impl->committed_memory_start);
 
     //decommit the memory
     ifb_engine_platform_memory_decommit(
-        arena_impl->committed_memory_start;
+        arena_impl->committed_memory_start,
         arena_impl->size);
 
     //reset the arena
@@ -58,11 +58,14 @@ external void
 ifb_engine_memory::arena_clear(
     const IFBEngineMemoryArena arena) {
 
-    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*);
+    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*)arena;
     ifb_assert(arena_impl && arena_impl->committed_memory_start);
 
     arena_impl->position = 0;
-    memset(arena_impl->committed_memory_start,arena_impl->size);
+    memset(
+        arena_impl->committed_memory_start,\
+        0,
+        arena_impl->size);
 
 } 
 
@@ -70,7 +73,7 @@ external const size_t
 ifb_engine_memory::arena_space_total(
     const IFBEngineMemoryArena arena) {
 
-    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*);
+    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*)arena;
     ifb_assert(arena_impl && arena_impl->committed_memory_start);
 
     return(arena_impl->size);
@@ -80,7 +83,7 @@ external const size_t
 ifb_engine_memory::arena_space_free(
     const IFBEngineMemoryArena arena) {
 
-    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*);
+    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*)arena;
     ifb_assert(arena_impl && arena_impl->committed_memory_start);
 
     const size_t space_free = arena_impl->size - arena_impl->position;
@@ -92,7 +95,7 @@ external const size_t
 ifb_engine_memory::arena_space_occupied(
     const IFBEngineMemoryArena arena) {
 
-    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*);
+    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*)arena;
     ifb_assert(arena_impl && arena_impl->committed_memory_start);
 
     return(arena_impl->position);
@@ -102,7 +105,7 @@ external const size_t
 ifb_engine_memory::arena_page_size(
     const IFBEngineMemoryArena arena) {
 
-    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*);
+    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*)arena;
     ifb_assert(arena_impl && arena_impl->committed_memory_start);
 
     const size_t page_size = ifb_engine_memory::region_page_size(arena_impl->region);
@@ -114,7 +117,8 @@ external const size_t
 ifb_engine_memory::arena_page_count(
     const IFBEngineMemoryArena arena) {
 
-    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*);
+    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*)arena;
+
     ifb_assert(arena_impl && arena_impl->committed_memory_start);
 
     const size_t page_size  = ifb_engine_memory::region_page_size(arena_impl->region);
@@ -129,7 +133,8 @@ ifb_engine_memory::arena_push_bytes (
     const IFBEngineMemoryArena arena,
     const size_t               size) {
 
-    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*);
+    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*)arena;
+
     ifb_assert(arena_impl && arena_impl->committed_memory_start);
     
     size_t new_position = 
@@ -151,7 +156,8 @@ ifb_engine_memory::arena_pull_bytes (
     const IFBEngineMemoryArena arena,
     const size_t               size) {
 
-    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*);
+    IFBEngineMemoryArena_Impl* arena_impl = (IFBEngineMemoryArena_Impl*)arena;
+
     ifb_assert(
         arena_impl && 
         arena_impl->committed_memory_start &&

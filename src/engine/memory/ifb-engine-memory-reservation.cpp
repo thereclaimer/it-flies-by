@@ -1,4 +1,4 @@
-xxxxx#pragma once
+#pragma once
 
 #include "ifb-engine-memory.hpp"
 #include "ifb-engine-memory-internal.hpp"
@@ -23,29 +23,29 @@ ifb_engine_memory::reserve_memory(
     //make the reservation
     memory reserved_memory = 
         page_type == IFBEngineMemoryPageType_Small
-        ? ifb_engine_platform_memory_reserve_small_pages()
-        : ifb_engine_platform_memory_reserve_large_pages();
+        ? ifb_engine_platform_memory_reserve_small_pages(reservation_size)
+        : ifb_engine_platform_memory_reserve_large_pages(reservation_size);
     ifb_assert(reserved_memory);
 
     //commit the area we are using for the struct
     const memory struct_start = reserved_memory + reservation_size;
     IFBEngineMemoryReservation_Impl* reservation_impl = 
-        ifb_engine_platform_memory_commit(
+        (IFBEngineMemoryReservation_Impl*)ifb_engine_platform_memory_commit(
             struct_start,
             aligned_struct_size);
     ifb_assert(reservation_impl);
 
     //initialize the struct
-    reservation_impl->next             = NULL;
-    reservation_impl->previous         = NULL;
-    reservation_impl->regions          = NULL;
-    reservation_impl->start            = reserved_memory;
-    reservation_impl->tag              = ifb_tag(tag_value);
-    reservation_impl->page_type        = page_type;
-    reservation_impl->owner_thread     = ifb_engine_platform_thread_id();
-    reservation_impl->reservation_size = reservation_size;
-    reservation_impl->total_size       = total_reservation_size;
-    reservation_impl->page_size        = page_size;
+    reservation_impl->next         = NULL;
+    reservation_impl->previous     = NULL;
+    reservation_impl->regions      = NULL;
+    reservation_impl->start        = reserved_memory;
+    reservation_impl->tag          = ifb_tag(tag_value);
+    reservation_impl->page_type    = page_type;
+    reservation_impl->owner_thread = ifb_engine_platform_thread_id();
+    reservation_impl->useable_size = reservation_size;
+    reservation_impl->total_size   = total_reservation_size;
+    reservation_impl->page_size    = page_size;
 
     //add the reservation to the list
     ifb_engine_memory::context_add_reservation(reservation_impl);
@@ -54,7 +54,7 @@ ifb_engine_memory::reserve_memory(
     return(reservation_impl);
 }
 
-external const size_t
+external void
 ifb_engine_memory::release_memory(
     const IFBEngineMemoryReservation reservation) {
     
@@ -77,8 +77,19 @@ ifb_engine_memory::reservation_space_total(
     IFBEngineMemoryReservation_Impl* reservation_impl = (IFBEngineMemoryReservation_Impl*)reservation; 
     ifb_assert(reservation_impl && reservation_impl->start);
 
-    return(reservation_impl->reservation_size);
+    return(reservation_impl->total_size);
 }
+
+external const size_t 
+reservation_space_useable(
+    const IFBEngineMemoryReservation reservation) {
+
+    IFBEngineMemoryReservation_Impl* reservation_impl = (IFBEngineMemoryReservation_Impl*)reservation; 
+    ifb_assert(reservation_impl && reservation_impl->start);
+
+    return(reservation_impl->useable_size);
+}
+
 
 external const size_t
 ifb_engine_memory::reservation_space_free(
@@ -87,11 +98,11 @@ ifb_engine_memory::reservation_space_free(
     IFBEngineMemoryReservation_Impl* reservation_impl = (IFBEngineMemoryReservation_Impl*)reservation; 
     ifb_assert(reservation_impl && reservation_impl->start);
 
-    size_t space_free = reservation_impl->reservation_size;
+    size_t space_free = reservation_impl->useable_size;
 
     for (
-        IFBEngineMemoryRegion_Impl* region = reservation_impl->used_regions;
-        region != NULL && region->next != NULL;
+        IFBEngineMemoryRegion_Impl* region = reservation_impl->regions;
+        region != NULL;
         region = region->next) {
 
         space_free -= region->total_size;
@@ -110,8 +121,8 @@ ifb_engine_memory::reservation_space_occupied(
     size_t space_occupied = 0;
 
     for (
-        IFBEngineMemoryRegion_Impl* region = reservation_impl->used_regions;
-        region != NULL && region->next != NULL;
+        IFBEngineMemoryRegion_Impl* region = reservation_impl->regions;
+        region != NULL;
         region = region->next) {
 
         space_occupied += region->total_size;
@@ -137,7 +148,7 @@ ifb_engine_memory::reservation_page_count(
     IFBEngineMemoryReservation_Impl* reservation_impl = (IFBEngineMemoryReservation_Impl*)reservation; 
     ifb_assert(reservation_impl && reservation_impl->start);
 
-    const size_t page_count = reservation_impl->reservation_size / reservation_impl->page_size;
+    const size_t page_count = reservation_impl->useable_size / reservation_impl->page_size;
 
     return(page_count);
 }
@@ -152,8 +163,8 @@ ifb_engine_memory::reservation_region_count(
     size_t region_count = 0;
 
     for (
-        IFBEngineMemoryRegion_Impl* region = reservation_impl->used_regions;
-        region != NULL && region->next != NULL;
+        IFBEngineMemoryRegion_Impl* region = reservation_impl->regions;
+        region != NULL; 
         region = region->next) {
 
         ++region_count;
@@ -203,12 +214,14 @@ reservation_position(
 
 internal void 
 reservation_add_region(
-    const IFBEngineMemoryReservation_Impl* reservation,
-    const IFBEngineMemoryRegion_Impl*      region) {
+    IFBEngineMemoryReservation_Impl* reservation,
+    IFBEngineMemoryRegion_Impl*      region) {
 
     ifb_assert(reservation && region);
 
     region->next = reservation->regions;
-    reservation->regions->previous = region;
+    if (reservation->regions->previous) {
+        reservation->regions->previous = region;
+    }
     reservation->regions = region;
 }
