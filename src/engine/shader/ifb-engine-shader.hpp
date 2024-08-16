@@ -1,73 +1,64 @@
 #ifndef IFB_ENGINE_SHADER_HPP
 #define IFB_ENGINE_SHADER_HPP
 
+#include <ifb.hpp>
 #include "ifb-engine-memory.hpp"
-#include "ifb-engine-assets.hpp"
-#include "ifb-engine-opengl.hpp"
 
-struct IFBEngineShader;
-struct IFBEngineShaderManager;
-struct IFBEngineShaderMemory;
+typedef handle IFBEngineShader;
 
-enum IFBEngineShaderId_ {
-     IFBEngineShaderId_SolidQuad    = 0,
-     IFBEngineShaderId_TexturedQuad = 1,
-     IFBEngineShaderId_Count        = 2,
+/********************************************************************************************/
+/* SHADER MANAGER                                                                           */
+/********************************************************************************************/
+
+namespace ifb_engine_shader {
+
+    internal void manager_create  (void);
+    internal void manager_destroy (void);
 };
 
-typedef u32 IFBEngineShaderId;
 
-/*****************/
-/* SHADER MEMORY */
-/*****************/
+/********************************************************************************************/
+/* SHADER STAGE                                                                             */
+/********************************************************************************************/
 
-#define IFB_ENGINE_SHADER_MEMORY_SIZE IFB_MATH_MEGABYTES(64);
+typedef handle IFBEngineShaderStage;
 
-struct IFBEngineShaderMemory {
-    IFBEngineMemoryRegionPtr             region;
-    struct {
-    } arenas;
-    struct {
-        IFBEngineMemoryArenaAllocatorPtr arena_4kb;
-    } allocators;
+enum IFBEngineShaderStageType_ {
+    IFBEngineShaderStageType_Vertex   = 0,
+    IFBEngineShaderStageType_Fragment = 1,
 };
 
-void
-ifb_engine_shader_memory_initialize(
-    IFBEngineShaderMemory& shader_memory);
+typedef u32 IFBEngineShaderStageType;
 
-IFBEngineOpenglShaderProgram*
-ifb_engine_shader_program_allocate(
-    u32 count);
+namespace ifb_engine_shader {
 
-IFBEngineOpenglShaderUniform*
-ifb_engine_shader_uniform_allocate(
-    u32 count);
+    external IFBEngineShaderStage 
+    shader_stage_load(
+        const IFBEngineShaderStageType type,
+        const char*                    shader_stage_buffer);
 
-/*******************/
-/* SHADER UNIFORMS */
-/*******************/
-
-struct IFBEngineShaderUniform {
-    IFBEngineOpenglShaderUniform gl;    
-    u64                          data_size;
-    memory                       data
+    external void
+    shader_stage_unload(
+        const IFBEngineShaderStage shader_stage);
 };
 
-/******************/
-/* SHADER MANAGER */
-/******************/
+/********************************************************************************************/
+/* SHADER PROGRAM                                                                           */
+/********************************************************************************************/
 
-struct IFBEngineShaderManager {
-    IFBEngineShaderMemory        memory;
-    IFBEngineAssetsShaderId      vertex_stage_asset_ids[IFBEngineShaderId_Count];
-    IFBEngineAssetsShaderId      fragment_stage_asset_ids[IFBEngineShaderId_Count];
-    IFBEngineOpenglShaderProgram gl_programs[IFBEngineShaderId_Count];
-     gl_uniforms[IFBEngineShaderId_Count];
+typedef handle IFBEngineShaderProgram;
 
+namespace ifb_engine_shader {
+
+    external const IFBEngineShaderProgram 
+    shader_program_compile(
+        const IFBEngineShaderStage shader_stage_vertex, 
+        const IFBEngineShaderStage shader_stage_fragment);
+
+    external void
+    shader_program_destroy(
+        const IFBEngineShaderProgram shader_program);
 };
 
-IFBEngineShaderManager*
-ifb_engine_shader_manager_create();
 
 #endif //IFB_ENGINE_SHADER_HPP
