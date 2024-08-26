@@ -1,37 +1,42 @@
 #ifndef IFB_ENGINE_MEMORY_INTERNAL_HPP
 #define IFB_ENGINE_MEMORY_INTERNAL_HPP
 
-#include "ifb-engine-memory.hpp"
+#define IFB_ENGINE_MEMORY_RESERVATIONS_MAX 128
+
+#include <ifb-engine-memory.hpp>
 
 /********************************************************************************************/
 /* FORWARD DECLARATIONS                                                                     */
 /********************************************************************************************/
 
-//context
-struct IFBEngineMemoryContext;
-
-//implementations
+struct IFBEngineMemoryManager;
+struct IFBEngineMemoryReservationTable;
 struct IFBEngineMemoryReservation_Impl;
-struct IFBEngineMemoryRegion_Impl;
+struct IFBEngineMemoryArenaTable;
 struct IFBEngineMemoryArena_Impl;
 
 /********************************************************************************************/
-/* CONTEXT                                                                                  */
+/* ARENA                                                                                    */
 /********************************************************************************************/
 
-struct IFBEngineMemoryContext {
-    size_t                           allocation_granularity;
-    size_t                           page_size_small;
-    size_t                           page_size_large;
-    u64                              owner_process_id;
-    IFBEngineMemoryReservation_Impl* reservations;
+struct IFBEngineMemoryArena_Impl {
+    memory reservation;
+    memory commit;
+    size_t position;
 };
 
-namespace ifb_engine_memory {
-
-    internal IFBEngineMemoryContext& context_get                (void);
-    internal void                    context_add_reservation    (IFBEngineMemoryReservation_Impl* reservation);
-    internal void                    context_remove_reservation (IFBEngineMemoryReservation_Impl* reservation);
+struct IFBEngineMemoryArenaTable {
+    size_t row_count;
+    size_t arena_size;
+    size_t reservation_index;
+    union {
+        memory table_start;
+        struct {
+            memory* reservation;
+            memory* commit;
+            size_t* position;
+        } columns;
+    };
 };
 
 /********************************************************************************************/
@@ -39,58 +44,40 @@ namespace ifb_engine_memory {
 /********************************************************************************************/
 
 struct IFBEngineMemoryReservation_Impl {
-    IFBEngineMemoryReservation_Impl* next;
-    IFBEngineMemoryReservation_Impl* previous;
-    IFBEngineMemoryRegion_Impl*      regions;
-    memory                           start;
-    IFBTag                           tag;
-    IFBEngineMemoryPageType          page_type;
-    u64                              owner_thread;
-    size_t                           useable_size;
-    size_t                           total_size;
-    size_t                           page_size;
+    IFBTag                    tag;
+    size_t                    size_total;
+    size_t                    size_usable;
+    size_t                    struct_size;
+    size_t                    struct_alignment;
+    size_t                    struct_count;
+    size_t                    struct_max;
+    memory                    start;
+    IFBEngineMemoryArenaTable arena_table;
 };
 
-namespace ifb_engine_memory {
-
-    internal const memory reservation_position   (const IFBEngineMemoryReservation_Impl* reservation);
-    
-    internal void
-    reservation_add_region(
-        const IFBEngineMemoryReservation_Impl* reservation,
-        const IFBEngineMemoryRegion_Impl*      region);
+struct IFBEngineMemoryReservationTable {
+    size_t                          max;
+    size_t                          count;
+    memory                          next_start;
+    IFBEngineMemoryReservation_Impl array[IFB_ENGINE_MEMORY_RESERVATIONS_MAX];
 };
 
-/********************************************************************************************/
-/* REGION                                                                                   */
-/********************************************************************************************/
+namespace ifb_engine {
 
-struct IFBEngineMemoryRegion_Impl {
-    IFBEngineMemoryReservation_Impl* reservation;
-    IFBEngineMemoryRegion_Impl*      next;
-    IFBEngineMemoryRegion_Impl*      previous;
-    IFBEngineMemoryArena_Impl*       committed_arenas; 
-    IFBEngineMemoryArena_Impl*       uncommitted_arenas; 
-    memory                           start;
-    size_t                           total_size;
-    size_t                           useable_size;
-    size_t                           arena_list_size;
-    size_t                           arena_count;
-    IFBTag                           tag;
+    internal const size_t 
+    memory_reservation_arena_table_size(
+        const size_t aligned_reservation_size,
+        const size_t aligned_arena_size);
 };
 
 /********************************************************************************************/
-/* ARENA                                                                                    */
+/* MANAGER                                                                                  */
 /********************************************************************************************/
 
-struct IFBEngineMemoryArena_Impl {
-    IFBEngineMemoryRegion_Impl* region;
-    IFBEngineMemoryArena_Impl*  next;
-    IFBEngineMemoryArena_Impl*  previous;
-    memory                      reserved_memory_start;
-    memory                      committed_memory_start;
-    size_t                      size; 
-    size_t                      position;
+struct IFBEngineMemoryManager {
+    IFBEngineMemoryReservationTable reservation_table;
+    size_t                          page_size;
+    size_t                          allocation_granularity;
 };
 
 #endif //IFB_ENGINE_MEMORY_INTERNAL_HPP
