@@ -16,7 +16,8 @@ namespace ifb_engine {
     external const size_t memory_manager_allocation_granularity (void);
     external const size_t memory_manager_reservation_count      (void);
     external const size_t memory_manager_reservation_max        (void);
-    
+    external const memory memory_manager_next_reservation_start (void);
+
     external const size_t
     memory_manager_align_a_to_b(
         const size_t a, 
@@ -67,7 +68,7 @@ namespace ifb_engine {
 /* ARENA                                                                                    */
 /********************************************************************************************/
 
-typedef handle IFBEngineMemoryArena;
+typedef size_t IFBEngineMemoryArena;
 
 namespace ifb_engine {
 
@@ -82,18 +83,10 @@ namespace ifb_engine {
         const IFBEngineMemoryReservation reservation);
     
     external void memory_arena_decommit (const IFBEngineMemoryArena arena);
-    
-    external void 
-    memory_arena_set_alignment (
-        const IFBEngineMemoryArena arena, 
-        const size_t               alignment);
-    
-    external const size_t memory_arena_alignment  (const IFBEngineMemoryArena arena);
+
     external const size_t memory_arena_size_total (const IFBEngineMemoryArena arena);
     external const size_t memory_arena_size_used  (const IFBEngineMemoryArena arena);
     external const size_t memory_arena_size_free  (const IFBEngineMemoryArena arena);
-
-
 
     external memory 
     memory_arena_push_bytes(

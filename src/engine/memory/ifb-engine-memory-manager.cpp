@@ -61,6 +61,14 @@ ifb_engine::memory_manager_reservation_max(
     return(_memory_manager.reservation_table.max);
 }
 
+external const memory 
+ifb_engine::memory_manager_next_reservation_start(
+    void) {
+
+    return(_memory_manager.reservation_table.next_start);
+}
+
+
 external const size_t
 ifb_engine::memory_manager_align_a_to_b(
     const size_t a, 
@@ -68,3 +76,17 @@ ifb_engine::memory_manager_align_a_to_b(
 
     return(((a) + (b) - 1)&(~((b) - 1))); 
 }
+
+internal IFBEngineMemoryReservation_Impl* 
+ifb_engine::memory_manager_next_reservation(void) {
+
+    const size_t reservation_index = _memory_manager.reservation_table.count;
+    if (reservation_index >= _memory_manager.reservation_table.max) {
+        return(NULL);
+    }
+
+    IFBEngineMemoryReservation_Impl* next_reservation_ptr = 
+        &_memory_manager.reservation_table.array[reservation_index];    
+
+    return(next_reservation_ptr);
+}    

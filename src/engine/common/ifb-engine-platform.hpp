@@ -12,6 +12,7 @@ global IFBPlatformApi ifb_platform_api;
 #define ifb_engine_platform_file_close                     ifb_platform_api.file_close
 #define ifb_engine_platform_memory_reserve_small_pages     ifb_platform_api.memory_reserve_small_pages
 #define ifb_engine_platform_memory_reserve_large_pages     ifb_platform_api.memory_reserve_large_pages
+#define ifb_engine_platform_memory_reserve                 ifb_platform_api.memory_reserve
 #define ifb_engine_platform_memory_release                 ifb_platform_api.memory_release
 #define ifb_engine_platform_memory_commit                  ifb_platform_api.memory_commit
 #define ifb_engine_platform_memory_decommit                ifb_platform_api.memory_decommit
@@ -35,6 +36,7 @@ ifb_engine_platform_validate(
     ifb_assert(platform.file_close);
     ifb_assert(platform.memory_reserve_small_pages);
     ifb_assert(platform.memory_reserve_large_pages);
+    ifb_assert(platform.memory_reserve);
     ifb_assert(platform.memory_release);
     ifb_assert(platform.memory_commit);
     ifb_assert(platform.memory_decommit);

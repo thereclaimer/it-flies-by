@@ -11,6 +11,11 @@ typedef memory
 (*func_ifb_platform_memory_reserve_large_pages)(
     u64 reservation_size);
 
+typedef memory
+(*func_ifb_platform_memory_reserve)(
+    const memory reservation_start,
+    const size_t reservation_size);
+
 typedef void
 (*func_ifb_platform_memory_release)(
     memory reserved_memory,
@@ -97,6 +102,7 @@ struct IFBPlatformApi  {
     func_ifb_platform_file_close                    file_close;
     func_ifb_platform_memory_reserve_small_pages    memory_reserve_small_pages;
     func_ifb_platform_memory_reserve_large_pages    memory_reserve_large_pages;
+    func_ifb_platform_memory_reserve                memory_reserve;
     func_ifb_platform_memory_release                memory_release;
     func_ifb_platform_memory_commit                 memory_commit;
     func_ifb_platform_memory_decommit               memory_decommit;

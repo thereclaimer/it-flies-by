@@ -163,6 +163,21 @@ ifb_win32_api_memory_reserve_large_pages(
     return(mem);
 }
 
+internal memory
+ifb_win32_api_memory_reserve(
+    const memory reservation_start,
+    const size_t reservation_size) {
+
+    memory reservation = 
+        (memory)VirtualAlloc(
+            reservation_start,
+            reservation_size,
+            MEM_RESERVE,
+            PAGE_NOACCESS);
+
+    return(reservation);
+}
+
 internal void
 ifb_win32_api_memory_release(
     memory reserved_memory,
@@ -292,6 +307,7 @@ ifb_win32_api_create_and_initialize() {
     win32_api.file_close                    = ifb_win32_api_close_file; 
     win32_api.memory_reserve_small_pages    = ifb_win32_api_memory_reserve_small_pages;
     win32_api.memory_reserve_large_pages    = ifb_win32_api_memory_reserve_large_pages;
+    win32_api.memory_reserve                = ifb_win32_api_memory_reserve;
     win32_api.memory_release                = ifb_win32_api_memory_release;
     win32_api.memory_commit                 = ifb_win32_api_memory_commit;
     win32_api.memory_decommit               = ifb_win32_api_memory_decommit;
@@ -301,8 +317,8 @@ ifb_win32_api_create_and_initialize() {
     win32_api.ticks                         = ifb_win32_api_ticks; 
     win32_api.delta_time_ms                 = ifb_win32_api_delta_time_ms; 
     win32_api.sleep                         = ifb_win32_api_sleep; 
-    win32_api.process_id                    = ; 
-    win32_api.thread_id                     = ; 
+    win32_api.process_id                    = ifb_win32_api_process_id; 
+    win32_api.thread_id                     = ifb_win32_api_thread_id; 
 
     return(win32_api);
 }
