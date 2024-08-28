@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ifb-engine-assets-new.hpp"
+#include "ifb-engine-assets.hpp"
 #include "ifb-engine-assets-internal.hpp"
 
 internal IFBEngineAssetsDataBlock_Impl* 

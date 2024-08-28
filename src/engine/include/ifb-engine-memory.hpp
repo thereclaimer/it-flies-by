@@ -68,7 +68,7 @@ namespace ifb_engine {
 /* ARENA                                                                                    */
 /********************************************************************************************/
 
-typedef size_t IFBEngineMemoryArena;
+typedef handle IFBEngineMemoryArena;
 
 namespace ifb_engine {
 
@@ -88,17 +88,12 @@ namespace ifb_engine {
     external const size_t memory_arena_size_used  (const IFBEngineMemoryArena arena);
     external const size_t memory_arena_size_free  (const IFBEngineMemoryArena arena);
 
-    external memory 
-    memory_arena_push_bytes(
-        const IFBEngineMemoryArena arena, 
-        const size_t               size,
-        const size_t               alignment);
+    external memory memory_arena_push_bytes(const IFBEngineMemoryArena arena, const size_t size);
+    external void   memory_arena_pull_bytes(const IFBEngineMemoryArena arena, const size_t size);
 
-    external void
-    memory_arena_pull_bytes(
-        const IFBEngineMemoryArena arena, 
-        const size_t               size,
-        const size_t               alignment);
+    external memory memory_arena_push_bytes_aligned(const IFBEngineMemoryArena arena, const size_t size, const size_t alignment);
+    external void   memory_arena_pull_bytes_aligned(const IFBEngineMemoryArena arena, const size_t size, const size_t alignment);
+
 };
 
 #endif //IFB_ENGINE_MEMORY_HPP

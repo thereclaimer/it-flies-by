@@ -4,6 +4,7 @@
                   /I src\common           ^
                   /I src\math             ^
                   /I src\engine           ^
+                  /I src\engine\include   ^
                   /I src\engine\common    ^
                   /I src\engine\assets    ^
                   /I src\engine\core      ^

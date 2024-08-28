@@ -1,7 +1,7 @@
 #ifndef IFB_ENGINE_ASSETS_INTERNAL_HPP
 #define IFB_ENGINE_ASSETS_INTERNAL_HPP
 
-#include "ifb-engine-assets-new.hpp"
+#include "ifb-engine-assets.hpp"
 
 /********************************************************************************************/
 /* FORWARD DECLARATIONS                                                                     */
@@ -17,12 +17,11 @@ struct IFBEngineAssetsFile;
 /********************************************************************************************/
 
 struct IFBEngineAssetsMemory {
-    IFBEngineMemoryReservation reservation;
     struct {
-        IFBEngineMemoryRegion file;
-        IFBEngineMemoryRegion request;
-        IFBEngineMemoryRegion data;
-    } regions;
+        IFBEngineMemoryReservation file;
+        IFBEngineMemoryReservation request;
+        IFBEngineMemoryReservation data;
+    } reservations;
 };
 
 namespace ifb_engine_assets {

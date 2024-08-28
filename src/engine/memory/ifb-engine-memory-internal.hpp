@@ -19,16 +19,17 @@ struct IFBEngineMemoryArena_Impl;
 /* ARENA                                                                                    */
 /********************************************************************************************/
 
-struct IFBEngineMemoryArena_Impl {
-    memory reservation;
-    memory commit;
-    size_t position;
-};
-
 struct IFBEngineMemoryArenaKey {
     size_t reservation_index;
-    size_t 
+    size_t arena_index;
 };
+
+struct IFBEngineMemoryArena_Impl {
+    IFBEngineMemoryArenaKey key;
+    memory                  commit;
+    size_t                  position;
+};
+
 
 struct IFBEngineMemoryArenaTable {
     size_t row_count;
@@ -36,9 +37,9 @@ struct IFBEngineMemoryArenaTable {
     union {
         memory table_start;
         struct {
-            memory* reservation;
-            memory* commit;
-            size_t* position;
+            IFBEngineMemoryArenaKey* key;
+            memory*                  commit;
+            size_t*                  position;
         } columns;
     };
 };
@@ -49,6 +50,7 @@ struct IFBEngineMemoryArenaTable {
 
 struct IFBEngineMemoryReservation_Impl {
     IFBTag                    tag;
+    size_t                    index;
     size_t                    size_total;
     size_t                    size_usable;
     memory                    start;
@@ -81,7 +83,8 @@ struct IFBEngineMemoryManager {
 
 namespace ifb_engine_internal {
 
-    internal IFBEngineMemoryReservation_Impl* memory_manager_next_reservation(void);    
+    internal IFBEngineMemoryReservation_Impl* memory_manager_next_reservation     (void);    
+    internal IFBEngineMemoryReservation_Impl* memory_manager_reservation_at_index (const size_t reservation_index);
 };
 
 #endif //IFB_ENGINE_MEMORY_INTERNAL_HPP

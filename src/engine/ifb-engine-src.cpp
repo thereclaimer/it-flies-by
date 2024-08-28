@@ -6,8 +6,7 @@
 // MEMORY
 //--------------------------------
 #include "ifb-engine-memory-arena.cpp"
-#include "ifb-engine-memory-context.cpp"
-#include "ifb-engine-memory-region.cpp"
+#include "ifb-engine-memory-manager.cpp"
 #include "ifb-engine-memory-reservation.cpp"
 
 //--------------------------------

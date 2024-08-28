@@ -49,7 +49,7 @@ ifb_engine::memory_reserve(
 
     //get the arena count and table size
     const size_t arena_count      = aligned_reservation_size / aligned_arena_size;  
-    const size_t arena_table_size = ifb_engine::memory_reservation_arena_table_size(arena_count);    
+    const size_t arena_table_size = ifb_engine_internal::memory_reservation_arena_table_size(arena_count);    
     const size_t reservation_size = aligned_reservation_size + arena_table_size;
     const size_t total_reservation_size_aligned = 
         ifb_engine::memory_manager_align_a_to_b(
@@ -81,9 +81,10 @@ ifb_engine::memory_reserve(
     arena_table.row_count           = arena_count;
     arena_table.arena_size          = aligned_arena_size;
     arena_table.table_start         = reservation_start + aligned_reservation_size; 
-    arena_table.columns.reservation = arena_table.table_start; 
-    arena_table.columns.commit      = arena_table.table_start    + (sizeof(memory) * arena_count);
-    arena_table.columns.position    = arena_table.columns.commit + (sizeof(memory) * arena_count);
+    
+    arena_table.columns.key         = (IFBEngineMemoryArenaKey*)arena_table.table_start;
+    arena_table.columns.commit      = (memory*)(arena_table.table_start    + (sizeof(IFBEngineMemoryArenaKey) * arena_count));
+    arena_table.columns.position    = (size_t*)(arena_table.columns.commit + (sizeof(memory) * arena_count));
 
     //set the starting reservation addresses
     memory reservation_offset = reservation_start;
@@ -92,9 +93,13 @@ ifb_engine::memory_reserve(
         arena_index < arena_count;
         ++arena_index) {
 
-        arena_table.columns.reservation[arena_index] = reservation_offset;  
-        arena_table.columns.commit[arena_index]      = NULL;
-        arena_table.columns.position[arena_index]    = 0;
+        IFBEngineMemoryArenaKey key;
+        key.arena_index       = arena_index;
+        key.reservation_index = new_reservation->index;
+
+        arena_table.columns.key[arena_index]      = key;  
+        arena_table.columns.commit[arena_index]   = NULL;
+        arena_table.columns.position[arena_index] = 0;
 
         reservation_offset += aligned_arena_size;
     }
@@ -122,7 +127,7 @@ ifb_engine::memory_reserve_struct_pool(
     //create the reservation and return
     const IFBEngineMemoryReservation new_reservation = 
         ifb_engine::memory_reserve(
-            tag,
+            tag_value,
             aligned_pool_size,
             arena_size);
 
@@ -145,9 +150,9 @@ ifb_engine::memory_reserve_arena_pool(
     //create the reservation and return
     const IFBEngineMemoryReservation new_reservation = 
         ifb_engine::memory_reserve(
-            tag,
-            aligned_pool_size,
-            arena_size);
+            tag_value,
+            arena_pool_size_aligned,
+            arena_size_aligned);
 
     ifb_assert(new_reservation);
 
@@ -235,7 +240,7 @@ ifb_engine::memory_reservation_reset(
         
         if (arena_table.columns.commit[arena_index]) {
 
-            ifb_engine::memory_arena_decommit(arena_index);
+            ifb_engine::memory_arena_decommit(&arena_table.columns.key[arena_index]);
             arena_table.columns.commit[arena_index]   = NULL;
             arena_table.columns.position[arena_index] = 0;
         }
@@ -247,7 +252,7 @@ ifb_engine::memory_reservation_reset(
 /********************************************************************************************/
 
 internal const size_t 
-ifb_engine::memory_reservation_arena_table_size(
+ifb_engine_internal::memory_reservation_arena_table_size(
     const size_t arena_count) {
 
     const size_t row_size   = sizeof(IFBEngineMemoryArena_Impl);
