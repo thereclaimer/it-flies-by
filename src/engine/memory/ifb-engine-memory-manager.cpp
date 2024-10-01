@@ -80,7 +80,7 @@ ifb_engine::memory_manager_reservation_max(
     return(_memory_manager.reservation_table.max);
 }
 
-external const memory 
+external const memory  
 ifb_engine::memory_manager_next_reservation_start(
     void) {
 
