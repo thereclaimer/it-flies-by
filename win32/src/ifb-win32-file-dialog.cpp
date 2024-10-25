@@ -29,7 +29,7 @@ ifb_win32::file_dialog_select_file(
     }
 
     //get a temporary arena
-    const RMemoryArenaHandle tmp_arena_handle = r_mem::arena_commit(_ifb_win32.win32_region); 
+    const RMemoryArenaHandle tmp_arena_handle = r_mem::arena_commit(_ifb_win32.memory.win32_region); 
     if (!tmp_arena_handle) {
         return(false);
     }
@@ -80,7 +80,7 @@ ifb_win32::file_dialog_select_file(
 
     //now, we can open the dialog
     const ifb_b8 result = r_win32::file_dialog_select_file(
-        _ifb_win32.file_dialog_handle,
+        _ifb_win32.window.file_dialog_handle,
         in_file_dialog_starting_directory,
         in_file_type_count,
         file_type_name_wstr_ptr,

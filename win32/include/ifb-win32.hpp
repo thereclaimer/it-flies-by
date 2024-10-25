@@ -90,17 +90,46 @@ namespace ifb_win32 {
 /* WIN32 APPLICATION                                                              */
 /**********************************************************************************/
 
-struct IFBWin32 {
+struct IFBWin32Config {
+    ifb_size reservation_size_max;
+    ifb_size memory_manager_stack_size;
+    ifb_size win32_arena_size;
+    ifb_size win32_arena_count;
+    ifb_size win32_window_size_width;
+    ifb_size win32_window_size_height;
+};
+
+#define IFB_WIN32_CONFIG_DEFAULT_RESERVATION_SIZE_GIGABYTES 4    
+#define IFB_WIN32_CONFIG_DEFAULT_MEMORY_STACK_SIZE          r_memory_size_megabytes(64)
+#define IFB_WIN32_CONFIG_DEFAULT_ARENA_SIZE                 r_memory_size_kilobytes(4)
+#define IFB_WIN32_CONFIG_DEFAULT_ARENA_COUNT                64
+#define IFB_WIN32_CONFIG_DEFAULT_WINDOW_SIZE_WIDTH          1024
+#define IFB_WIN32_CONFIG_DEFAULT_WINDOW_SIZE_HEIGHT         768
+
+struct IFBWin32Memory {
+    RMemoryReservationHandle memory_reservation;
+    RMemoryRegionHandle      win32_region;
+};
+
+struct IFBWin32Window {
     RWin32MonitorInfo            monitor_info;
-    RMemoryReservationHandle     memory_reservation;
-    RMemoryRegionHandle          win32_region;
     RWin32WindowHandle           window_handle;
     RWin32RenderingContextHandle rendering_context_handle;
     RWin32FileDialogHandle       file_dialog_handle;
     ImGuiContext*                imgui_context;
-    IFBWin32FileTable            file_table;
-    IFBEnginePlatformApi         platform_api;
-    IFBEngineHandle              engine_handle;
+};
+
+struct IFBWin32Game {
+    IFBEnginePlatformApi platform_api;
+    IFBEngineHandle      engine_handle;
+};
+
+struct IFBWin32 {
+    IFBWin32Config        config;
+    IFBWin32Memory        memory;
+    IFBWin32Window        window;
+    IFBWin32FileTable     file_table;
+    IFBWin32Game          game;
 };
 
 ifb_global IFBWin32 _ifb_win32;
@@ -108,6 +137,12 @@ ifb_global IFBWin32 _ifb_win32;
 namespace ifb_win32 {
 
     inline IFBWin32FileTable&        file_table_ref          (ifb_void) { return(_ifb_win32.file_table);          }
+
+    ifb_internal       ifb_void win32_config_set     (IFBWin32& win32_ref);
+    ifb_internal const ifb_b8   win32_memory_reserve (IFBWin32& win32_ref);
+    ifb_internal const ifb_b8   win32_window_create  (IFBWin32& win32_ref);
+    ifb_internal const ifb_b8   win32_game_startup   (IFBWin32& win32_ref);
+    ifb_internal       ifb_void win32_game_run       (IFBWin32& win32_ref);
 };
 
 #define ifb_win32_main r_win32_main
