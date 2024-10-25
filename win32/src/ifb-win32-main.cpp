@@ -19,7 +19,7 @@ ifb_win32_main(
     //reserve memory
     result &= ifb_win32::win32_memory_reserve(_ifb_win32);
 
-    //create the window0
+    //create the window
     result &= ifb_win32::win32_window_create(_ifb_win32);
 
     //start the game

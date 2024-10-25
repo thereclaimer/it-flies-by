@@ -117,7 +117,7 @@ ifb_engine_tools::asset_file_builder_file_selection(
     if (ImGui::Button("Browse##AssetFile")) {
 
         const ifb_cstr file_type_name[1] = {"IFB Asset File (*.ifb)"};
-        const ifb_cstr file_type_spec[1] = {"*.csv"};
+        const ifb_cstr file_type_spec[1] = {"*.ifb"};
 
         ifb_engine::platform_file_dialog_select_file(
             ".",
