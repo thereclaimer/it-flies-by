@@ -173,9 +173,6 @@ ifb_engine_tools::asset_file_builder_file_browse_control(
                 in_file_path_size_max,
                 out_file_path);
 
-    //render the other controls
-
-
     //we're done
     return(selection_result);
 }
