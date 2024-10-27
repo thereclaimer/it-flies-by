@@ -6,24 +6,23 @@ ifb_internal ifb_void
 ifb_win32::file_dialog_api_initialize(
     IFBEnginePlatformFileDialog& platform_api_file_dialog_ref) {
 
-    platform_api_file_dialog_ref.select_file = ifb_win32::file_dialog_select_file;
+    platform_api_file_dialog_ref.open          = ifb_win32::file_dialog_open;
+    platform_api_file_dialog_ref.get_selection = ifb_win32::file_dialog_get_selection;
 }
 
 ifb_internal const ifb_b8
-ifb_win32::file_dialog_select_file(
-    const ifb_cstr  in_file_dialog_starting_directory,
-    const ifb_size  in_file_type_count,
-    const ifb_cstr* in_file_type_name_cstr_ptr,
-    const ifb_cstr* in_file_type_spec_cstr_ptr,
-          ifb_cstr out_file_selection_buffer) {
+ifb_win32::file_dialog_open(
+    const ifb_cstr  file_dialog_starting_directory,
+    const ifb_size  file_type_count,
+    const ifb_cstr* file_type_name_cstr_ptr,
+    const ifb_cstr* file_type_spec_cstr_ptr) {
 
     //sanity check
     if (
-        in_file_dialog_starting_directory == NULL ||
-        in_file_type_count                == 0    ||
-        in_file_type_name_cstr_ptr        == NULL ||
-        in_file_type_spec_cstr_ptr        == NULL ||
-        out_file_selection_buffer         == NULL) {
+        file_dialog_starting_directory == NULL ||
+        file_type_count                == 0    ||
+        file_type_name_cstr_ptr        == NULL ||
+        file_type_spec_cstr_ptr        == NULL) {
 
         return(false);
     }
@@ -35,8 +34,8 @@ ifb_win32::file_dialog_select_file(
     }
 
     //allocate the wide string arrays 
-    ifb_wstr* file_type_name_wstr_ptr = r_mem_arena_push_array(tmp_arena_handle,in_file_type_count,ifb_wstr);
-    ifb_wstr* file_type_spec_wstr_ptr = r_mem_arena_push_array(tmp_arena_handle,in_file_type_count,ifb_wstr);
+    ifb_wstr* file_type_name_wstr_ptr = r_mem_arena_push_array(tmp_arena_handle,file_type_count,ifb_wstr);
+    ifb_wstr* file_type_spec_wstr_ptr = r_mem_arena_push_array(tmp_arena_handle,file_type_count,ifb_wstr);
 
     //cache the size of a wchar
     const ifb_size w_char_size = sizeof(ifb_wchar);
@@ -44,12 +43,12 @@ ifb_win32::file_dialog_select_file(
     //convert cstr to wstr
     for (
         ifb_index file_type_index = 0;
-        file_type_index < in_file_type_count;
+        file_type_index < file_type_count;
         ++file_type_index) {
 
         //cache the current c-strings
-        const ifb_cstr file_type_name_cstr = in_file_type_name_cstr_ptr[file_type_index];
-        const ifb_cstr file_type_spec_cstr = in_file_type_spec_cstr_ptr[file_type_index];
+        const ifb_cstr file_type_name_cstr = file_type_name_cstr_ptr[file_type_index];
+        const ifb_cstr file_type_spec_cstr = file_type_spec_cstr_ptr[file_type_index];
 
         //get the c-string lengths, including the null terminator
         const ifb_size file_type_name_cstr_length = strnlen_s(file_type_name_cstr, IFB_WIN32_DIALOG_CSTR_LENGTH_MAX) + 1;
@@ -79,10 +78,10 @@ ifb_win32::file_dialog_select_file(
     }
 
     //now, we can open the dialog
-    const ifb_b8 result = r_win32::file_dialog_select_file(
+    const ifb_b8 result = r_win32::file_dialog_open(
         _ifb_win32.window.file_dialog_handle,
-        in_file_dialog_starting_directory,
-        in_file_type_count,
+        file_dialog_starting_directory,
+        file_type_count,
         file_type_name_wstr_ptr,
         file_type_spec_wstr_ptr);
 
@@ -91,4 +90,14 @@ ifb_win32::file_dialog_select_file(
 
     //we're done
     return(result);
+}
+
+ifb_internal const ifb_b8
+ifb_win32::file_dialog_get_selection(
+    const ifb_size  in_file_path_size,
+    const ifb_cstr out_file_path_selection) {
+
+    
+
+    return(true);
 }

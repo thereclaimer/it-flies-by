@@ -16,8 +16,8 @@ namespace ifb_engine {
     ifb_global funcptr_ifb_engine_platform_file_write           platform_file_write;
 
     //file dialog
-    ifb_global funcptr_ifb_engine_platform_file_dialog_select_file platform_file_dialog_select_file;
-
+    ifb_global funcptr_ifb_engine_platform_file_dialog_open          platform_file_dialog_open;
+    ifb_global funcptr_ifb_engine_platform_file_dialog_get_selection platform_file_dialog_get_selection;
 
     inline const ifb_b8 
     platform_api_validate(
@@ -42,10 +42,12 @@ namespace ifb_engine {
             ifb_engine::platform_file_write           != NULL);
 
         //file dialog
-        ifb_engine::platform_file_dialog_select_file = platform_api_ref.file_dialog.select_file;        
+        ifb_engine::platform_file_dialog_open          = platform_api_ref.file_dialog.open;
+        ifb_engine::platform_file_dialog_get_selection = platform_api_ref.file_dialog.get_selection;
 
         result &= (
-            ifb_engine::platform_file_dialog_select_file != NULL);
+            ifb_engine::platform_file_dialog_open          != NULL && 
+            ifb_engine::platform_file_dialog_get_selection != NULL);
 
         return(result);
     }
