@@ -97,61 +97,85 @@ ifb_engine_tools::asset_file_builder_file_selection(
         return(true);
     }
 
-    ifb_cstr file_type_name = NULL;
-    ifb_cstr file_type_spec = NULL;
-    ifb_cstr file_path      = NULL;
+    ifb_b8 result = true;
 
-    //csv file
-    if (ImGui::Button("Browse##AssetBuilderFile")) {
-        
-        file_type_name = "Comma Separated Values (*.csv)";
-        file_type_spec = "(*.csv)"; 
-        file_path      = asset_file_builder_ref.file_path_csv;         
-
-        if (ifb_engine::platform_file_dialog_open(
-            ".",
-            1,
-            file_type_name,
-            file_type_spec)) {
-
-        
-            if (!ifb_engine::platform_file_dialog_get_selection(
-                IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX,
-                asset_file_builder_ref.file_path_csv)) {
-
-                return(false);
-            }
-        }
-
-    }
-    ImGui::SameLine();
-    ImGui::InputText("Asset Builder (.csv)",asset_file_builder_ref.file_path_csv,IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX);
-
-    //asset file
-    if (ImGui::Button("Browse##AssetFile")) {
-
-        file_type_name = "IFB Asset File (*.ifb)";
-        file_type_spec = "*.ifb";
-        file_path      = asset_file_builder_ref.file_path_asset;         
-
-
-        if (ifb_engine::platform_file_dialog_open(
-            ".",
-            1,
-            file_type_name,
-            file_type_spec)) {
-
-            if (!ifb_engine::platform_file_dialog_get_selection(
-                IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX,
-                asset_file_builder_ref.file_path_asset)) {
-
-                return(false);
-            }
-        }
-    }
-
-    ImGui::SameLine();
-    ImGui::InputText("Asset File (.ifb)",asset_file_builder_ref.file_path_asset,IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX);
+    //builder file (.csv)
+    result &= ifb_engine_tools::asset_file_builder_file_browse_control(
+        IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_CSV_BUTTON,
+        IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_CSV_LABEL,
+        IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_CSV_FILE_TYPE_NAME,
+        IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_CSV_FILE_TYPE_SPEC,
+        IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX,
+        asset_file_builder_ref.file_path_csv);
     
+    //asset file (.ifb)
+    result &= ifb_engine_tools::asset_file_builder_file_browse_control(
+        IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_IFB_BUTTON,
+        IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_IFB_LABEL,
+        IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_IFB_FILE_TYPE_NAME,
+        IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_IFB_FILE_TYPE_SPEC,
+        IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX,
+        asset_file_builder_ref.file_path_asset);
+      
     return(true);
+}
+
+ifb_internal const ifb_b8 
+ifb_engine_tools::asset_file_builder_file_browse_control(
+    const ifb_cstr  in_file_browse_button_name,
+    const ifb_cstr  in_file_browse_label_name,
+    const ifb_cstr  in_file_type_name,
+    const ifb_cstr  in_file_type_spec,
+    const ifb_size  in_file_path_size_max,
+    const ifb_cstr out_file_path) {
+
+    if (
+        in_file_browse_button_name == NULL ||
+        in_file_browse_label_name  == NULL ||
+        in_file_type_name          == NULL ||
+        in_file_type_spec          == NULL ||
+        in_file_path_size_max      == 0    ||
+        out_file_path              == NULL) {
+
+        return(false);
+    }
+
+    //render the controls
+    const ifb_b8 button_pressed = ImGui::Button(in_file_browse_button_name);
+    ImGui::SameLine();
+    ImGui::InputText(in_file_browse_label_name,out_file_path,in_file_path_size_max);
+
+    //if the user didn't push the button, we're done
+    if (!button_pressed) {
+        return(true);
+    }
+
+    //dialog config
+    const ifb_cstr dialog_starting_directory = ".";
+    const ifb_size dialog_file_type_count    = 1;
+    
+    //open the dialog    
+    const ifb_b8 dialog_result = 
+        ifb_engine::platform_file_dialog_open(
+            dialog_starting_directory,
+            dialog_file_type_count,
+            &in_file_type_name,
+            &in_file_type_spec);
+
+    //if we don't have a selection, we're done
+    if (!dialog_result) {
+        return(true);
+    }
+
+    //get the user's selection
+    const ifb_b8 selection_result = 
+            ifb_engine::platform_file_dialog_get_selection(
+                in_file_path_size_max,
+                out_file_path);
+
+    //render the other controls
+
+
+    //we're done
+    return(selection_result);
 }

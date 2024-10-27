@@ -56,12 +56,30 @@ struct IFBEngineToolsAssetFileBuilder {
     ifb_char              file_path_asset [IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX];    
 };
 
+#define IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_CSV_BUTTON         "Browse##AssetBuilderFile"
+#define IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_CSV_LABEL          "Asset Builder (.csv)"
+#define IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_CSV_FILE_TYPE_NAME "Comma Separated Values (.csv)"
+#define IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_CSV_FILE_TYPE_SPEC "*.csv"
+
+#define IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_IFB_BUTTON         "Browse##AssetFile"
+#define IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_IFB_LABEL          "Asset File (.ifb)"
+#define IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_IFB_FILE_TYPE_NAME "IFB Asset File (.ifb)"
+#define IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_IFB_FILE_TYPE_SPEC "*.ifb"
+
 namespace ifb_engine_tools {
 
     ifb_internal const ifb_b8 asset_file_builder_render         (IFBEngineToolsAssetFileBuilder& asset_file_builder_ref);
     ifb_internal const ifb_b8 asset_file_builder_combo          (IFBEngineToolsAssetFileBuilder& asset_file_builder_ref);
     ifb_internal const ifb_b8 asset_file_builder_file_selection (IFBEngineToolsAssetFileBuilder& asset_file_builder_ref);
-
+    
+    ifb_internal const ifb_b8 
+    asset_file_builder_file_browse_control(
+        const ifb_cstr  in_file_browse_button_name,
+        const ifb_cstr  in_file_browse_label_name,
+        const ifb_cstr  in_file_type_name,
+        const ifb_cstr  in_file_type_spec,
+        const ifb_size  in_file_path_size_max,
+        const ifb_cstr out_file_path); 
 };
 
 struct IFBEngineToolsAssets {
