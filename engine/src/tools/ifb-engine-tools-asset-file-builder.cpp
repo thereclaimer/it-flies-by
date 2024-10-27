@@ -103,11 +103,21 @@ ifb_engine_tools::asset_file_builder_file_selection(
         const ifb_cstr file_type_name[1] = {"Comma Separated Values (*.csv)"};
         const ifb_cstr file_type_spec[1] = {"(*.csv)"}; 
 
-        ifb_engine::platform_file_dialog_open(
+        if (ifb_engine::platform_file_dialog_open(
             ".",
             1,
             file_type_name,
-            file_type_spec);
+            file_type_spec)) {
+
+        
+            if (!ifb_engine::platform_file_dialog_get_selection(
+                IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX,
+                asset_file_builder_ref.file_path_csv)) {
+
+                return(false);
+            }
+        }
+
     }
     ImGui::SameLine();
     ImGui::InputText("Asset Builder (.csv)",asset_file_builder_ref.file_path_csv,IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX);
@@ -118,11 +128,19 @@ ifb_engine_tools::asset_file_builder_file_selection(
         const ifb_cstr file_type_name[1] = {"IFB Asset File (*.ifb)"};
         const ifb_cstr file_type_spec[1] = {"*.ifb"};
 
-        ifb_engine::platform_file_dialog_open(
+        if (ifb_engine::platform_file_dialog_open(
             ".",
             1,
             file_type_name,
-            file_type_spec);        
+            file_type_spec)) {
+
+            if (!ifb_engine::platform_file_dialog_get_selection(
+                IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX,
+                asset_file_builder_ref.file_path_asset)) {
+
+                return(false);
+            }
+        }
     }
 
     ImGui::SameLine();

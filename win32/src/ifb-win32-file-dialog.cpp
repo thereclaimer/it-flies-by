@@ -50,27 +50,8 @@ ifb_win32::file_dialog_open(
         const ifb_cstr file_type_name_cstr = file_type_name_cstr_ptr[file_type_index];
         const ifb_cstr file_type_spec_cstr = file_type_spec_cstr_ptr[file_type_index];
 
-        //get the c-string lengths, including the null terminator
-        const ifb_size file_type_name_cstr_length = strnlen_s(file_type_name_cstr, IFB_WIN32_DIALOG_CSTR_LENGTH_MAX) + 1;
-        const ifb_size file_type_spec_cstr_length = strnlen_s(file_type_spec_cstr, IFB_WIN32_DIALOG_CSTR_LENGTH_MAX) + 1;
-
-        //determine the byte length of the equivalient w-string
-        //wstr_byte_len = w_char_size * cstr_len
-        const ifb_size file_type_name_wstr_length_bytes = w_char_size * file_type_name_cstr_length; 
-        const ifb_size file_type_spec_wstr_length_bytes = w_char_size * file_type_spec_cstr_length; 
-    
-        //get the memory for the w-strings
-        const ifb_wstr file_type_name_wstr = r_mem_arena_push_array(tmp_arena_handle, file_type_name_wstr_length_bytes, ifb_wchar);
-        const ifb_wstr file_type_spec_wstr = r_mem_arena_push_array(tmp_arena_handle, file_type_spec_wstr_length_bytes, ifb_wchar);
-    
-        //clear the memory
-        memset(file_type_name_wstr,0,file_type_name_wstr_length_bytes);        
-        memset(file_type_spec_wstr,0,file_type_spec_wstr_length_bytes);
-
-        //convert the c-strings to w-strings
-        //we pass in the cstr_length twice, because that is the number of characters
-        MultiByteToWideChar(CP_UTF8, 0, file_type_name_cstr, file_type_name_cstr_length, file_type_name_wstr, file_type_name_cstr_length);
-        MultiByteToWideChar(CP_UTF8, 0, file_type_spec_cstr, file_type_spec_cstr_length, file_type_spec_wstr, file_type_spec_cstr_length);
+        const ifb_wstr file_type_name_wstr = r_win32::string_cstr_to_wstr(tmp_arena_handle,IFB_WIN32_DIALOG_CSTR_LENGTH_MAX,file_type_name_cstr);
+        const ifb_wstr file_type_spec_wstr = r_win32::string_cstr_to_wstr(tmp_arena_handle,IFB_WIN32_DIALOG_CSTR_LENGTH_MAX,file_type_spec_cstr);
 
         //update the wstr array
         file_type_name_wstr_ptr[file_type_index] = file_type_name_wstr; 
@@ -97,7 +78,47 @@ ifb_win32::file_dialog_get_selection(
     const ifb_size  in_file_path_size,
     const ifb_cstr out_file_path_selection) {
 
-    
+    ifb_b8   result             = true;
 
-    return(true);
+    //sanity check
+    if (
+        in_file_path_size       == 0 ||
+        out_file_path_selection == NULL) {
+
+        return(false);
+    }
+
+    //get a temporary arena
+    const RMemoryArenaHandle tmp_arena_handle = r_mem::arena_commit(_ifb_win32.memory.win32_region); 
+    if (!tmp_arena_handle) {
+        return(NULL);
+    }
+
+    //see if we have a selection
+    const r_wstr file_path_selection_wstr = r_win32::file_dialog_get_selection_as_path_wstr(_ifb_win32.window.file_dialog_handle);
+
+    //if we don't, we're done
+    if (!file_path_selection_wstr) {
+        return(NULL);
+    }
+
+    //convert the w-string path to c-string
+    const ifb_cstr file_path_selection_cstr = r_win32::string_wstr_to_cstr(
+        tmp_arena_handle,
+        in_file_path_size,
+        file_path_selection_wstr);
+
+    result &= file_path_selection_cstr != NULL;
+
+    //copy the selection to the out parameter
+    memmove(
+        out_file_path_selection,
+        file_path_selection_cstr,
+        in_file_path_size);
+
+    //return the arena
+    result &= r_mem::arena_decommit(tmp_arena_handle);
+
+    //we're done
+    return(result);
 }
