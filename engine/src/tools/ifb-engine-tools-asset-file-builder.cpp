@@ -97,11 +97,16 @@ ifb_engine_tools::asset_file_builder_file_selection(
         return(true);
     }
 
+    ifb_cstr file_type_name = NULL;
+    ifb_cstr file_type_spec = NULL;
+    ifb_cstr file_path      = NULL;
+
     //csv file
     if (ImGui::Button("Browse##AssetBuilderFile")) {
         
-        const ifb_cstr file_type_name[1] = {"Comma Separated Values (*.csv)"};
-        const ifb_cstr file_type_spec[1] = {"(*.csv)"}; 
+        file_type_name = "Comma Separated Values (*.csv)";
+        file_type_spec = "(*.csv)"; 
+        file_path      = asset_file_builder_ref.file_path_csv;         
 
         if (ifb_engine::platform_file_dialog_open(
             ".",
@@ -125,8 +130,10 @@ ifb_engine_tools::asset_file_builder_file_selection(
     //asset file
     if (ImGui::Button("Browse##AssetFile")) {
 
-        const ifb_cstr file_type_name[1] = {"IFB Asset File (*.ifb)"};
-        const ifb_cstr file_type_spec[1] = {"*.ifb"};
+        file_type_name = "IFB Asset File (*.ifb)";
+        file_type_spec = "*.ifb";
+        file_path      = asset_file_builder_ref.file_path_asset;         
+
 
         if (ifb_engine::platform_file_dialog_open(
             ".",
