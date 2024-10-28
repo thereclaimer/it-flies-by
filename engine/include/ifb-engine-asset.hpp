@@ -67,6 +67,14 @@ enum IFBEngineAssetShaderId_ {
     IFBEngineAssetShaderId_Count                     = 4,
 };
 
+#define IFB_ENGINE_ASSET_TAG_SHADER_SOLID_QUAD_STAGE_VERTEX      "SHDR-SOLID-QUAD-VTX"
+#define IFB_ENGINE_ASSET_TAG_SHADER_SOLID_QUAD_STAGE_FRAGMENT    "SHDR-SOLID-QUAD-FRG"
+#define IFB_ENGINE_ASSET_TAG_SHADER_TEXTURED_QUAD_STAGE_VERTEX   "SHDR-TEXTURED-QUAD-VTX"
+#define IFB_ENGINE_ASSET_TAG_SHADER_TEXTURED_QUAD_STAGE_FRAGMENT "SHDR-TEXTURED-QUAD-FRG"
+
+#define IFB_ENGINE_ASSET_TAG_IMAGE_CALIBRATION_CONNOR "IMG-CONNOR-CALIB"
+#define IFB_ENGINE_ASSET_TAG_IMAGE_CALIBRATION_JIG    "IMG-JIG-CALIB"
+
 /**********************************************************************************/
 /* ASSET                                                                          */
 /**********************************************************************************/

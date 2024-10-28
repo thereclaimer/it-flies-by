@@ -45,15 +45,27 @@ namespace ifb_engine_tools {
     }
 };
 
+struct IFBEngineToolsAssetFileBuilderCSVTable {
+    RMemoryArenaHandle         arena_handle;
+    ifb_char                   file_path_csv[IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX];
+    IFBEnginePlatformFileIndex platform_file_index;
+    ifb_size                   row_count;
+    ifb_cstr                   tag_buffer;
+    ifb_cstr                   file_path_buffer;
+    struct {
+        IFBEngineAssetId* asset_id;
+    } columns;
+};
+
 struct IFBEngineToolsAssetFileBuilder {
-    RMemoryRegionHandle   region_handle;
-    r_b8                  open;
-    r_b8                  selected_file;
-    IFBEngineAssetFileId  selected_file_id;
-    RMemoryArenaHandle    file_arena_csv;
-    RMemoryArenaHandle    file_arena_asset;
-    ifb_char              file_path_csv   [IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX];
-    ifb_char              file_path_asset [IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX];    
+    RMemoryRegionHandle                    region_handle;
+    r_b8                                   open;
+    r_b8                                   selected_file_type;
+    r_b8                                   csv_file_is_selected;
+    r_b8                                   ifb_file_is_selected;
+    IFBEngineAssetFileId                   selected_file_id;
+    ifb_char                               file_path_asset [IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_PATH_LENGTH_MAX];
+    IFBEngineToolsAssetFileBuilderCSVTable csv_table;    
 };
 
 #define IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_CSV_BUTTON         "Browse##AssetBuilderFile"
@@ -66,11 +78,13 @@ struct IFBEngineToolsAssetFileBuilder {
 #define IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_IFB_FILE_TYPE_NAME "IFB Asset File (.ifb)"
 #define IFB_ENGINE_TOOLS_ASSET_FILE_BUILDER_BROWSE_IFB_FILE_TYPE_SPEC "*.ifb"
 
+
 namespace ifb_engine_tools {
 
     ifb_internal const ifb_b8 asset_file_builder_render         (IFBEngineToolsAssetFileBuilder& asset_file_builder_ref);
     ifb_internal const ifb_b8 asset_file_builder_combo          (IFBEngineToolsAssetFileBuilder& asset_file_builder_ref);
     ifb_internal const ifb_b8 asset_file_builder_file_selection (IFBEngineToolsAssetFileBuilder& asset_file_builder_ref);
+    ifb_internal const ifb_b8 asset_file_builder_csv_table_load (IFBEngineToolsAssetFileBuilder& asset_file_builder_ref);
     
     ifb_internal const ifb_b8 
     asset_file_builder_file_browse_control(
@@ -79,6 +93,7 @@ namespace ifb_engine_tools {
         const ifb_cstr  in_file_type_name,
         const ifb_cstr  in_file_type_spec,
         const ifb_size  in_file_path_size_max,
+              ifb_b8&  out_file_selected_ref,
         const ifb_cstr out_file_path); 
 };
 
